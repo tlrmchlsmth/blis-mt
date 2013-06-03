@@ -1,17 +1,34 @@
-# Object files
+# -- generic files to ignore --
+
+# emacs backup files
+*~
+# vim backup files
+*.swp
+# NFS file
+.nfs*
+
+# -- compiler-related --
+
+# object files
+# NOTE: This will result in git also exluding the top-level obj directory
+# since its only contents are .o files.
 *.o
-
-# Libraries
-*.lib
+# static library archives
+# NOTE: This will result in git also exluding the top-level lib directory
+# since its only contents are .a files.
 *.a
+# test executables
+*.x
 
-# Shared objects (inc. Windows DLLs)
-*.dll
-*.so
-*.so.*
-*.dylib
+# -- build system files --
 
-# Executables
-*.exe
-*.out
-*.app
+config.mk
+version
+
+# -- makefile fragments --
+
+.fragment.mk
+
+# -- misc. --
+
+
