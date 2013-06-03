@@ -39,11 +39,13 @@ extern scalm_t*   scalm_cntl;
 void bli_gemm_hier_cntl_create();
 void bli_gemm_grid_cntl_create();
 
+bool_t do_gridlike = 0;
+
 dim_t l1_nt = 1; //Right now this is hard-coded to 1
 dim_t l2_nt = 2;
-dim_t l3_nt = 1;
-dim_t l4_nt = 1;
-dim_t l5_nt = 1;
+dim_t l3_nt = 2;
+dim_t l4_nt = 2;
+dim_t l5_nt = 2;
 
 gemm_t**          gemm_cntl_mts;
 dim_t             gemm_num_threads_default;
@@ -232,8 +234,10 @@ void bli_gemm_cntl_init()
 	                          NULL );
 	// Alias the "master" gemm control tree to a shorter name.
 	gemm_cntl = gemm_cntl_mm_op;
-    //bli_gemm_hier_cntl_create();
-    bli_gemm_grid_cntl_create();
+    if(do_gridlike == 1)
+        bli_gemm_grid_cntl_create();
+    else
+        bli_gemm_hier_cntl_create();
 }
 
 void bli_gemm_grid_cntl_create()
@@ -282,12 +286,12 @@ void bli_gemm_grid_cntl_create()
                     //printf("l3comm_nt: %d\tl3_id: %d\tl4_id: %d\tl5_id: %d\tglobal_id: %d\n", l3_a_comm->num_threads, l3_a_comm_id, l4_comm_id, l5_comm_id, global_comm_id );
                     //printf("l3_comm: %d\tl3_id: %d\ti: %d\tglobal_id: %d\n", l3_a_comm, l3_a_comm_id, i, global_comm_id );
 
-                    packm_thread_info_t* pack_a_info = bli_create_packm_info( l3_a_comm, l3_a_comm_id, 24 );
+                    packm_thread_info_t* pack_a_info = bli_create_packm_thread_info( l3_a_comm, l3_a_comm_id, 24 );
                     gemm_packa_cntl_mt = bli_packm_cntl_obj_create_mt( BLIS_BLOCKED, BLIS_VARIANT2, gemm_mr, gemm_extmr,
                                    gemm_kr, gemm_extkr, FALSE, FALSE, FALSE, FALSE, FALSE,
                                    BLIS_PACKED_ROW_PANELS, BLIS_BUFFER_FOR_A_BLOCK, pack_a_info );
 
-                    packm_thread_info_t* pack_b_info = bli_create_packm_info( l4_comm, l4_comm_id, 24 );
+                    packm_thread_info_t* pack_b_info = bli_create_packm_thread_info( l4_comm, l4_comm_id, 24 );
                     gemm_packb_cntl_mt = bli_packm_cntl_obj_create_mt( BLIS_BLOCKED, BLIS_VARIANT2,
                                    gemm_kr, gemm_extkr, gemm_nr, gemm_extnr,
                                    FALSE, FALSE, FALSE, FALSE, FALSE, 
@@ -346,12 +350,12 @@ void bli_gemm_hier_cntl_create()
                     dim_t global_comm_id = g * l5_comm->num_threads + l5_comm_id; 
                     //printf("%d\t%d\t%d\t%d\n", l3_comm_id, l4_comm_id, l5_comm_id, global_comm_id );
 
-                    packm_thread_info_t* pack_a_info = bli_create_packm_info( l3_comm, l3_comm_id, 24 );
+                    packm_thread_info_t* pack_a_info = bli_create_packm_thread_info( l3_comm, l3_comm_id, 24 );
                     gemm_packa_cntl_mt = bli_packm_cntl_obj_create_mt( BLIS_BLOCKED, BLIS_VARIANT2, gemm_mr, gemm_extmr,
                                    gemm_kr, gemm_extkr, FALSE, FALSE, FALSE, FALSE, FALSE,
                                    BLIS_PACKED_ROW_PANELS, BLIS_BUFFER_FOR_A_BLOCK, pack_a_info );
 
-                    packm_thread_info_t* pack_b_info = bli_create_packm_info(  l4_comm, l4_comm_id, 24 );
+                    packm_thread_info_t* pack_b_info = bli_create_packm_thread_info(  l4_comm, l4_comm_id, 24 );
                     gemm_packb_cntl_mt = bli_packm_cntl_obj_create_mt( BLIS_BLOCKED, BLIS_VARIANT2,
                                    gemm_kr, gemm_extkr, gemm_nr, gemm_extnr,
                                    FALSE, FALSE, FALSE, FALSE, FALSE, 
