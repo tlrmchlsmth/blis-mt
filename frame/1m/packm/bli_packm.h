@@ -32,6 +32,7 @@
 
 */
 
+#include "bli_packm_threading.h"
 #include "bli_packm_cntl.h"
 #include "bli_packm_check.h"
 #include "bli_packm_init.h"
@@ -46,4 +47,5 @@
 #include "bli_packm_blk_var3.h"
 
 #include "bli_packm_cxk.h"
+
 

@@ -187,7 +187,7 @@ packm_t* bli_packm_cntl_obj_create_mt( impl_t     impl_type,
                                     bool_t     rev_iter_if_lower,
                                     pack_t     pack_schema,
                                     packbuf_t  pack_buf_type,
-                                    thread_info_t* thread_info )
+                                    packm_thread_info_t* thread_info )
 {
 	packm_t* cntl;
 
@@ -225,7 +225,7 @@ void bli_packm_cntl_obj_init_mt( packm_t*   cntl,
                               bool_t     rev_iter_if_lower,
                               pack_t     pack_schema,
                               packbuf_t  pack_buf_type,
-                              thread_info_t* thread_info )
+                              packm_thread_info_t* thread_info )
 {
 	cntl->impl_type         = impl_type;
 	cntl->var_num           = var_num;

@@ -92,12 +92,12 @@ void bli_gemm_blk_var3( obj_t*  alpha,
 	dim_t  b_alg;
 	dim_t  k_trans;
 
-    dim_t  group_id = bli_group_id( cntl->thread_info );
-    dim_t  num_groups = bli_num_thread_groups( cntl->thread_info );
-    dim_t  threads_per_group = bli_c_num_threads( cntl->thread_info ) / num_groups;
-    dim_t  id_within_group = bli_c_id( cntl->thread_info ) % threads_per_group;
+    dim_t  group_id = bli_gemm_group_id( cntl->thread_info );
+    dim_t  num_groups = bli_gemm_num_thread_groups( cntl->thread_info );
+    dim_t  threads_per_group = bli_gemm_c_num_threads( cntl->thread_info ) / num_groups;
+    dim_t  id_within_group = bli_gemm_c_id( cntl->thread_info ) % threads_per_group;
 
-    if( bli_am_c_master( cntl->thread_info )) {
+    if( bli_gemm_am_c_master( cntl->thread_info )) {
         // Setup communicators for within groups.
         group_communicators = (thread_comm_t*) bli_malloc( sizeof(thread_comm_t) * num_groups );
 
@@ -109,23 +109,23 @@ void bli_gemm_blk_var3( obj_t*  alpha,
         // Scale C by beta (if instructed).
         bli_scalm_int( beta, c, cntl_sub_scalm( cntl ) );
     }
-    group_communicators = bli_broadcast_c( cntl->thread_info, group_communicators );
+    group_communicators = bli_gemm_broadcast_c( cntl->thread_info, group_communicators );
     group_communicator  = &group_communicators[ group_id ];
-    c_tmps = bli_broadcast_c( cntl->thread_info, c_tmps );
-    bli_c_barrier( cntl->thread_info );
+    c_tmps = bli_gemm_broadcast_c( cntl->thread_info, c_tmps );
+    bli_gemm_c_barrier( cntl->thread_info );
 
     if( !group_id )    my_c = c;
     else               my_c = &c_tmps[ group_id - 1 ];
 
-    if( bli_am_a_master( cntl->thread_info ) ) {
+    if( bli_gemm_am_a_master( cntl->thread_info ) ) {
         // Initialize a1_pack
         bli_obj_init_pack( &a1_pack_s );
     }
-    bli_a_barrier( cntl->thread_info );
-    if( bli_am_b_master( cntl->thread_info ) ) {
+    bli_gemm_a_barrier( cntl->thread_info );
+    if( bli_gemm_am_b_master( cntl->thread_info ) ) {
         bli_obj_init_pack( &b1_pack_s );
     }
-    bli_b_barrier( cntl->thread_info );
+    bli_gemm_b_barrier( cntl->thread_info );
 
     if( id_within_group == 0 ) {
         // Initialize c1_pack
@@ -144,7 +144,7 @@ void bli_gemm_blk_var3( obj_t*  alpha,
         bli_packm_init( my_c, &c_pack_s,
                         cntl_sub_packm_c( cntl ) );
     }
-    bli_c_barrier( cntl->thread_info );
+    bli_gemm_c_barrier( cntl->thread_info );
     c_pack = bli_broadcast_structure( group_communicator, id_within_group, &c_pack_s );
 	
     // Pack C and scale by beta (if instructed).
@@ -171,7 +171,7 @@ void bli_gemm_blk_var3( obj_t*  alpha,
 		b_alg = bli_determine_blocksize_f( i, end, b,
 		                                   cntl_blocksize( cntl ) );
         
-        if( bli_am_a_master( cntl->thread_info )) {
+        if( bli_gemm_am_a_master( cntl->thread_info )) {
             // Acquire partitions for A1 
             bli_acquire_mpart_l2r( BLIS_SUBPART1,
                                    i, b_alg, a, &a1_s );
@@ -179,10 +179,10 @@ void bli_gemm_blk_var3( obj_t*  alpha,
             bli_packm_init( &a1_s, &a1_pack_s,
                             cntl_sub_packm_a( cntl ) );
         }
-        a1 = bli_broadcast_a( cntl->thread_info, &a1_s );
-        a1_pack = bli_broadcast_a( cntl->thread_info, &a1_pack_s );
+        a1 = bli_gemm_broadcast_a( cntl->thread_info, &a1_s );
+        a1_pack = bli_gemm_broadcast_a( cntl->thread_info, &a1_pack_s );
 
-        if( bli_am_b_master( cntl->thread_info )) {
+        if( bli_gemm_am_b_master( cntl->thread_info )) {
             // Acquire partitions for B1.
             bli_acquire_mpart_t2b( BLIS_SUBPART1,
                                    i, b_alg, b, &b1_s );
@@ -190,13 +190,13 @@ void bli_gemm_blk_var3( obj_t*  alpha,
             bli_packm_init( &b1_s, &b1_pack_s,
                             cntl_sub_packm_b( cntl ) );
         }
-        b1 = bli_broadcast_b( cntl->thread_info, &b1_s );
-        b1_pack = bli_broadcast_b( cntl->thread_info, &b1_pack_s );
+        b1 = bli_gemm_broadcast_b( cntl->thread_info, &b1_s );
+        b1_pack = bli_gemm_broadcast_b( cntl->thread_info, &b1_pack_s );
 
         //printf("%d\t%d\t%d\t%d\n", a1, b1, a1_pack, b1_pack);   
         // Packing must be done before computation is done.
-        bli_a_barrier( cntl->thread_info );
-        bli_b_barrier( cntl->thread_info );
+        bli_gemm_a_barrier( cntl->thread_info );
+        bli_gemm_b_barrier( cntl->thread_info );
 
 		// Pack A1 and scale by alpha (if instructed).
 		bli_packm_int( alpha,
@@ -214,8 +214,8 @@ void bli_gemm_blk_var3( obj_t*  alpha,
 		else          beta_use = &BLIS_ONE;
 
         // Packing must be done before computation is done.
-        bli_a_barrier( cntl->thread_info );
-        bli_b_barrier( cntl->thread_info );
+        bli_gemm_a_barrier( cntl->thread_info );
+        bli_gemm_b_barrier( cntl->thread_info );
 
 		// Perform gemm subproblem.
 		bli_gemm_int( alpha,
@@ -227,11 +227,11 @@ void bli_gemm_blk_var3( obj_t*  alpha,
 
 	}
     
-    bli_c_barrier( cntl->thread_info );
+    bli_gemm_c_barrier( cntl->thread_info );
     reduce( c, c_tmps, num_groups,
-        bli_c_num_threads( cntl->thread_info ), 
-        bli_c_id( cntl->thread_info ) );  
-    bli_c_barrier( cntl->thread_info );
+        bli_gemm_c_num_threads( cntl->thread_info ), 
+        bli_gemm_c_id( cntl->thread_info ) );  
+    bli_gemm_c_barrier( cntl->thread_info );
 
     if( id_within_group == 0 ) {
         // Unpack C (if C was packed).
@@ -241,22 +241,22 @@ void bli_gemm_blk_var3( obj_t*  alpha,
 
 	// If any packing buffers were acquired within packm, release them back
 	// to the memory manager.
-    bli_a_barrier( cntl->thread_info );
-    if( bli_am_a_master( cntl->thread_info )) {
+    bli_gemm_a_barrier( cntl->thread_info );
+    if( bli_gemm_am_a_master( cntl->thread_info )) {
         bli_obj_release_pack( &a1_pack_s );
     }
-    bli_b_barrier( cntl->thread_info );
-    if( bli_am_b_master( cntl->thread_info )) {
+    bli_gemm_b_barrier( cntl->thread_info );
+    if( bli_gemm_am_b_master( cntl->thread_info )) {
         bli_obj_release_pack( &b1_pack_s );
     }
-    bli_c_barrier( cntl->thread_info );
+    bli_gemm_c_barrier( cntl->thread_info );
     if( id_within_group == 0 ) {
        // bli_cleanup_communicator( group_communicator );
 	    bli_obj_release_pack( c_pack );
         if( c != my_c )
             bli_obj_free( my_c );
     }
-    if( bli_am_c_master( cntl->thread_info ) && num_groups > 1) {
+    if( bli_gemm_am_c_master( cntl->thread_info ) && num_groups > 1) {
             bli_free( c_tmps );
             bli_free( group_communicators );
     }

@@ -45,7 +45,7 @@ struct gemm_s
 	struct gemm_s*     sub_gemm;
 	struct unpackm_s*  sub_unpackm_c;
     dim_t              num_thread_groups;
-    thread_info_t*     thread_info;
+    void*              thread_info;
 };
 typedef struct gemm_s gemm_t;
 
@@ -74,5 +74,5 @@ gemm_t* bli_gemm_cntl_obj_create_mt( impl_t       impl_type,
                                   packm_t*     sub_pack_c,
                                   gemm_t*      sub_gemm,
                                   unpackm_t*   sub_unpack_c,
-                                  thread_info_t* thread_info );
+                                  void*        thread_info );
 

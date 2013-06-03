@@ -55,31 +55,31 @@ void bli_gemm_blk_var2( obj_t*  alpha,
 	dim_t b_alg;
 	dim_t n_trans;
     
-    dim_t num_groups = bli_num_thread_groups( cntl->thread_info );
-    dim_t group_id   = bli_group_id( cntl->thread_info );
+    dim_t num_groups = bli_gemm_num_thread_groups( cntl->thread_info );
+    dim_t group_id   = bli_gemm_group_id( cntl->thread_info );
 
-    if( bli_am_a_master( cntl->thread_info ) ) {
+    if( bli_gemm_am_a_master( cntl->thread_info ) ) {
         // Initialize object for packing A.
         bli_obj_init_pack( &a_pack_s );
         bli_packm_init( a, &a_pack_s,
                         cntl_sub_packm_a( cntl ) );
 
     }
-    a_pack = bli_broadcast_a( cntl->thread_info, &a_pack_s );
+    a_pack = bli_gemm_broadcast_a( cntl->thread_info, &a_pack_s );
 
 	// Pack A and scale by alpha (if instructed).
 	bli_packm_int( alpha,
 	               a, a_pack,
 	               cntl_sub_packm_a( cntl ) );
 
-    bli_a_barrier( cntl->thread_info );
+    bli_gemm_a_barrier( cntl->thread_info );
 
-	if( bli_am_b_master( cntl->thread_info )) {
+	if( bli_gemm_am_b_master( cntl->thread_info )) {
         bli_obj_init_pack( &b1_pack_s );
     }
-    bli_b_barrier( cntl->thread_info );
+    bli_gemm_b_barrier( cntl->thread_info );
 
-    if( bli_am_c_master( cntl->thread_info )) {
+    if( bli_gemm_am_c_master( cntl->thread_info )) {
         bli_obj_init_pack( &c1_pack_s );
 
         // Scale C by beta (if instructed).
@@ -87,7 +87,7 @@ void bli_gemm_blk_var2( obj_t*  alpha,
                        c,
                        cntl_sub_scalm( cntl ) );
     }
-    bli_c_barrier( cntl->thread_info );
+    bli_gemm_c_barrier( cntl->thread_info );
 
 
 	// Query dimension in partitioning direction.
@@ -108,7 +108,7 @@ void bli_gemm_blk_var2( obj_t*  alpha,
 		b_alg = bli_determine_blocksize_f( i, end, b,
 		                                   cntl_blocksize( cntl ) );
 
-        if( bli_am_b_master( cntl->thread_info )) {
+        if( bli_gemm_am_b_master( cntl->thread_info )) {
             // Acquire partitions for B1 
             bli_acquire_mpart_l2r( BLIS_SUBPART1,
                                    i, b_alg, b, &b1_s );
@@ -117,11 +117,11 @@ void bli_gemm_blk_var2( obj_t*  alpha,
             bli_packm_init( &b1_s, &b1_pack_s,
                             cntl_sub_packm_b( cntl ) );
         }
-        b1       = bli_broadcast_b( cntl->thread_info, &b1_s );
-        b1_pack  = bli_broadcast_b( cntl->thread_info, &b1_pack_s );
-        bli_b_barrier( cntl->thread_info );
+        b1       = bli_gemm_broadcast_b( cntl->thread_info, &b1_s );
+        b1_pack  = bli_gemm_broadcast_b( cntl->thread_info, &b1_pack_s );
+        bli_gemm_b_barrier( cntl->thread_info );
 
-        if( bli_am_c_master( cntl->thread_info )) {
+        if( bli_gemm_am_c_master( cntl->thread_info )) {
             // Acquire partitions for C1 
             bli_acquire_mpart_l2r( BLIS_SUBPART1,
                                    i, b_alg, c, &c1_s );
@@ -129,9 +129,9 @@ void bli_gemm_blk_var2( obj_t*  alpha,
             bli_packm_init( &c1_s, &c1_pack_s,
                             cntl_sub_packm_c( cntl ) );
         }
-        c1       = bli_broadcast_c( cntl->thread_info, &c1_s );
-        c1_pack  = bli_broadcast_c( cntl->thread_info, &c1_pack_s );
-        bli_c_barrier( cntl->thread_info );
+        c1       = bli_gemm_broadcast_c( cntl->thread_info, &c1_s );
+        c1_pack  = bli_gemm_broadcast_c( cntl->thread_info, &c1_pack_s );
+        bli_gemm_c_barrier( cntl->thread_info );
         
 		// Pack B1 and scale by alpha (if instructed).
 		bli_packm_int( alpha,
@@ -144,8 +144,8 @@ void bli_gemm_blk_var2( obj_t*  alpha,
 		               cntl_sub_packm_c( cntl ) );
 
         // Packing must be done before computation
-        bli_b_barrier( cntl->thread_info );
-        bli_c_barrier( cntl->thread_info );
+        bli_gemm_b_barrier( cntl->thread_info );
+        bli_gemm_c_barrier( cntl->thread_info );
 
 		// Perform gemm subproblem.
 		bli_gemm_int( alpha,
@@ -162,15 +162,15 @@ void bli_gemm_blk_var2( obj_t*  alpha,
 
 	// If any packing buffers were acquired within packm, release them back
 	// to the memory manager.
-    bli_a_barrier( cntl->thread_info );
-    if( bli_am_a_master( cntl->thread_info ))
+    bli_gemm_a_barrier( cntl->thread_info );
+    if( bli_gemm_am_a_master( cntl->thread_info ))
 	    bli_obj_release_pack( &a_pack_s );
-    bli_b_barrier( cntl->thread_info );
-    if( bli_am_b_master( cntl->thread_info )) {
+    bli_gemm_b_barrier( cntl->thread_info );
+    if( bli_gemm_am_b_master( cntl->thread_info )) {
         bli_obj_release_pack( &b1_pack_s );
     }
-    bli_c_barrier( cntl->thread_info );
-    if( bli_am_c_master( cntl->thread_info )) {
+    bli_gemm_c_barrier( cntl->thread_info );
+    if( bli_gemm_am_c_master( cntl->thread_info )) {
         bli_obj_release_pack( &c1_pack_s );
     }
 }

@@ -87,10 +87,11 @@ void bli_gemm_ker_var2( obj_t*  alpha,
 	num_t     dt_beta;
 	void*     buf_beta;
 
-    dim_t l2_num_threads = bli_num_thread_groups( cntl->thread_info ); 
-    dim_t l2_thread_id   = bli_group_id( cntl->thread_info );
-    dim_t l1_num_threads = 1;
-    dim_t l1_thread_id   = 0;
+    dim_t l2_num_threads = bli_gemm_l2_num_threads( cntl->thread_info ); 
+    dim_t l2_thread_id   = bli_gemm_l2_tid( cntl->thread_info );
+    dim_t l1_num_threads = bli_gemm_l1_num_threads( cntl->thread_info ); 
+    dim_t l1_thread_id   = bli_gemm_l1_tid( cntl->thread_info );
+//    dim_t l0_thread_id   = bli_gemm_l0_tid( cntl->thread_info );
 
 	FUNCPTR_T f;
 

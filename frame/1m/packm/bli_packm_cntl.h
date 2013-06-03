@@ -47,7 +47,7 @@ struct packm_s
 	bool_t         rev_iter_if_lower;
 	pack_t         pack_schema;
 	packbuf_t      pack_buf_type;
-    thread_info_t* thread_info;
+    packm_thread_info_t* thread_info;
 };
 typedef struct packm_s packm_t;
 
@@ -87,7 +87,7 @@ packm_t* bli_packm_cntl_obj_create_mt( impl_t     impl_type,
                                     bool_t     rev_iter_if_lower,
                                     pack_t     pack_schema,
                                     packbuf_t  pack_buf_type,
-                                    thread_info_t* thread_info );
+                                    packm_thread_info_t* thread_info );
 
 void bli_packm_cntl_obj_init_mt( packm_t*   cntl,
                               impl_t     impl_type,
@@ -103,7 +103,7 @@ void bli_packm_cntl_obj_init_mt( packm_t*   cntl,
                               bool_t     rev_iter_if_lower,
                               pack_t     pack_schema,
                               packbuf_t  pack_buf_type,
-                              thread_info_t* thread_info );
+                              packm_thread_info_t* thread_info );
 
 packm_t* bli_packm_cntl_obj_create( impl_t     impl_type,
                                     varnum_t   var_num,

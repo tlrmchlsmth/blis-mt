@@ -39,7 +39,7 @@
 typedef void (*FUNCPTR_T)( obj_t*   beta,
                            obj_t*   a,
                            obj_t*   p,
-                           thread_info_t* info );
+                           packm_thread_info_t* info );
 
 static FUNCPTR_T vars[6][3] =
 {

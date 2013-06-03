@@ -50,7 +50,7 @@ typedef void (*FUNCPTR_T)(
                            void*   c, inc_t rs_c, inc_t cs_c,
                            void*   p, inc_t rs_p, inc_t cs_p,
                                       dim_t pd_p, inc_t ps_p,
-                           thread_info_t* info
+                           packm_thread_info_t* info
                          );
 
 static FUNCPTR_T GENARRAY(ftypes,packm_blk_var2);
@@ -59,7 +59,7 @@ static FUNCPTR_T GENARRAY(ftypes,packm_blk_var2);
 void bli_packm_blk_var2( obj_t*   beta,
                          obj_t*   c,
                          obj_t*   p,
-                         thread_info_t* info )
+                         packm_thread_info_t* info )
 {
 	num_t     dt_cp     = bli_obj_datatype( *c );
 
@@ -127,7 +127,7 @@ void PASTEMAC(ch,varname )( \
                             void*   c, inc_t rs_c, inc_t cs_c, \
                             void*   p, inc_t rs_p, inc_t cs_p, \
                                        dim_t pd_p, inc_t ps_p, \
-                            thread_info_t* info \
+                            packm_thread_info_t* info \
                           ) \
 { \
 	ctype* restrict beta_cast = beta; \
@@ -176,22 +176,23 @@ void PASTEMAC(ch,varname )( \
 	dim_t           p11_m; \
 	dim_t           p11_n; \
 \
-    dim_t           t_id = bli_c_id( info ); \
-    dim_t           num_threads = bli_c_num_threads( info ); \
+    dim_t           t_id = bli_packm_tid( info ); \
+    dim_t           num_threads = bli_packm_num_threads( info ); \
+    thread_comm_t*  comm = bli_packm_communicator( info ); \
 \
 	/* Extract the conjugation bit from the transposition argument. */ \
 	conjc = bli_extract_conj( transc ); \
 \
 	/* If C needs a transposition, induce it so that we can more simply
 	   express the remaining parameters and code. */ \
-	if ( bli_am_c_master( info ) && bli_does_trans( transc ) ) \
+	if ( t_id == 0 && bli_does_trans( transc ) ) \
 	{ \
 		bli_swap_incs( rs_c, cs_c ); \
 		bli_negate_diag_offset( diagoffc ); \
 		bli_toggle_uplo( uploc ); \
 		bli_toggle_trans( transc ); \
 	} \
-    bli_c_barrier( info ); \
+    bli_barrier( comm ); \
 \
 	/* If the strides of p indicate row storage, then we are packing to
 	   column panels; otherwise, if the strides indicate column storage,
