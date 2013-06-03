@@ -1,0 +1,1096 @@
+commit ec16c52f2ecf419c749175ce0a297441c10f1c68 (HEAD, tag: 0.0.6, origin/master, master)
+Author: Field G. Van Zee <field@cs.utexas.edu>
+Date:   Sat Apr 13 16:41:16 2013 -0500
+
+    Updated INSTALL file (now redirects to website).
+
+commit 0020ef7c82711a7ebf08e5174f939bee2563184c
+Author: Field G. Van Zee <field@cs.utexas.edu>
+Date:   Sat Apr 13 15:26:35 2013 -0500
+
+    Removed gemmtrsm-, trsm-specific blocksize macros.
+    
+    Details:
+    - Modified gemmtrsm micro-kernel wrappers to use new aliased blocksize macros
+      instead of operation-specific ones.
+    - Removed local, gemmtrsm-specific blocksize macro definitions found in
+      micro-kernel header files.
+      (Meant to include above changes in 31b100e7bf4a.)
+    - Added comments to reference gemmtrsm micro-kernel wrapper implementation.
+
+commit 1a9f427b85bb95aaa9e54c8ff8ecad8734b361ee
+Author: Field G. Van Zee <field@cs.utexas.edu>
+Date:   Fri Apr 12 15:25:54 2013 -0500
+
+    Added/renamed alignment constants to _config.h.
+    
+    Details:
+    - Added new memory alignment constants:
+        BLIS_HEAP_STRIDE_ALIGN_SIZE   (previously assumed to be same as SYSTEM_MEM)
+        BLIS_CONTIG_ADDR_ALIGN_SIZE   (previously assumed to be same as PAGE_SIZE)
+        BLIS_STACK_BUF_ALIGN_SIZE     (previously not enforced)
+      and renamed existing ones
+        BLIS_SYSTEM_MEM_ALIGN_SIZE -> BLIS_HEAP_ADDR_ALIGN_SIZE
+        BLIS_CONTIG_MEM_ALIGN_SIZE -> BLIS_CONTIG_STRIDE_ALIGN_SIZE
+      to better convey what the alignment factor is used for (and what it is
+      not used for).
+    - Removed BLIS_ENABLE_SYSTEM_MEM_ALIGN. Dynamic memory alignment is now
+      disabled by setting BLIS_HEAP_STRIDE_ALIGN_SIZE to 1.
+    - Inserted instances of __attribute__((aligned(BLIS_STACK_BUF_ALIGN_SIZE)))
+      into macro-kernels to specify stack alignment of temporary buffers.
+    - Modified test suite driver to output new constants.
+    - Removed bli_align_dim_to_sys() and bli_align_dim_to_cmem(). Instead, we now
+      use bli_align_dim_to_size(), which takes a third argument (the desired
+      alignment).
+
+commit a77d10e87e3c0ab55ec14d74c285bc95c06285c3
+Author: Field G. Van Zee <field@cs.utexas.edu>
+Date:   Fri Apr 12 11:40:55 2013 -0500
+
+    Fixed an bug in axpyv/axpym when alpha is unit.
+    
+    Details:
+    - Fixed bug whereby axpyv and axpym were incorrectly simplifying to a copy,
+      rather than an add, when alpha = 1. Thanks to Bryan Marker for identifying
+      this bug.
+
+commit 0495bd1d6de5995fe2fb79b321eec79e961eb7a5
+Author: Field G. Van Zee <field@cs.utexas.edu>
+Date:   Thu Apr 11 16:39:25 2013 -0500
+
+    Moved _POSIX_C_SOURCE def to compiler cmd line.
+    
+    Details:
+    - Removed the #define of _POSIX_C_SOURCE in bli_config.h (for both reference
+      and clarksville configurations) and added "-D_POSIX_C_SOURCE=200112L" to
+      the compiler command line arguments in make_defs.mk (for both configs).
+      Thanks to Devin Matthews for suggesting this change.
+
+commit d43d1a0a2ef6de4bc57627566aef8e3fdb458b8c
+Author: Field G. Van Zee <field@cs.utexas.edu>
+Date:   Thu Apr 11 16:28:17 2013 -0500
+
+    Appended 'f2c_' to abs, min, max macros in f2c.h.
+    
+    Details:
+    - Renamed abs, min, max, dmin, and dmax macros in bli_f2c.h so that they
+      would not conflict with anything defined by the user (or the language).
+      Thanks to Devin Matthews for suggesting this fix.
+    - Updated all instances of the above macros accordingly.
+
+commit 31b100e7bf4aeaa4ceafefd2b6c3102d5fbc4cbb
+Author: Field G. Van Zee <field@cs.utexas.edu>
+Date:   Thu Apr 11 11:11:52 2013 -0500
+
+    Added new kernel blocksize macro aliases.
+    
+    Details:
+    - Added new macros that alias level-3 cache and register blocksize macros
+      to names that can be constructed via the PASTEMAC macro. These aliased
+      macro definitions live inside bli_kernel_macro_defs.h, which is now
+      #included after bli_kernel.h.
+    - Modified macro-kernels to use new aliased blocksize macros instead of
+      operation-specific ones.
+    - Removed local, operation-specific kernel blocksize macro definitions
+      (found in macro-kernel header files).
+
+commit bd2b24ba65b36d7c07c5918a3838ce2ff57c4b48
+Author: Field G. Van Zee <field@cs.utexas.edu>
+Date:   Thu Apr 11 10:35:39 2013 -0500
+
+    Updated CREDITS file.
+
+commit 79328c15410215737f3f14cd069328cf52aa11fd
+Author: Field G. Van Zee <field@cs.utexas.edu>
+Date:   Thu Apr 11 10:32:14 2013 -0500
+
+    Reverted testsuite object files' home to 'obj'.
+    
+    Details:
+    - Removed 'obj' and 'lib' from .gitignore.
+    - Added testsuite/obj/.gitkeep (which is an empty file).
+    - Updated testsuite/Makefile accordingly.
+    - Thanks to Vernon Austel for pointing out the .gitkeep trick to tracking
+      empty directories in git.
+
+commit 4afe3bfd82c03e1e97b58b7d250588a0d28541e5
+Author: Field G. Van Zee <field@cs.utexas.edu>
+Date:   Tue Apr 9 17:45:39 2013 -0500
+
+    Renamed/moved object scalar constant macros.
+    
+    Details:
+    - Replaced scalar constant macro definitions in bli_const_defs.h with a single,
+      simplier macro in bli_obj_macro_defs.h.
+    - Updated invocations of old macros accordingly.
+    - Removed bli_const_defs.h.
+
+commit 357893f5be5c56ab7b062874005e77e614b23f06
+Author: Field G. Van Zee <field@cs.utexas.edu>
+Date:   Tue Apr 9 14:48:15 2013 -0500
+
+    Applied fix from prev commit to gemmtrsm_?_ref_4x4
+    
+    Details:
+    - Fixed hard-coded kernels in bli_gemmtrsm_l_ref_4x4.c and
+      bli_gemmtrsm_u_ref_4x4.c.
+
+commit 54988e8dca44475610bcaee5a7bc1c40e8921402
+Author: Field G. Van Zee <field@cs.utexas.edu>
+Date:   Mon Apr 8 19:08:43 2013 -0500
+
+    Fixed a performance bug in trsm.
+    
+    Details:
+    - Fixed a bug in the reference implementations of the gemmtrsm wrappers
+      (bli_gemmtrsm_l_ref_mxn.c and bli_gemmtrsm_u_ref_mxn.c) whereby the
+      reference gemm microkernel was hard-coded, and thus always called, even
+      when GEMM_UKERNEL was defined to point to an optimzied microkernel. This
+      manifested as artificially low trsm performance for all problem sizes, but
+      especially for small problem sizes as it only affected blocks of A that
+      intersected the diagonal. Thanks to Mike Kistler of IBM for helping me
+      find this bug.
+
+commit a7252e40b5c351eef9a1df531ea0ef25cb5fb705
+Author: Field G. Van Zee <field@cs.utexas.edu>
+Date:   Mon Apr 8 16:08:22 2013 -0500
+
+    Generate testsuite objects 'src'.
+    
+    Details:
+    - Tweaked the testsuite makefile so that object files are stored in 'src'
+      rather than 'obj', since (a) the top-level .gitignore dictates that
+      obj directories are to be ignored, and (b) since git has problems
+      tracking empty directories. Now, users do not need to create their own
+      obj directories within their own local clones of BLIS.
+
+commit 803871c55b60d3c225ad9a0607fa507a9c16aab7
+Author: Field G. Van Zee <field@cs.utexas.edu>
+Date:   Mon Apr 8 15:18:42 2013 -0500
+
+    Minor formatting changes.
+
+commit a571af816d72727e16cad37007e7043b9d6fa362
+Author: Field G. Van Zee <field@cs.utexas.edu>
+Date:   Mon Apr 8 15:00:13 2013 -0500
+
+    Fixed definition of bli_is_packed_object() macro.
+    
+    Details:
+    - Changed the definition of bli_is_packed_object() so that it keys off of the
+      value of the pack schema bits in the info field of obj_t, rather than
+      comparing the obj_t buffer with that of the mem_t entry. This was the cause
+      of a very low probability bug whereby uninitialized memory caused the macro
+      to evaluate to TRUE even though the object in question was not packed.
+      Thanks to Vernon Austel of IBM for helping discover this bug.
+    - Changed an abort() in bli_packm_part() to a not-yet-implemented.
+
+commit 3be14c32f735ecc6169d3ab6370cf8b69162acec
+Author: Field G. Van Zee <field@cs.utexas.edu>
+Date:   Sat Apr 6 12:54:45 2013 -0500
+
+    Updated information in testsuite output header.
+    
+    Details:
+    - Added to the information that is echoed at the beginning of the test suite's
+      output, and also re-labeled some existing information.
+
+commit 874707c1b183a4dd9a91dbfd4ea1522384c190df
+Author: Field G. Van Zee <field@cs.utexas.edu>
+Date:   Fri Apr 5 17:19:43 2013 -0500
+
+    Fixed edge case handling bug in herk macrokernels.
+    
+    Details:
+    - Fixed a bug present in bli_herk_l_ker_var2() and bli_herk_u_ker_var2() that
+      only manifests when BLIS is configured such that MR != NR. The bug involves
+      incorrectly detecting edge cases, which resulted in some parts of matrix C
+      potentially being skipped and not updated, depending on the problem size.
+    - Updated the default values of MR and NR in config/reference/bli_kernel.h to
+      8 and 4, respectively, so that I can better stress the framework on a
+      day-to-day basis. (The fact that they were both equal to 4 for so long is
+      why I did not stumble upon this bug much sooner.)
+
+commit 7cbda15291d3e01300e71c286b9657b7ef0708bf
+Author: Field G. Van Zee <field@cs.utexas.edu>
+Date:   Thu Apr 4 15:25:43 2013 -0500
+
+    Added reference microkernels for arbitrary MR, NR.
+    
+    Details:
+    - Added a new set of reference gemm, gemmtrsm, and trsm micro-kernels that
+      contain explicit loops over MR and NR, thus allowing them to be used
+      unmodified by developers who want to build a reference library with
+      custom register blocksizes.
+    - Changed config/reference/bli_kernel.h to use above ukernels by default.
+    - Changed interfaces of new and existing gemm, gemmtrsm, and trsm micro-kernels
+      to use 'restrict' keyword.
+    - Added -funroll-loops option to config/reference/make_defs.mk.
+    - Updated comments in bli_kernel.h describing constraints on register and
+      cache blocksizes.
+    - Updated _adds_mxn.h, _copys_mxn.h, and _xpbys_mxn.h macros files so that
+      single-char macros are also defined.
+
+commit 6684b73d5501f91d24a79e26655a42819c9b3114
+Author: Field G. Van Zee <field@cs.utexas.edu>
+Date:   Tue Apr 2 13:06:20 2013 -0500
+
+    Implemented amax operation and related changes.
+    
+    Details:
+    - Implemented amax operation in BLIS.
+    - Activated BLAS2BLIS routine mapping for new amax BLIS implementation.
+    - Added integer support to [f]printv, [f]printm.
+    - Added integer support to level-0 copys macros.
+    - Updated printing of configuration information in test suite driver.
+    - Comment changes to _config.h files.
+    - Added comments to bla_dot.c to reminder reader what sdsdot()/dsdot() are
+      used for.
+
+commit fb68087f8727cd5fd656a742a110e54fb1c91db9
+Author: Field G. Van Zee <field@cs.utexas.edu>
+Date:   Tue Mar 26 15:10:16 2013 -0500
+
+    More memory alignment-related tweaks.
+    
+    Details:
+    - Renamed BLIS_MEMORY_ALIGNMENT_SIZE to BLIS_CONTIG_MEM_ALIGN_SIZE.
+    - Renamed BLIS_ENABLE_MEMORY_ALIGNMENT to BLIS_ENABLE_SYSTEM_MEM_ALIGN.
+    - Added BLIS_SYSTEM_MEM_ALIGN_SIZE, which controls only the alignment
+      passed into posix_memalign() or equivalent.
+    - Defined new function, bli_align_dim_to_cmem(), which applies the
+      contiguous memory alignment (rather than the system/malloc alignment).
+
+commit 9682ef61dbf9a8846c8b0826d4de24bc216cd641
+Author: Field G. Van Zee <field@cs.utexas.edu>
+Date:   Tue Mar 26 14:14:53 2013 -0500
+
+    Always define memory alignment size cpp constant.
+    
+    Details:
+    - Removed guard around #define for memory alignment size constant.
+      Memory alignment should always be enabled, and so this value should
+      always be defined.
+
+commit 3a787cccaae16531474f34398e3c0cf4f49b8cd8
+Author: Field G. Van Zee <field@cs.utexas.edu>
+Date:   Tue Mar 26 13:59:19 2013 -0500
+
+    Renamed memory alignment macro constant.
+    
+    Details:
+    - Renamed all occurrences of BLIS_MEMORY_ALIGNMENT_BOUNDARY to
+      BLIS_MEMORY_ALIGNMENT_SIZE.
+
+commit 37308f9a502b56d94fa52a7df71c676a46c3be3d
+Author: Field G. Van Zee <field@cs.utexas.edu>
+Date:   Tue Mar 26 12:43:14 2013 -0500
+
+    Align packed panel strides with system alignment.
+    
+    Details:
+    - Pass panel strides through bli_align_dim_to_sys() to ensure that each
+      subsequent packed panel of A and B begins at an aligned address. (The
+      first panel is presumably aligned to system alignment because it is
+      aligned to a page boundary, which is typically much larger.)
+    - Rearranged code in packm_init_pack() to prevent additional conditional
+      blocks as a result of the aforementioned change.
+    - Adjusted contiguous memory allocator so that the system memory alignment
+      is used to allocate enough space for each block no matter what kind of
+      register blocking is used (even if register blocksize is unit and every
+      row/column needs maximal padding).
+    - Adjusted default blocksizes in reference configuration so that MC*KC
+      and KC*NC result in identical footprints for all datatypes.
+
+commit 40a0654ada5f256beb3da80ebba015a3c71fb61f
+Author: Field G. Van Zee <field@cs.utexas.edu>
+Date:   Sun Mar 24 20:18:12 2013 -0500
+
+    CHANGELOG update.
+
+commit b65cdc57d9e51fa00e3c03539cfb7e045707d0f4 (tag: 0.0.5)
+Author: Field G. Van Zee <field@cs.utexas.edu>
+Date:   Sun Mar 24 20:01:49 2013 -0500
+
+    Migrated 'bl2' prefix to 'bli'.
+    
+    Details:
+    - Changed all filename and function prefixes from 'bl2' to 'bli'.
+    - Changed the "blis2.h" header filename to "blis.h" and changed all
+      corresponding #include statements accordingly.
+    - Fixed incorrect association for Fran in CREDITS file.
+
+commit 132bffcef7441f32d02cc7485aef6a0648e0ef1e
+Author: Field G. Van Zee <field@cs.utexas.edu>
+Date:   Sun Mar 24 18:49:36 2013 -0500
+
+    Removed several 'old' directories and files.
+    
+    Details:
+    - Removed most of the 'old' directories scattered throughout the framework,
+      which includes alternate/half-baked/broken implementations.
+
+commit 551ea4767a3ea6c263f12aaca94bc2642cee4cfa
+Author: Field G. Van Zee <field@cs.utexas.edu>
+Date:   Sun Mar 24 18:00:10 2013 -0500
+
+    Removed #include "blis2.h" from low-level headers.
+    
+    Details:
+    - Removed #include of "blis2.h" from various lower-level, operation-specific
+      header files throughout the framework. Given that these low-level headers
+      are included within #blis2.h in a very specific order, #include'ing blis2.h
+      within them directly is unnecessary.
+
+commit bc7b318ed0960edeb4537797dd8c91de0d942ca9
+Author: Field G. Van Zee <field@cs.utexas.edu>
+Date:   Fri Mar 22 17:18:58 2013 -0500
+
+    Added cpp guards to conflicting libflame typedefs.
+    
+    Details:
+    - Added cpp guards around the definitions of dim_t, scomplex, and dcomplex.
+      This is a temporary hack to allow interoperability with libflame. (Similarly
+      temporary changes are being made to libflame's type definitions file.)
+
+commit f469907503fcdc24dff0174c569170e6e756e045
+Author: Field G. Van Zee <field@cs.utexas.edu>
+Date:   Fri Mar 22 15:20:15 2013 -0500
+
+    Renamed MAX_PREFETCH_BYTE_OFFSET to MAX_PRELOAD_.
+    
+    Details:
+    - Renamed BLIS_MAX_PREFETCH_BYTE_OFFSET to
+      BLIS_MAX_PRELOAD_BYTE_OFFSET since "prefetch" is kind of a loaded word
+      (e.g. "prefetch" instructions, which are different than the particular
+      kind of prefetching/preloading referred to by this constant).
+
+commit d1023bfbc6668a58a01ee4f82ded2319911e7b19
+Author: Field G. Van Zee <field@cs.utexas.edu>
+Date:   Fri Mar 22 15:09:59 2013 -0500
+
+    Removed build/old directory.
+
+commit 718888849c48d99f83eea6b8f83bc1998cffef7e
+Author: Field G. Van Zee <field@cs.utexas.edu>
+Date:   Fri Mar 22 15:07:01 2013 -0500
+
+    Deprecated 'flame' configuration.
+    
+    Details:
+    - Removed 'flame' configuration, as it was horribly out-of-date.
+    - Comment changes to bl2_blocksize.c and bl2_mem.c.
+
+commit bba38cf4e9d28058c14483f44fa074a6d2852ad9
+Author: Field G. Van Zee <field@cs.utexas.edu>
+Date:   Tue Mar 19 18:07:40 2013 -0500
+
+    Added missing conjbeta argument to scald.
+
+commit 1f82b51d06d0279dded3f2b87ba59403f3ed0af6
+Author: Field G. Van Zee <field@cs.utexas.edu>
+Date:   Mon Mar 18 15:37:20 2013 -0500
+
+    Relocated packed mem_t dimension fields to obj_t.
+    
+    Details:
+    - Removed the m and n (and elem_size) fields from the mem_t object, and added
+      m_packed and n_packed fields to obj_t. These new fields track the same as
+      the old ones. From an abstraction standpoint, it seemed awkward to store
+      those dimensions inside the mem_t.
+    - Updated interfaces to bl2_mem_acquire_*() so that only a byte size argument
+      is passed in, instead of m, n, and elem_size.
+    - Updated bl2_packm_init_pack() and bl2_packv_init_pack() to inline the
+      functionality of bl2_mem_alloc_update_m() and bl2_mem_alloc_update_v(),
+      respectively.
+    - Updated packm variants to access the packed length and width fields from
+      their new locations.
+
+commit 36c782857bf9b8ac1b1dac47a70f689a4407e2cc
+Author: Field G. Van Zee <field@cs.utexas.edu>
+Date:   Mon Mar 18 10:37:03 2013 -0500
+
+    CHANGELOG update.
+
+commit e7d41229d3b1674e74f47d7f29fae004a745201a (tag: 0.0.4)
+Author: Field G. Van Zee <field@cs.utexas.edu>
+Date:   Fri Mar 15 17:12:36 2013 -0500
+
+    Re-implemented contiguous memory allocator.
+    
+    Details:
+    - Completely re-wrote the contiguous memory allocator (bl2_mem.c). The new
+      allocator instantiates and initializes three separate memory pool objects,
+      each one associated with a separate array of contiguous memory blocks, each
+      block of fixed and uniform size. (The three pools are for allocating mc-by-kc
+      blocks of A, kc-by-nc panels of B, and mc-by-nc panels of C.) The pool
+      objects use a stack structure internally to track which blocks in the region
+      have been "checked out" to a thread and which are still available. Critical
+      regions are now clearly marked and adaptable to parallel environments (e.g.
+      OpenMP). Memory pools are set up when bl2_init() is called.
+    - Added a new field to the packm control tree node, which indicates what kind
+      of packed buffer is being allocated. The enumerated type for this argument
+      is defined as packbuf_t in bl2_type_defs.h.
+    - Updated level-3 _cntl.c files to pass in the appropriate value for a new
+      packbuf_t argument to bl2_packm_cntl_obj_create().
+    - Moved some macros called by packm_init_pack() from bl2_obj_macro_defs.h to
+      bl2_mem_macro_defs.h.
+    - Added BLIS_MAX_NUM_THREADS to bl2_config.h, which we use as the default
+      number of blocks of A reserved for the memory allocator.
+    - Deprecated bl2_align_dim(). Replaced usage with that of
+      bl2_align_dim_to_mult(). Turns out that typically we don't need to align
+      a dimension to the system alignment, since that value has to do with
+      starting addresses, whereas the values we are dealing with are unitless
+      dimensions.
+
+commit 1e76cae00cb0a04544aaae1ade878686b238d283
+Author: Field G. Van Zee <field@cs.utexas.edu>
+Date:   Fri Mar 15 12:21:42 2013 -0500
+
+    Perform her2k var1 loops in sequence.
+    
+    Details:
+    - Changed variant 1 of her2k so that the two rank-k products are computed
+      and accumulated in sequence rather than fused into one loop. This is
+      necessary if BLIS is to be configured to provide only enough contiguous
+      memory for one panel of B.
+
+commit c95c270eba91ae4efc26603beddfd0292caa919b
+Author: Field G. Van Zee <field@cs.utexas.edu>
+Date:   Thu Mar 7 14:42:15 2013 -0600
+
+    Enhanced tracking of dimensions for mem_t objects.
+    
+    Details:
+    - Added new fields to mem_t struct definition to track the allocated (as
+      opposed to the currently used) dimensions of the memory region. This
+      allows packm_init() to be more robust in situations where memory is
+      already allocated but is more than needed for the current packing job.
+    - Updated logic in bl2_obj_set_buffer_with_cached_packm_mem() macro, used
+      in packm_init(), to update the "currently used" dimensions of the mem_t
+      object if the requested dimensions are smaller than the allocated
+      dimensions.
+
+commit e99281a0f41d482fddeffa239bfc8e13e6d13d4b
+Author: Field G. Van Zee <field@cs.utexas.edu>
+Date:   Thu Mar 7 14:00:10 2013 -0600
+
+    Fixed test suite flop formulas for ops with side.
+    
+    Details:
+    - Fixed incorrect flop counts in test suite modules for hemm, symm, trmm,
+      trmm3, and trsm.
+    - Comment updates in herk macro-kernels.
+
+commit ef8cbfc44dd620fdcbdb51cdb173217194bebe31
+Author: Field G. Van Zee <field@cs.utexas.edu>
+Date:   Sat Mar 2 12:47:06 2013 -0600
+
+    Added "version" to .gitignore.
+    
+    Details:
+    - Added "version" to .gitignore file so that the file does not show up when
+      running 'git status', or accidentally get pulled into the index when
+      running 'git add' or 'git add --all'.
+
+commit e9e0747c2f6c178f53ac46ab794acbb7b8c4fea8
+Author: Field G. Van Zee <field@cs.utexas.edu>
+Date:   Sat Mar 2 12:43:54 2013 -0600
+
+    Removed version file from version control.
+    
+    Details:
+    - Removed version file from version control to prevent git errors that occur
+      when trying to pull new commits.
+
+commit bb612f864e9c17dd9805e9446840f02259619469
+Author: Field G. Van Zee <field@cs.utexas.edu>
+Date:   Fri Mar 1 12:55:42 2013 -0600
+
+    Updated behavior of bl2_obj_induce_trans() macro.
+    
+    Details:
+    - Changed bl2_obj_induce_trans() so that the transposition bit is no longer
+      updated as part of the macro. All current uses of the macro have been
+      coupled with instances of bl2_obj_set_trans() to clear the bit.
+    - Added Jed to CREDITS file.
+
+commit f24e29b789e7314764a818ceb3063126936c986f
+Author: Field G. Van Zee <field@cs.utexas.edu>
+Date:   Fri Feb 22 18:15:41 2013 -0600
+
+    Replaced banded/packed BLAS2 stubs with f2c code.
+    
+    Details:
+    - Retired the blas2blis wrappers that simply called abort with a "not yet
+      implemented" message. This includes all of the level-2 banded and packed
+      routines.
+    - Replaced the aforementioned with the corresponding netlib implementations
+      having been run through f2c (with some customization).
+    - Added directories named 'attic' to build/gen-make-frags/ignore_list.
+
+commit 1454c1a14207766dfed372b8e38b47fa384f5198
+Author: Field G. Van Zee <field@cs.utexas.edu>
+Date:   Fri Feb 22 12:38:45 2013 -0600
+
+    Moved Fortran name-mangling macro to bl2_config.h.
+    
+    Details:
+    - Moved the Fortran-77 name-mangling macros from bl2_blas_macro_defs.h to the
+      configuration directory (bl2_config.h, specifically) given that it can be
+      expected to be tweaked by some developers.
+
+commit ede75693e5a36c6006087c4a7df834175b604504 (tag: 0.0.3)
+Author: Field G. Van Zee <field@cs.utexas.edu>
+Date:   Fri Feb 22 12:11:24 2013 -0600
+
+    Implemented blas2blis compatibility layer.
+    
+    Details:
+    - Added the blas2blis compatibility layer, located in frame/compat. This
+      includes virtually all of the BLAS, including banded and packed level-2
+      operations.
+    
+    - Defined bl2_init_safe(), bl2_finalize_safe(). The former allows a conditional
+      initialization, which stores the "exit status" in an err_t, which is then
+      read by the latter function to determine whether finalization should actually
+      take place.
+    - Added calls to bl2_init_safe(), bl2_finalize_safe() to all level-2 and
+      level-3 BLAS-like wrappers.
+    - Added configuration option to instruct BLIS to remain initialized whenever
+      it automatically initializes itself (via bl2_init_safe()), until/unless the
+      application code explicitly calls bl2_finalize().
+    
+    - Added INSERT_GENTFUNC* and INSERT_GENTPROT* macros to facilitate type
+      templatization of blas2blis wrappers.
+    - Defined level-0 scalar macro bl2_??swaps().
+    - Defined level-1v operation bl2_swapv().
+    - Defined some "Fortran" types to bl2_type_defs.h for use with BLAS
+      wrappers.
+
+commit 995edf43e21c1868732dbdd7fee14b08730218bd
+Author: Field G. Van Zee <field@cs.utexas.edu>
+Date:   Thu Feb 21 14:30:50 2013 -0600
+
+    Updated version file. (Forgot to in prev commit).
+
+commit e823b08aaf7b65ecc6ddc30570709ea8a4b52aa7
+Author: Field G. Van Zee <field@cs.utexas.edu>
+Date:   Thu Feb 21 12:00:17 2013 -0600
+
+    Fixed some scalar types in BLAS-like Herm APIs.
+    
+    Details:
+    - Some of the scalars of Hermitian operations, such as alpha in her,
+      alpha and beta in herk, and beta in her2k, need to be real. These
+      arguments were typed incorrectly as the complex types. This has been
+      fixed. Note the issue was only present in the BLAS-like APIs for
+      these operations (not the native object-based interfaces).
+
+commit 5ece050a669e74ba4a711d1d4669239d22d45642
+Author: Field G. Van Zee <field@cs.utexas.edu>
+Date:   Wed Feb 20 15:50:54 2013 -0600
+
+    Updated version file. (Forgot to in prev commit).
+
+commit f243034b8b430d4684680ea8eddfd246e73fefc0
+Author: Field G. Van Zee <field@cs.utexas.edu>
+Date:   Wed Feb 20 14:11:36 2013 -0600
+
+    Changed API of packm_init_pack() to use blksz_t.
+    
+    Details:
+    - Changed the interface of packm_init_pack() so that mult_m and mult_n
+      are passed in as type blksz_t* instead of dim_t.
+    - Make similar change for packv_init_pack().
+
+commit da0c22f24107be9f33e0ea2dae52e5534b1fd0e5
+Author: Field G. Van Zee <field@cs.utexas.edu>
+Date:   Fri Feb 15 09:59:48 2013 -0600
+
+    Minor changes to lower levels of scalm and setm.
+    
+    Details:
+    - Removed diagx parameter from lower-level interfaces of scalm.
+    - Modified scalm_basic_check() to expect an object with a nonunit diagonal.
+    - Changed setm_unb_var1() so that having an implicit unit diagonal results
+      in only the strictly lower or upper triangle of the matrix being modified.
+
+commit 2c836adadcd2a7d7f217033ac4d7fcad03d5bd55
+Author: Field G. Van Zee <field@cs.utexas.edu>
+Date:   Thu Feb 14 10:42:56 2013 -0600
+
+    Updated beta == zero semantics of mulsc.
+    
+    Details:
+    - Updated beta == zero semantics of mulsc. Hopefully this is the last
+      operation that needed updating.
+    - Added Devin to CREDITS file.
+
+commit 722b66c7dcaaaa1b109e7c8b1d53fd71a9af8240
+Author: Field G. Van Zee <field@cs.utexas.edu>
+Date:   Thu Feb 14 10:18:00 2013 -0600
+
+    Removed some calls to setv() in test modules.
+    
+    Details:
+    - Removed calls to setv() in test modules whose sole purpose was to
+      initialize vectors to zero to ensure that nan's and inf's would not
+      taint the computation. Now that beta == zero semantics have been
+      updated to clear the output operand (when beta is zero), rather than
+      multiply against it, these setv() calls are no longer needed.
+
+commit e6ac623a902f776c42f85eadbf76996d9770a0db
+Author: Field G. Van Zee <field@cs.utexas.edu>
+Date:   Wed Feb 13 18:44:59 2013 -0600
+
+    Properly implemented beta == 0 semantics.
+    
+    Details:
+    - Changed name of set0 and set0_mxn macros to set0s and set0s_mxn,
+      respectively.
+    - Added code to the following operations that sets the output operand to
+      zero if the corresponding scalar is zero (rather than performing the
+      floating-point multiply, or in the case of setv, copying the value).
+      This will prevent nan's and inf's from creeping into results from
+      uninitialized memory.
+      - axpy
+      - dotxv
+      - scalv
+      - scal2v
+      - setv
+      - gemv
+      - ger
+      - hemv
+      - her
+      - her2
+      - gemm reference ukernels
+
+commit aedccbc85d491e41711a0c6eb0d246d8700a199a
+Author: Field G. Van Zee <field@cs.utexas.edu>
+Date:   Wed Feb 13 18:29:53 2013 -0600
+
+    Fixed stale interface to packm_unb_var1().
+    
+    Details:
+    - Removed the control tree from the interface to packm_unb_var1(), which
+      I meant to do when it was un-deprecated.
+
+commit c23135669f7a8a545e2e11ef559bf284be8bc65c
+Author: Field G. Van Zee <field@cs.utexas.edu>
+Date:   Wed Feb 13 13:21:00 2013 -0600
+
+    Un-deprecated packm_unb_var1.c (needed by l2 ops).
+    
+    Details:
+    - Added bl2_packm_unb_var1() back into the mix once I realized that level-2
+      operations still need this routine for packing matrices. Now, whether
+      level-2 operations should be packing matrices to begin with is another
+      matter. But this fixes the segmentation fault one would have gotten when
+      running bl2_gemv() on a general stride matrix.
+
+commit cf49e35f9819f9d93ebdca4703ade5abab28f6f6
+Author: Field G. Van Zee <field@cs.utexas.edu>
+Date:   Tue Feb 12 18:39:35 2013 -0600
+
+    Removed cntl tree usage from packm implementation.
+    
+    Details:
+    - Added new fields to obj_t info field:
+      - invert_diag
+      - pack_order_if_upper
+      - pack_order_if_lower
+      These fields allow packm_init() to embed information that begins
+      in the control tree into the object so that the packm implementation
+      does not need to use control trees at all. This is being done to aid
+      Bryan's DxT code generation.
+    - Added macros that operate on above fields.
+    - Changed packm_init(), packm_blk_var2(), and packm_blk_var3() according
+      to above changes.
+    - Made similar (but much simpler) changes to packv.
+    - Deprecated packm_blk_var1(), packm_unb_var1(), and packm_densify().
+      These were part of prototype implementations and are no longer needed.
+
+commit eb139ae256651af7820b93ef982626180195b87f
+Author: Field G. Van Zee <field@cs.utexas.edu>
+Date:   Tue Feb 12 12:39:30 2013 -0600
+
+    Replaced bl2_abs() with _fabs() where appropriate.
+
+commit 474bac30c99928f9e87315972bcb45c632c0b7ec
+Author: Field G. Van Zee <field@cs.utexas.edu>
+Date:   Tue Feb 12 12:23:48 2013 -0600
+
+    Removed level-0 macros projrs, grabis.
+    
+    Details:
+    - Replaced instances of projrs and grabis macros with newer,
+      more general-purpose getris.
+
+commit 03a260a457c8964e4603a655cee0d40ac17affba
+Author: Field G. Van Zee <field@cs.utexas.edu>
+Date:   Tue Feb 12 11:45:34 2013 -0600
+
+    Restored executable permissions to scripts.
+    
+    Details:
+    - Restored executable (0755) permissions to scripts that were touched by
+      the recursive sed script that updated the copyright headers in the
+      previous commit.
+
+commit 1274e1243775e5e705114257a43176f63635227f
+Author: Field G. Van Zee <field@cs.utexas.edu>
+Date:   Mon Feb 11 14:37:47 2013 -0600
+
+    Updated copyright headers from 2012 to 2013.
+
+commit 3b620cc8e90c53c79129bd9dd89ae6b77c2446f1
+Author: Field G. Van Zee <field@cs.utexas.edu>
+Date:   Mon Feb 11 13:38:07 2013 -0600
+
+    CHANGELOG update.
+
+commit 768fcebaa8be0eb936a6e7a02cd8a19438c79d99 (tag: 0.0.2)
+Author: Field G. Van Zee <field@cs.utexas.edu>
+Date:   Mon Feb 11 13:20:44 2013 -0600
+
+    Added unified test suite, and many fixes.
+    
+    Details:
+    - Added a highly configurable, unified test suite.
+    
+    - Removed DUPB configuration constant from bl2_kernel.h and macro-kernel
+      header files. Now, instead, DUPB is computed as (NDUP != 1) within each
+      macro-kernel. This fixes a bug in trmm/trsm whereby bp was indexed into
+      incorrectly when DUPB was set to FALSE but the NDUP was still non-unit.
+      By encoding both pieces of information into one constant in _kernel.h,
+      it seems somewhat less likely others will encounter this bug in the
+      future.
+    - Added level-2 cache blocksizes to _kernel.h for reference configuration,
+      and defined blocksizes in _cntl.c files to these default values.
+    
+    - Changed semantics of her2k and syr2k such that these operations no longer
+      expect the B matrix to already be conjugate-transposed (or just transposed
+      for syr2k). However, these semantics are preserved for the internal
+      mechanics of the implementations, including the internal back-end and all
+      blocked variants.
+    - Inserted checks for real-valued alpha and beta for herk/her2k and herk,
+      respectively.
+    
+    - Relaxed general object structure constraints in _basic_check() for gemv, ger.
+    - Changed her front-end to NOT copy-cast to real projection; instead, this is
+      replaced by selecting either the real part or both parts within the unblocked
+      algorithm implementation, depending on the value of conjh.
+    - Added conjh to all _check routines for her so that the code knows when to
+      verify that alpha has an imaginary component equal to zero (for her, but
+      not syr).
+    - Changed control tree for her to forgo packing.
+    
+    - Added unit diagonal support to fnormm.
+    - Redefined real versions of abval2s macros in terms of fabs(), fabsf().
+    - Redefined complex versions of sqrt2s macros using the actual "complex square
+      root" formula.
+    - Created new level-0 object-based routines, suffixed with "sc" (for "scalar").
+    - Defined new level-1v, -1d, and -1m versions of add and sub operations
+      (two-operand add and subtract).
+    - Added new scalar macros:
+      - getris: acquire real and imaginary components.
+      - setris: set real and imaginary components.
+      - addjs: addition with conjugated x.
+      - subjs: subtraction with conjugated x.
+    - Defined new utility operations:
+      - absumv: element-wise sum of absolute values for vector elements.
+      - absumm: element-wise sum of absolute values for matrix elements.
+      - mkherm: convert existing matrix to Hermitian.
+      - mksymm: convert existing matrix to symmetric.
+      - mktrim: convert existing matrix to triangular.
+    
+    - Added various error checking routines.
+    - Added bl2_clock_min_diff(), which is used to more cleanly measure the
+      wall clock time of a code block.
+    - Added general stride support to bl2_obj_alloc_buffer().
+    - Added bl2_obj_init_scalar().
+    - Updated parameter mapping in bl2_param_map.c.
+    - Added support for queriable version string.
+    
+    - Fixed a bug in the her2k macro-kernels (which currently are simply
+      implemented in terms of two invocations of herk) whereby beta was being
+      applied to both the first and second rank-k updates, rather than only
+      the first.
+    - Fixed a bug in trmm/trsm whereby transpose and right side cases were not
+      properly implemented due to erroneous assumptions regarding aliasing and
+      root objects.
+    - Fixed a bug in the upper triangular trsm macro-kernel in which the wrong
+      MR x NR block of B was being updated.
+    - Fixed a bug in the inverts macro in the double real case whereby the
+      value was typecast to float before inversion. This affected non-unit cases
+      of dtrsm.
+    - Fixed a bug in the reference kernels for gemmtrsm whereby the minus one
+      constant was being applied incorrectly.
+    - Fixed a bug in the overall treatment of non-unit alpha for trsm. The code
+      now mimics the rank-k strategy of gemm, whereby alpah is applied during
+      the first iteration of variant 3, with BLIS_ONE passed in instead for
+      subsequent iterations. This also required passing alpha into the macro-
+      kernels as well as the fused gemmtrsm micro-kernels.
+    - Fixed a bug in trsm_u_blk_var1 whereby the gemm macro-kernel was being
+      called for blocks strictly above the diagonal. While this sounds good in
+      theory, this cannot be done because gemm_ker_var2 expects row panels of
+      A to be packed from top to bottom, while for trsm_u, A is actually packed
+      from bottom to top due to the reverse (BR->TL) nature of the algorithm.
+    - Fixed a bug in packm_cxk() whereby panel packings with unit panel
+      dimensions were mishandled due to incorrect arguments to the copyv kernel.
+      Also changed the copyv kernel invocation to scal2v so that these edge
+      cases are properly handled when scaling is requested.
+    - Fixed a bug in packv_int() whereby an uninitialized object is passed in
+      instead of the source object.
+    - Fixed a bug whereby level-2 code could allocate memory dynamically via
+      bl2_malloc() and then attempt to free it via bl2_mm_release(). Also fixed
+      a potential future bug whereby a mem_t object that is actually no longer
+      "allocated" from the static pool is mistaken for being allocated due to
+      failure to NULLify the buffer when the block was most recently released.
+    - Fixed a bug in bl2_acquire_mpart_*() whreby the uplo field was mistakenly
+      toggled when the requested subpartition needed to be "reflected" due to it
+      residing in an unstored region.
+
+commit be94fb84c0351602d7585269f29998e3bf83f899
+Author: Field G. Van Zee <field@cs.utexas.edu>
+Date:   Fri Jan 4 10:55:21 2013 -0600
+
+    Added missing 'd' to fused gemmtrsm function name.
+
+commit 879a179e1dee36f0c56765f2ab91a26861019b34
+Author: Field G. Van Zee <field@cs.utexas.edu>
+Date:   Fri Jan 4 10:37:27 2013 -0600
+
+    Added debug statements to bl2_mm_acquire_m().
+    
+    Details:
+    - Added printf() statements to bl2_mm_acquire_m() to help debug issues
+      with prematurely exhausted memory pool.
+    - Removed 'd' from kernel names of reference kernels in clarksville
+      configuration's bl2_kernel.h
+
+commit 806e74beb4eafeef620a555ffbb3f6779e29c7b6
+Author: Field G. Van Zee <field@cs.utexas.edu>
+Date:   Thu Dec 20 17:07:50 2012 -0600
+
+    Defined Frobenius norm operations.
+    
+    Details:
+    - Added level-0 grabis macro operation to grab imaginary component of one
+      variable and copy it to the real component of another variable.
+    - Defined sumsqv operation, which computes the sum of the absolute squares
+      of the elements of a vector. This implementation is modeled after ?lassq
+      in netlib LAPACK.
+    - Defined fnormv and fnormm operations, which compute the Frobenius norm on
+      vectors and matrices, respectively. These operations are treated as one-
+      operand operations where the output norm value is the real projection of
+      the datatype of the input operand. Both operations are implemented in terms
+      of sumsqv.
+
+commit 66e80ce1aec099b2b2b0c4f295e38add2c921383
+Author: Field G. Van Zee <field@cs.utexas.edu>
+Date:   Thu Dec 20 17:02:55 2012 -0600
+
+    Added GENT*R macros; tweaked bl2_machval defs.
+    
+    Details:
+    - Added function and prototype macro-generating macros for GENTFUNCR and
+      GENTPROTR, which are one-operand macros with auxiliary real projection
+      types.
+    - Tweaked bl2_machval files to use new macros.
+
+commit 2fecc88ca22142020573f168da715e8e9f3dd7de
+Author: Field G. Van Zee <field@cs.utexas.edu>
+Date:   Thu Dec 20 11:35:14 2012 -0600
+
+    Fixed harmless macro bug in level-1m operations.
+    
+    Details:
+    - Fixed some inconsistent usage of n_iter_max and n_iter in the two
+      bl2_set_dims_incs_uplo_[12]m macros. The right thing ended up happening
+      despite the bug, which is why I had not discovered it until now.
+
+commit 8945db6ec9f82168cf72411ad408b4fdb44ae0d1
+Author: Field G. Van Zee <field@cs.utexas.edu>
+Date:   Tue Dec 18 15:07:36 2012 -0600
+
+    Renamed x86,x86_64 kernels to indicate 'd' fusing.
+    
+    Details:
+    - Renamed x86 and x86_64 kernels to contain a 'd' before the fusing shape
+      to emphasize that the fusing shape is not for all datatype instances, but
+      rather just for one (that of double-precision real). Other fusing shapes
+      would be proportional to their precision and domain "byte footprints".
+    - Corresponding changes to config/clarksville/bl2_kernel.h.
+
+commit 6fbbdd4e194d06096ad08c5db61127be338067db
+Author: Field G. Van Zee <field@cs.utexas.edu>
+Date:   Tue Dec 18 14:34:02 2012 -0600
+
+    More tweaks to _config.h, _kernel.h; smem tweaks.
+    
+    Details:
+    - Moved kernel-related definitions form bl2_config.h to bl2_kernel.h.
+    - Replaced #define of _GNU_SOURCE with #define of _POSIX_C_SOURCE. This
+      accomplishes the same thing (enabling posix_memalign()) without enabling
+      all of the GNU extensions we don't need.
+    - Defined the size of the static memory pool in terms of MC, KC, and NC,
+      as well as two new constants that determine how many MCxKC blocks and
+      how many KCxNC blocks should be allocated (defined in bl2_config.h).
+    - In the case of static memory pool exhaustion, replaced the generic
+      bl2_abort() with a specific error code call.
+
+commit 5d8bdb21c48e8fb11bef6128a242122cc1470a99
+Author: Field G. Van Zee <field@cs.utexas.edu>
+Date:   Mon Dec 17 16:07:36 2012 -0600
+
+    Minor reordering of bl2_config.h definitions.
+
+commit 4a83f67490136a898f558e273b76a687aed8b893
+Author: Field G. Van Zee <field@cs.utexas.edu>
+Date:   Mon Dec 17 12:35:54 2012 -0600
+
+    Consolidated configuration headers.
+    
+    Details:
+    - Merged contents of bl2_arch.h into bl2_config.h for reference and
+      clarksville configurations.
+    - Updated CREDITS, INSTALL, LICENSE, README files.
+
+commit 0670c33cc14612f636ef09ede4133404ae0af6ba
+Author: Field G. Van Zee <field@cs.utexas.edu>
+Date:   Fri Dec 14 12:45:26 2012 -0600
+
+    Fixed bug in reference gemm ukernels.
+    
+    Details:
+    - Fixed a bug whereby, for the reference gemm ukernels, the matrix product
+      was not correctly accumulated and scaled (by alpha) into the output matrix
+      C. (Thanks to Fran for finding this bug.)
+    - Whitespace changes to reference trsm kernels.
+
+commit e2e7cb2fbe615be4d375bc2dce88d03d98fadc9e
+Author: Field G. Van Zee <field@cs.utexas.edu>
+Date:   Thu Dec 13 18:17:54 2012 -0600
+
+    Expanded reference packm/unpackm kernel set to 16.
+    
+    Details:
+    - Added 10xk, 12xk, 14xk, and 16xk reference kernels for packm and
+      unpackm.
+    - Updated bl2_[un]packm_cxk() to silently use scal2m if "out of range"
+      kernel size is requested. (Thanks to Tyler for finding this bug.)
+    - Updated bl2_kernel.h to contain new _KERNEL definitions, according
+      to above changes, for 'reference' and 'clarksville' configurations.
+    - Updated CHANGELOG.
+    - Removed "output*.m" from .gitignore.
+
+commit 17455a8bce038dd570356ab0c5c11d9a89f20248
+Author: Field G. Van Zee <field@cs.utexas.edu>
+Date:   Mon Dec 10 17:23:32 2012 -0600
+
+    Minor updates towards to 0.0.1.
+
+commit 7ad4ebef38b8e6eea9b6091844ba7294ec870271 (tag: 0.0.1)
+Author: Field G. Van Zee <field@cs.utexas.edu>
+Date:   Mon Dec 10 16:18:40 2012 -0600
+
+    Tweaks to get BLIS compiling again on clarksville.
+    
+    Details:
+    - Updated header files and make_defs.mk in config/clarksville.
+    - Fixes to bl2_mem.c (now that SMEM_M, SMEM_N are gone).
+    - Moved definition of blksz_t from bl2_cntl.h to bl2_type_defs.h.
+    - Shuffled include statements in blis2.h.
+
+commit cc58ea86010b1f046134d13b546c878389df9af5
+Author: Field G. Van Zee <field@cs.utexas.edu>
+Date:   Mon Dec 10 14:55:12 2012 -0600
+
+    Added template fragment.mk; updated .gitignore.
+
+commit 714c527b0eb153b7e2040b79349edc8372f743fd
+Author: Field G. Van Zee <field@cs.utexas.edu>
+Date:   Fri Dec 7 19:54:04 2012 -0600
+
+    Added 'changelog' make target; other tweaks.
+    
+    Details:
+    - Updated CHANGELOG.
+    - Added 'changelog' target to Makefile that runs 'git log --decorate' and
+      overwrites CHANGELOG with the output.
+    - Other trivial changes.
+
+commit e4e5404d26aded4873278e85faf6f14ac32115b5
+Author: Field G. Van Zee <field@cs.utexas.edu>
+Date:   Fri Dec 7 17:34:53 2012 -0600
+
+    Define static memory pool size in bl2_config.h.
+
+commit 19bb507d0de6a2bd3ce37cf616bdcd6b419ed641
+Author: Field G. Van Zee <field@cs.utexas.edu>
+Date:   Fri Dec 7 17:18:00 2012 -0600
+
+    Refined INSTALL text; added 'showconfig' target.
+    
+    Details:
+    - Added 'showconfig' target to Makefile.
+    - Added header files and ./config/<configname>/make_defs.mk as prerequisites
+      to object file rules.
+    - Added config.mk as prerequisite to library install rules.
+    - Edited and added to INSTALL file.
+
+commit 26cb659dd79636489db5a051aa60fff80273a7b9
+Author: Field G. Van Zee <field@cs.utexas.edu>
+Date:   Thu Dec 6 15:34:53 2012 -0600
+
+    Added auto-detection of version string (via git).
+    
+    Details:
+    - Added build/update-version-file.sh script for auto-detecting "version"
+      string and updating 'version' file accordingly. (If .git directory is
+      not present, then it is assumed this copy of BLIS is a downloaded
+      release, in which case 'version' file is left unchanged.)
+    - Added invocation of update-version-file.sh to configure script.
+
+commit b0ecd0ff52fa6ffc9e1d9eb44c365f7f009a6204
+Author: Field G. Van Zee <field@cs.utexas.edu>
+Date:   Thu Dec 6 14:27:11 2012 -0600
+
+    Wrote first draft of INSTALL file.
+
+commit bcbe81235a35ccfdbcc2f2319a0ca6e04f75a785 (tag: 0.0.0)
+Author: Field G. Van Zee <field@cs.utexas.edu>
+Date:   Thu Dec 6 12:42:35 2012 -0600
+
+    Updated standalone test Makefile and other fixes.
+    
+    Details:
+    - Major edits to test/Makefile to bring up-to-date wrt new build system;
+      should no longer be broken.
+    - Minor edits to top-level Makefile.
+    - Fixed copy-and-paste bugs in
+      - frame/1m/packm/ukernels/bl2_packm_ref_?xk.c
+      - frame/1m/unpackm/ukernels/bl2_unpackm_ref_?xk.c
+
+commit 2f272b40f43307909736327f49d17737c7a05d37
+Author: Field G. Van Zee <field@cs.utexas.edu>
+Date:   Tue Dec 4 19:22:14 2012 -0600
+
+    Added build system and continued reorganization.
+    
+    Details:
+    - Added/renamed packm, unpackm kernels.
+    - Added machine value routines.
+    - Added param_map facility.
+    - Renamed AUTHORS to CREDITS.
+    - Added Makefile; continued to expand upon existing configure script.
+    - #define fuse_fac macros in operation headers if not defined already
+      (by the user in bl2_kernels.h).
+
+commit 00f3498a8943be1b387f0d5c029c8c7891687ad5
+Author: Field G. Van Zee <field@cs.utexas.edu>
+Date:   Mon Dec 3 12:36:11 2012 -0600
+
+    Initial commit.
