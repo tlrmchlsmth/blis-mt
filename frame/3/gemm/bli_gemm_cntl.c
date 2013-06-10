@@ -355,7 +355,7 @@ void bli_gemm_hier_cntl_create()
                         dim_t l4_comm_id = i * l3_comm->num_threads + l3_comm_id;
                         dim_t l5_comm_id = h * l4_comm->num_threads + l4_comm_id;
                         dim_t global_comm_id = g * l5_comm->num_threads + l5_comm_id; 
-                        printf("%d\t%d\t%d\t%d\t%d\n", l3_comm_id, l4_comm_id, global_comm_id, m, k);
+                        //printf("%d\t%d\t%d\t%d\t%d\n", l3_comm_id, l4_comm_id, global_comm_id, m, k);
 
                         packm_thread_info_t* pack_a_info = bli_create_packm_thread_info( l3_comm, l3_comm_id, max_pack_with );
                         gemm_packa_cntl_mt = bli_packm_cntl_obj_create_mt( BLIS_BLOCKED, BLIS_VARIANT2, gemm_mr, gemm_extmr,
