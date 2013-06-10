@@ -48,7 +48,8 @@ typedef void (*FUNCPTR_T)(
                            dim_t   l2_num_threads,
                            dim_t   l2_thread_id,
                            dim_t   l1_num_threads,
-                           dim_t   l1_thread_id
+                           dim_t   l1_thread_id,
+                           dim_t   l0_thread_id
                          );
 
 static FUNCPTR_T GENARRAY(ftypes,gemm_ker_var2);
@@ -91,7 +92,7 @@ void bli_gemm_ker_var2( obj_t*  alpha,
     dim_t l2_thread_id   = bli_gemm_l2_tid( cntl->thread_info );
     dim_t l1_num_threads = bli_gemm_l1_num_threads( cntl->thread_info ); 
     dim_t l1_thread_id   = bli_gemm_l1_tid( cntl->thread_info );
-//    dim_t l0_thread_id   = bli_gemm_l0_tid( cntl->thread_info );
+    dim_t l0_thread_id   = bli_gemm_l0_tid( cntl->thread_info );
 
 	FUNCPTR_T f;
 
@@ -139,7 +140,8 @@ void bli_gemm_ker_var2( obj_t*  alpha,
        l2_num_threads,
        l2_thread_id,
        l1_num_threads,
-       l1_thread_id );
+       l1_thread_id,
+       l0_thread_id );
 }
 
 
@@ -158,7 +160,8 @@ void PASTEMAC(ch,varname)( \
                            dim_t   l2_num_threads, \
                            dim_t   l2_thread_id, \
                            dim_t   l1_num_threads, \
-                           dim_t   l1_thread_id \
+                           dim_t   l1_thread_id, \
+                           dim_t   l0_thread_id \
                          ) \
 { \
 	/* Temporary buffer for duplicating elements of B. */ \
@@ -284,7 +287,7 @@ void PASTEMAC(ch,varname)( \
 			                      bp, \
 			                      beta_cast, \
 			                      c11, rs_c, cs_c, \
-			                      a2, b2 ); \
+			                      a2, b2, l0_thread_id ); \
 \
 		} \
 \
@@ -314,6 +317,7 @@ void PASTEMAC(ch,varname)( \
 			                        ct,  rs_ct, cs_ct, \
 			                        beta_cast, \
 			                        c11, rs_c,  cs_c ); \
+\
 		} \
 \
 		b1 = b_cast + n_iter * cstep_b; \
@@ -352,7 +356,7 @@ void PASTEMAC(ch,varname)( \
 			                      bp, \
 			                      zero, \
 			                      ct, rs_ct, cs_ct, \
-			                      a2, b2 ); \
+			                      a2, b2, l0_thread_id ); \
 \
 			/* Scale the right edge of C and add the result from above. */ \
 			PASTEMAC(ch,xpbys_mxn)( MR, n_left, \
@@ -393,5 +397,5 @@ PASTEMAC(ch,fprintm)( stdout, "gemm_ker_var2: bd", k, NR*NDUP, bp, NR*NDUP, 1, "
 /*PASTEMAC(ch,fprintm)( stdout, "gemm_ker_var2: a1", MR, k, a1, 1, MR, "%4.1f", "" );*/ \
 }
 
-INSERT_GENTFUNC_BASIC( gemm_ker_var2, GEMM_UKERNEL )
+INSERT_GENTFUNC_BASIC( gemm_ker_var2, GEMM_UKERNEL_MT )
 

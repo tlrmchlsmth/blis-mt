@@ -50,7 +50,7 @@ void dgemm_reference(double alpha, obj_t A, obj_t B, obj_t C)
         {
             for(int k = 0; k < A.n; k++)
             {
-                c[i*C.rs + j*C.cs] = alpha * a[i*A.rs + k*A.cs] *b[k*B.rs + j*B.cs]  + c[i*C.rs + j*C.cs];
+                c[i*C.rs + j*C.cs] = alpha * a[i*A.rs + k*A.cs] *b[k*B.rs + j*B.cs];//  + c[i*C.rs + j*C.cs];
             }
         }
     }
@@ -125,8 +125,8 @@ int main( int argc, char** argv )
 	//k_input = -1;
 	k_input = 200;
 #else
-	p_begin = 24;
-	p_end   = 24;
+	p_begin = 16;
+	p_end   = 16;
 	p_inc   = 1;
 
 	//m_input = 10;
@@ -134,7 +134,7 @@ int main( int argc, char** argv )
 	//n_input = 10;
     m_input = -1;
     n_input = -1;
-    k_input = -1;
+    k_input = 1;
 #endif
 
 	dt_a = BLIS_DOUBLE;
@@ -168,7 +168,7 @@ int main( int argc, char** argv )
 
 
 		bli_setsc(  (2.0/1.0),0.0, &alpha );
-		bli_setsc(  (1.0/1.0),0.0, &beta );
+		bli_setsc(  (0.0/1.0),0.0, &beta );
 		mr = bli_blksz_obj_create( 2, 4, 2, 2 );
 		kr = bli_blksz_obj_create( 1, 1, 1, 1 );
 		nr = bli_blksz_obj_create( 1, 4, 1, 1 );

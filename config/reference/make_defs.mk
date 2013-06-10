@@ -75,15 +75,15 @@ GIT_LOG    := $(GIT) log --decorate
 #
 
 # --- Determine the C compiler and related flags ---
-CC           := gcc
+CC           := bgc99
 # Enable IEEE Standard 1003.1-2004 (POSIX.1d). 
 # NOTE: This is needed to enable posix_memalign().
 CPPROCFLAGS  := -D_POSIX_C_SOURCE=200112L
-CMISCFLAGS   := -std=c99 -m64 -fopenmp #-pg
-CDBGFLAGS    := -g
-CWARNFLAGS   := -Wall
-COPTFLAGS    := -O0 
-CVECFLAGS    := -msse3 # -mfpmath=sse
+CMISCFLAGS   := -qthreaded -qsmp=omp #-pg
+CDBGFLAGS    := 
+CWARNFLAGS   := -w
+COPTFLAGS    := -O3
+CVECFLAGS    := -qarch=qp -qtune=qp -qsimd=auto -qhot=level=1 -qprefetch -qunroll=yes -qnoipa
 
 # Aggregate all of the flags into two groups: one for optimizable code, and
 # one for code that should not be optimized.

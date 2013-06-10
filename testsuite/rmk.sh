@@ -1,5 +1,5 @@
 cd ..
-make -j
+make -j 16
 make install
 cd testsuite
-make -j
+make -j 16

@@ -43,6 +43,7 @@
 extern "C" {
 #endif
 
+#define restrict /* nothing */
 
 // -- BLIS configuration definition --
 
