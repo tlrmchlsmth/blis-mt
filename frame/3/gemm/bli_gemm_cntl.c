@@ -43,8 +43,8 @@ bool_t do_gridlike = 0;
 
 dim_t l0_nt = 4; // Number of threads used in the microkernel. Currently not used in the gridlike threading.
 dim_t l1_nt = 1; 
-dim_t l2_nt = 1;
-dim_t l3_nt = 1;
+dim_t l2_nt = 8;
+dim_t l3_nt = 2;
 dim_t l4_nt = 1;
 dim_t l5_nt = 1;
 dim_t max_pack_with = 64;
@@ -351,11 +351,11 @@ void bli_gemm_hier_cntl_create()
                         for(int m = 0; m < l0_nt; m++)
                         {
                         //TODO: doublecheck this
-                        dim_t l3_comm_id = m + k * l0_nt + j * l1_nt;
+                        dim_t l3_comm_id = m + k * l0_nt + j * l1_nt * l0_nt;
                         dim_t l4_comm_id = i * l3_comm->num_threads + l3_comm_id;
                         dim_t l5_comm_id = h * l4_comm->num_threads + l4_comm_id;
                         dim_t global_comm_id = g * l5_comm->num_threads + l5_comm_id; 
-                        //printf("%d\t%d\t%d\t%d\t%d\n", l3_comm_id, l4_comm_id, global_comm_id, m, k);
+                        printf("%d\t%d\t%d\t%d\t%d\n", l3_comm_id, l4_comm_id, global_comm_id, m, k);
 
                         packm_thread_info_t* pack_a_info = bli_create_packm_thread_info( l3_comm, l3_comm_id, max_pack_with );
                         gemm_packa_cntl_mt = bli_packm_cntl_obj_create_mt( BLIS_BLOCKED, BLIS_VARIANT2, gemm_mr, gemm_extmr,
@@ -383,7 +383,7 @@ void bli_gemm_hier_cntl_create()
                         gemm_blk_thread_info_t* l5_info = bli_create_gemm_blk_thread_info( global_comm, global_comm_id, l5_comm, l5_comm_id, l5_comm, l5_comm_id, l5_nt, g );
                         gemm_cntl_vl_mm_mt = bli_gemm_cntl_obj_create_mt( BLIS_BLOCKED, BLIS_VARIANT2, gemm_nc, NULL, NULL,NULL,NULL,NULL,
                                   gemm_cntl_mm_op_mt, NULL, l5_info );
-                                  
+                        
                         gemm_cntl_mts[global_comm_id] = gemm_cntl_vl_mm_mt;
                         }
                     }
