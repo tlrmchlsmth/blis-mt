@@ -43,8 +43,8 @@ bool_t do_gridlike = 0;
 
 dim_t l0_nt = 4; // Number of threads used in the microkernel. Currently not used in the gridlike threading.
 dim_t l1_nt = 1; 
-dim_t l2_nt = 8;
-dim_t l3_nt = 2;
+dim_t l2_nt = 1;
+dim_t l3_nt = 1;
 dim_t l4_nt = 1;
 dim_t l5_nt = 1;
 dim_t max_pack_with = 64;
