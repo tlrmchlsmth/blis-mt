@@ -8,6 +8,10 @@ struct gemm_ker_thread_info_s
     dim_t l1_tid;
     dim_t l1_num_threads;
     dim_t l0_tid;
+
+    //Can shove implementation dependent data here 
+    //Useful on BG/Q and KNC to synchronize threads that share an L1 cache
+    void* other; 
 };
 typedef struct gemm_ker_thread_info_s gemm_ker_thread_info_t;
 

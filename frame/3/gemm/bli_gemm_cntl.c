@@ -331,10 +331,33 @@ void bli_gemm_hier_cntl_create()
     gemm_t*           gemm_cntl_vl_mm_mt;
     packm_t*          gemm_packa_cntl_mt;
     packm_t*          gemm_packb_cntl_mt;
+    
+    char * str = getenv( "BLIS_L0_NT" );
+    if(str != NULL )
+        l0_nt = strtol( str, NULL, 10 ); 
+    str = getenv( "BLIS_L1_NT" );
+    if(str != NULL )
+        l1_nt = strtol( str, NULL, 10 ); 
+    str = getenv( "BLIS_L2_NT" );
+    if(str != NULL )
+        l2_nt = strtol( str, NULL, 10 ); 
+    str = getenv( "BLIS_L3_NT" );
+    if(str != NULL )
+        l3_nt = strtol( str, NULL, 10 ); 
+    str = getenv( "BLIS_L4_NT" );
+    if(str != NULL )
+        l4_nt = strtol( str, NULL, 10 ); 
+    str = getenv( "BLIS_L5_NT" );
+    if(str != NULL )
+        l5_nt = strtol( str, NULL, 10 ); 
 
     gemm_num_threads_default = l5_nt*l4_nt*l3_nt*l2_nt*l1_nt*l0_nt;
     gemm_cntl_mts = (gemm_t**) malloc(sizeof(gemm_t) * gemm_num_threads_default );
     thread_comm_t*  global_comm = bli_create_communicator( gemm_num_threads_default );
+    thread_comm_t** cpb_comms = (thread_comm_t**) malloc(sizeof(thread_comm_t*) * 16);
+    for(int i = 0; i < 16; i++)
+        cpb_comms[i] = bli_create_communicator( 4 );
+
     for( int g = 0; g < l5_nt; g++ )
     {
         thread_comm_t*  l5_comm = bli_create_communicator( l4_nt*l3_nt*l2_nt*l1_nt*l0_nt );
@@ -369,6 +392,8 @@ void bli_gemm_hier_cntl_create()
                                        BLIS_PACKED_COL_PANELS, BLIS_BUFFER_FOR_B_PANEL, pack_b_info );
 
                         gemm_ker_thread_info_t* l2_info = bli_create_gemm_ker_thread_info( j, l2_nt, k, l1_nt, m );
+                        l2_info->other = cpb_comms[ global_comm_id / 4 ];
+
                         gemm_cntl_bp_ke_mt = bli_gemm_cntl_obj_create_mt( BLIS_UNB_OPT, BLIS_VARIANT2, NULL, NULL, NULL, NULL, 
                                 NULL, NULL, NULL, NULL, l2_info );
 

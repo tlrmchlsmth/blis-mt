@@ -24,7 +24,7 @@ thread_comm_t* bli_create_communicator( dim_t num_threads )
 
 void* bli_broadcast_structure( thread_comm_t* communicator, dim_t id, void* to_send )
 {   
-    if( communicator == NULL ) return to_send;
+    if( communicator == NULL || communicator->num_threads == 1 ) return to_send;
 
     if( id == 0 ) communicator->sent_object = to_send;
 

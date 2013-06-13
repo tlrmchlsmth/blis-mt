@@ -35,8 +35,7 @@
 #include "blis.h"
 #undef restrict
 
-void bli_dgemm_16x4( dim_t k, double* alpha, double* a, double* b, double* beta, double* c, inc_t rs_c, inc_t cs_c, double* a_next, double* b_next );
-void bli_sgemm_16x16(
+void bli_sgemm_8x8(
                         dim_t     k,
                         float*    alpha,
                         float*    a,
@@ -48,6 +47,8 @@ void bli_sgemm_16x16(
 {
 	bli_check_error_code( BLIS_NOT_YET_IMPLEMENTED );
 }
+
+
 
 
 /*
@@ -65,7 +66,7 @@ void bli_sgemm_16x16(
  * We have 4 loads per iteration, so we have 4 more instructions to play with. 2 are permutations of B,
  * and we use the xmadd and xxmadd instructions to effectively gain free permutations of B.
 */
-#define PREFETCH_OFFSET 16
+
 void bli_dgemm_8x8(
                         dim_t     k,
                         restrict double*   alpha,
@@ -73,7 +74,7 @@ void bli_dgemm_8x8(
                         restrict double*   b,
                         restrict double*   beta,
                         restrict double*   c, inc_t rs_c, inc_t cs_c,
-                        restrict double* a_prefetch, restrict double* b_prefetch
+                        restrict double* a_next, restrict double* b_next
                       )
 
 {
@@ -106,16 +107,13 @@ void bli_dgemm_8x8(
     vector4double b0p, b1p;
 
     vector4double pattern = vec_gpci( 02301 );
-   
+    
     for( dim_t i = 0; i < k; i++ )
     {
         a0 = vec_lda( 0 * sizeof(double), a );
         a1 = vec_lda( 4 * sizeof(double), a );
         b0 = vec_lda( 0 * sizeof(double), b );
         b1 = vec_lda( 4 * sizeof(double), b );
-        
-        //__prefetch_by_stream( 1, a_prefetch + PREFETCH_OFFSET );
-        //__prefetch_by_stream( 1, b_prefetch + PREFETCH_OFFSET );
         
         c00a    = vec_xmadd( b0, a0, c00a );
         c00b    = vec_xxmadd( a0, b0, c00b );
@@ -140,10 +138,8 @@ void bli_dgemm_8x8(
         c11c    = vec_xmadd( b1p, a1, c11c );
         c11d    = vec_xxmadd( a1, b1p, c11d );
 
-        a += 8*2;
-        b += 8*2;
-        a_prefetch += 16;
-        b_prefetch += 16;
+        a += 8;
+        b += 8;
     }
     
     // Create patterns for permuting C
@@ -231,8 +227,7 @@ void bli_dgemm_8x8(
     UPDATE( AB, c, 4 );
 }
 
-#define USE_8X8
-void bli_dgemm_16x16_mt(
+void bli_dgemm_8x8_mt(
                         dim_t     k,
                         restrict double*   alpha,
                         restrict double*   a,
@@ -243,42 +238,14 @@ void bli_dgemm_16x16_mt(
                         int tid
                       )
 {
-#ifdef USE_8X8
-    int m_tid = tid >> 1;
-    int n_tid = tid & 1;
-    double * a_addr = a + 8 * m_tid;
-    double * b_addr = b + 8 * n_tid;
+    
     bli_dgemm_8x8( k, alpha, 
-        a_addr, 
-        b_addr, beta, 
-        c + 8 * m_tid * rs_c + 8 * n_tid * cs_c, 
-        rs_c, cs_c, //NULL, NULL);
-        a + 8 + 4 * m_tid, 
-        b + 8 + 4 * n_tid); 
-#else
-    bli_dgemm_16x4( k, alpha, 
         a,
-        b + 4 * tid, beta, 
-        c + 4 * tid * cs_c, 
+        b, beta, 
+        c, 
         rs_c, cs_c, NULL, NULL );
-#endif
 }
 
-void bli_dgemm_16x16(
-                        dim_t     k,
-                        restrict double*   alpha,
-                        restrict double*   a,
-                        restrict double*   b,
-                        restrict double*   beta,
-                        restrict double*   c, inc_t rs_c, inc_t cs_c,
-                        restrict double* a_next, restrict double* b_next
-                      )
-{
-    bli_dgemm_16x16_mt(k, alpha, a, b, beta, c, rs_c, cs_c, a_next, b_next, 0);
-    bli_dgemm_16x16_mt(k, alpha, a, b, beta, c, rs_c, cs_c, a_next, b_next, 1);
-    bli_dgemm_16x16_mt(k, alpha, a, b, beta, c, rs_c, cs_c, a_next, b_next, 2);
-    bli_dgemm_16x16_mt(k, alpha, a, b, beta, c, rs_c, cs_c, a_next, b_next, 3);
-}
 void bli_dgemm_16x4(
                         dim_t     k,
                         double*   alpha,
@@ -351,7 +318,7 @@ void bli_dgemm_16x4(
         c30d    = vec_xxmadd( a3, b0p, c30d );
 
         a += 16;
-        b += 16;
+        b += 4;
     }
     
     // Create patterns for permuting C
@@ -365,7 +332,30 @@ void bli_dgemm_16x4(
     vector4double betav = vec_splats( *beta );
     vector4double alphav = vec_splats( *alpha );
     double ct;
-   
+    
+#define UPDATE( REG, ADDR, OFFSET )     \
+{                                       \
+    ct = *(ADDR + OFFSET);              \
+    C = vec_insert( ct, C, 0 );         \
+    ct = *(ADDR + OFFSET + 1);          \
+    C = vec_insert( ct, C, 1 );         \
+    ct = *(ADDR + OFFSET + 2 );         \
+    C = vec_insert( ct, C, 2 );         \
+    ct = *(ADDR + OFFSET + 3 );         \
+    C = vec_insert( ct, C, 3 );         \
+                                        \
+    AB = vec_mul( REG, alphav );        \
+    AB = vec_madd( C, betav, AB);       \
+                                        \
+    ct = vec_extract( AB, 0 );          \
+    *(ADDR + OFFSET) = ct;              \
+    ct = vec_extract( AB, 1 );          \
+    *(ADDR + OFFSET + 1) = ct;          \
+    ct = vec_extract( AB, 2 );          \
+    *(ADDR + OFFSET + 2) = ct;          \
+    ct = vec_extract( AB, 3 );          \
+    *(ADDR + OFFSET + 3) = ct;          \
+}  
     //Update c00 and c10 sub-blocks
     AB = vec_perm( c00a, c00c, patternCA );
     UPDATE( AB, c, 0 );
@@ -410,7 +400,7 @@ void bli_dgemm_16x4(
     UPDATE( AB, c, 12 );
 
 }
-void bli_cgemm_16x16(
+void bli_cgemm_8x8(
                         dim_t     k,
                         scomplex* alpha,
                         scomplex* a,
@@ -423,7 +413,7 @@ void bli_cgemm_16x16(
 	bli_check_error_code( BLIS_NOT_YET_IMPLEMENTED );
 }
 
-void bli_zgemm_16x16(
+void bli_zgemm_8x8(
                         dim_t     k,
                         dcomplex* alpha,
                         dcomplex* a,
@@ -437,7 +427,7 @@ void bli_zgemm_16x16(
 }
 
 
-void bli_sgemm_16x16_mt(
+void bli_sgemm_8x8_mt(
                         dim_t     k,
                         float*    alpha,
                         float*    a,
@@ -451,7 +441,7 @@ void bli_sgemm_16x16_mt(
 	bli_check_error_code( BLIS_NOT_YET_IMPLEMENTED );
 }
 
-void bli_cgemm_16x16_mt(
+void bli_cgemm_8x8_mt(
                         dim_t     k,
                         scomplex* alpha,
                         scomplex* a,
@@ -465,7 +455,7 @@ void bli_cgemm_16x16_mt(
 	bli_check_error_code( BLIS_NOT_YET_IMPLEMENTED );
 }
 
-void bli_zgemm_16x16_mt(
+void bli_zgemm_8x8_mt(
                         dim_t     k,
                         dcomplex* alpha,
                         dcomplex* a,

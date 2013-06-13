@@ -49,7 +49,8 @@ typedef void (*FUNCPTR_T)(
                            dim_t   l2_thread_id,
                            dim_t   l1_num_threads,
                            dim_t   l1_thread_id,
-                           dim_t   l0_thread_id
+                           dim_t   l0_thread_id,
+                           void*   other
                          );
 
 static FUNCPTR_T GENARRAY(ftypes,gemm_ker_var2);
@@ -93,6 +94,7 @@ void bli_gemm_ker_var2( obj_t*  alpha,
     dim_t l1_num_threads = bli_gemm_l1_num_threads( cntl->thread_info ); 
     dim_t l1_thread_id   = bli_gemm_l1_tid( cntl->thread_info );
     dim_t l0_thread_id   = bli_gemm_l0_tid( cntl->thread_info );
+    void* other          = ((gemm_ker_thread_info_t*)cntl->thread_info)->other;
 
 	FUNCPTR_T f;
 
@@ -141,7 +143,8 @@ void bli_gemm_ker_var2( obj_t*  alpha,
        l2_thread_id,
        l1_num_threads,
        l1_thread_id,
-       l0_thread_id );
+       l0_thread_id,
+       other );
 }
 
 
@@ -161,7 +164,8 @@ void PASTEMAC(ch,varname)( \
                            dim_t   l2_thread_id, \
                            dim_t   l1_num_threads, \
                            dim_t   l1_thread_id, \
-                           dim_t   l0_thread_id \
+                           dim_t   l0_thread_id, \
+                           void*   other \
                          ) \
 { \
 	/* Temporary buffer for duplicating elements of B. */ \
@@ -289,6 +293,10 @@ void PASTEMAC(ch,varname)( \
 			                      c11, rs_c, cs_c, \
 			                      a2, b2, l0_thread_id ); \
 \
+            /*if( ++n_ukernels == 4 ){ \
+                bli_barrier( comm ); \
+                n_ukernels = 0; \
+            }\*/\
 		} \
 \
 		/* Bottom edge handling. */ \

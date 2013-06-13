@@ -80,11 +80,11 @@ CC           := bgc99
 # NOTE: This is needed to enable posix_memalign().
 CPPROCFLAGS  := -D_POSIX_C_SOURCE=200112L
 CINCFLAGS    := -I/bgsys/drivers/ppcfloor -I/bgsys/drivers/ppcfloor/spi/include/kernel/cnk
-CMISCFLAGS   := -qthreaded -qsmp=omp -qasm=gcc -qkeyword=asm -qnoprefetch #-pg
+CMISCFLAGS   := -qthreaded -qsmp=omp -qasm=gcc -qkeyword=asm #-pg
 CDBGFLAGS    := 
 CWARNFLAGS   := -w
-COPTFLAGS    := -O5 -qnoprefetch
-CVECFLAGS    := -qarch=qp -qtune=qp -qsimd=auto -qhot=level=1 -qunroll=yes -qnoipa 
+COPTFLAGS    := -O5
+CVECFLAGS    := -qarch=qp -qtune=qp -qsimd=auto -qhot=level=1 -qprefetch -qunroll=yes -qnoipa
 
 # Aggregate all of the flags into two groups: one for optimizable code, and
 # one for code that should not be optimized.
