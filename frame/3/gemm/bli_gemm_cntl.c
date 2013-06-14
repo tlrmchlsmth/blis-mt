@@ -41,13 +41,14 @@ void bli_gemm_grid_cntl_create();
 
 bool_t do_gridlike = 0;
 
-dim_t l0_nt = 1; // Number of threads used in the microkernel. Currently not used in the gridlike threading.
+dim_t l0_nt = BLIS_GEMM_UKERNEL_DEFAULT_THREADS; // Number of threads used in the microkernel. Currently not used in the gridlike threading.
 dim_t l1_nt = 1; 
 dim_t l2_nt = 1;
 dim_t l3_nt = 1;
 dim_t l4_nt = 1;
 dim_t l5_nt = 1;
 dim_t max_pack_with = 64;
+
 
 gemm_t**          gemm_cntl_mts;
 dim_t             gemm_num_threads_default;
@@ -58,7 +59,6 @@ gemm_t*           gemm_cntl_bp_ke;
 gemm_t*           gemm_cntl_op_bp;
 gemm_t*           gemm_cntl_mm_op;
 gemm_t*           gemm_cntl_vl_mm;
-
 
 packm_t*          gemm_packa_cntl;
 packm_t*          gemm_packb_cntl;
@@ -352,12 +352,9 @@ void bli_gemm_hier_cntl_create()
         l5_nt = strtol( str, NULL, 10 ); 
 
     gemm_num_threads_default = l5_nt*l4_nt*l3_nt*l2_nt*l1_nt*l0_nt;
-    gemm_cntl_mts = (gemm_t**) malloc(sizeof(gemm_t) * gemm_num_threads_default );
-    thread_comm_t*  global_comm = bli_create_communicator( gemm_num_threads_default );
-    thread_comm_t** cpb_comms = (thread_comm_t**) malloc(sizeof(thread_comm_t*) * 16);
-    for(int i = 0; i < 16; i++)
-        cpb_comms[i] = bli_create_communicator( 4 );
+    gemm_cntl_mts = (gemm_t**) bli_malloc(sizeof(gemm_t) * gemm_num_threads_default );
 
+    thread_comm_t*  global_comm = bli_create_communicator( gemm_num_threads_default );
     for( int g = 0; g < l5_nt; g++ )
     {
         thread_comm_t*  l5_comm = bli_create_communicator( l4_nt*l3_nt*l2_nt*l1_nt*l0_nt );
@@ -385,6 +382,7 @@ void bli_gemm_hier_cntl_create()
                                        gemm_kr, gemm_extkr, FALSE, FALSE, FALSE, FALSE, FALSE,
                                        BLIS_PACKED_ROW_PANELS, BLIS_BUFFER_FOR_A_BLOCK, pack_a_info );
 
+
                         packm_thread_info_t* pack_b_info = bli_create_packm_thread_info(  l4_comm, l4_comm_id, max_pack_with );
                         gemm_packb_cntl_mt = bli_packm_cntl_obj_create_mt( BLIS_BLOCKED, BLIS_VARIANT2,
                                        gemm_kr, gemm_extkr, gemm_nr, gemm_extnr,
@@ -392,8 +390,6 @@ void bli_gemm_hier_cntl_create()
                                        BLIS_PACKED_COL_PANELS, BLIS_BUFFER_FOR_B_PANEL, pack_b_info );
 
                         gemm_ker_thread_info_t* l2_info = bli_create_gemm_ker_thread_info( j, l2_nt, k, l1_nt, m );
-                        l2_info->other = cpb_comms[ global_comm_id / 4 ];
-
                         gemm_cntl_bp_ke_mt = bli_gemm_cntl_obj_create_mt( BLIS_UNB_OPT, BLIS_VARIANT2, NULL, NULL, NULL, NULL, 
                                 NULL, NULL, NULL, NULL, l2_info );
 
@@ -418,8 +414,41 @@ void bli_gemm_hier_cntl_create()
     }
 }
 
+// Stuff to free at the end
+void bli_free_gemm_multithreaded_cntls()
+{
+    for( int i = 0; i < gemm_num_threads_default; i++)
+    {
+        gemm_t* gemm_cntl_vl_mm_mt = gemm_cntl_mts[i];
+        gemm_t* gemm_cntl_mm_op_mt = gemm_cntl_vl_mm_mt->sub_gemm;
+        gemm_t* gemm_cntl_op_bp_mt = gemm_cntl_mm_op_mt->sub_gemm;
+        gemm_t* gemm_cntl_bp_ke_mt = gemm_cntl_op_bp_mt->sub_gemm;
+        
+        //free infos
+        bli_gemm_ker_thread_info_free( gemm_cntl_bp_ke_mt->thread_info );
+        bli_gemm_blk_thread_info_free( gemm_cntl_op_bp_mt->thread_info );
+        bli_gemm_blk_thread_info_free( gemm_cntl_mm_op_mt->thread_info );
+        bli_gemm_blk_thread_info_free( gemm_cntl_vl_mm_mt->thread_info );
+
+        //Free packm cntls
+        packm_t* packa_mt = gemm_cntl_op_bp->sub_packm_a;
+        bli_packm_thread_info_free( packa_mt->thread_info );
+
+        packm_t* packb_mt = gemm_cntl_op_bp->sub_packm_b;
+        bli_packm_thread_info_free( packb_mt->thread_info );
+
+        bli_cntl_obj_free( packa_mt );
+        bli_cntl_obj_free( packb_mt );
+        bli_cntl_obj_free( gemm_cntl_vl_mm_mt );
+        bli_cntl_obj_free( gemm_cntl_mm_op_mt );
+        bli_cntl_obj_free( gemm_cntl_op_bp_mt );
+        bli_cntl_obj_free( gemm_cntl_bp_ke_mt );
+    }
+}
 void bli_gemm_cntl_finalize()
 {
+    bli_free_gemm_multithreaded_cntls();
+
 	bli_blksz_obj_free( gemm_mc );
 	bli_blksz_obj_free( gemm_nc );
 	bli_blksz_obj_free( gemm_kc );

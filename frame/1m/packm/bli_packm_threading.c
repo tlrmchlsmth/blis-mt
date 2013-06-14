@@ -1,5 +1,10 @@
 #include "blis.h"
 
+void bli_packm_thread_info_free( packm_thread_info_t* info )
+{
+    bli_free( info );
+}
+
 packm_thread_info_t* bli_create_packm_thread_info( thread_comm_t* communicator, dim_t tid, dim_t max_threads )
 {
     packm_thread_info_t* to_ret = (packm_thread_info_t*) bli_malloc(sizeof(packm_thread_info_t));

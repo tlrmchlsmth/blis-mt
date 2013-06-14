@@ -65,7 +65,6 @@ void bli_sgemm_16x16(
  * We have 4 loads per iteration, so we have 4 more instructions to play with. 2 are permutations of B,
  * and we use the xmadd and xxmadd instructions to effectively gain free permutations of B.
 */
-#define PREFETCH_OFFSET 16
 void bli_dgemm_8x8(
                         dim_t     k,
                         restrict double*   alpha,
@@ -73,7 +72,7 @@ void bli_dgemm_8x8(
                         restrict double*   b,
                         restrict double*   beta,
                         restrict double*   c, inc_t rs_c, inc_t cs_c,
-                        restrict double* a_prefetch, restrict double* b_prefetch
+                        dim_t ap_offset, dim_t bp_offset
                       )
 
 {
@@ -106,22 +105,25 @@ void bli_dgemm_8x8(
     vector4double b0p, b1p;
 
     vector4double pattern = vec_gpci( 02301 );
+    //a_prefetch += PREFETCH_OFFSET;
+    //b_prefetch += PREFETCH_OFFSET;
    
     for( dim_t i = 0; i < k; i++ )
     {
         a0 = vec_lda( 0 * sizeof(double), a );
-        a1 = vec_lda( 4 * sizeof(double), a );
         b0 = vec_lda( 0 * sizeof(double), b );
         b1 = vec_lda( 4 * sizeof(double), b );
-        
-        //__prefetch_by_stream( 1, a_prefetch + PREFETCH_OFFSET );
-        //__prefetch_by_stream( 1, b_prefetch + PREFETCH_OFFSET );
+        a1 = vec_lda( 4 * sizeof(double), a );
+
+        __dcbt( a + ap_offset);
+        __dcbt( b + bp_offset);
         
         c00a    = vec_xmadd( b0, a0, c00a );
         c00b    = vec_xxmadd( a0, b0, c00b );
         b0p     = vec_perm( b0, b0, pattern ); 
         c00c    = vec_xmadd( b0p, a0, c00c );
         c00d    = vec_xxmadd( a0, b0p, c00d );
+
         
         c01a    = vec_xmadd( b1, a0, c01a );
         c01b    = vec_xxmadd( a0, b1, c01b );
@@ -142,8 +144,8 @@ void bli_dgemm_8x8(
 
         a += 8*2;
         b += 8*2;
-        a_prefetch += 16;
-        b_prefetch += 16;
+        //a_prefetch += 16;
+        //b_prefetch += 16;
     }
     
     // Create patterns for permuting C
@@ -231,6 +233,7 @@ void bli_dgemm_8x8(
     UPDATE( AB, c, 4 );
 }
 
+#define PREFETCH_OFFSET 320
 #define USE_8X8
 void bli_dgemm_16x16_mt(
                         dim_t     k,
@@ -253,8 +256,8 @@ void bli_dgemm_16x16_mt(
         b_addr, beta, 
         c + 8 * m_tid * rs_c + 8 * n_tid * cs_c, 
         rs_c, cs_c, //NULL, NULL);
-        a + 8 + 4 * m_tid, 
-        b + 8 + 4 * n_tid); 
+        8 + 4 * n_tid + PREFETCH_OFFSET, 
+        8 + 4 * m_tid + PREFETCH_OFFSET); 
 #else
     bli_dgemm_16x4( k, alpha, 
         a,

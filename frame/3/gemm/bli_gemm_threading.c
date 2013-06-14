@@ -12,6 +12,11 @@ gemm_ker_thread_info_t* bli_create_gemm_ker_thread_info( dim_t l2_tid, dim_t l2_
     return info;
 }
 
+void bli_gemm_ker_thread_info_free( void * info)
+{
+    gemm_ker_thread_info_t* tofree = (gemm_ker_thread_info_t*) info;
+    bli_free( tofree );
+}
 dim_t bli_gemm_l2_tid( void* info )
 {
     if( info == NULL ) return 0;
@@ -38,7 +43,11 @@ dim_t bli_gemm_l0_tid( void* info )
     else return ((gemm_ker_thread_info_t*)info)->l0_tid;
 }
 
-
+void bli_gemm_blk_thread_info_free( void * info)
+{
+    gemm_blk_thread_info_t* tofree = (gemm_blk_thread_info_t*) info;
+    bli_free( tofree );
+}
 dim_t bli_gemm_num_thread_groups( void* info )
 {
     if( info == NULL ) return 1;

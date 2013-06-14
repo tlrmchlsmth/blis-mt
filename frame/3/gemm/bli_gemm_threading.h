@@ -16,6 +16,7 @@ struct gemm_ker_thread_info_s
 typedef struct gemm_ker_thread_info_s gemm_ker_thread_info_t;
 
 gemm_ker_thread_info_t* bli_create_gemm_ker_thread_info( dim_t l2_tid, dim_t l2_num_threads, dim_t l1_tid, dim_t l1_num_threads, dim_t l0_tid );
+void  bli_gemm_ker_thread_info_free( void* info);
 dim_t bli_gemm_l2_tid( void* thread_info );
 dim_t bli_gemm_l2_num_threads( void* thread_info );
 dim_t bli_gemm_l1_tid( void* thread_info );
@@ -41,6 +42,8 @@ gemm_blk_thread_info_t*    bli_create_gemm_blk_thread_info(
         thread_comm_t* b_comm, dim_t b_id,
         thread_comm_t* c_comm, dim_t c_id,
         dim_t num_groups, dim_t group_id );
+
+void  bli_gemm_blk_thread_info_free( void* info);
 
 void*   bli_gemm_broadcast_a( void* thread_info, void* to_send );
 void    bli_gemm_a_barrier( void* thread_info );

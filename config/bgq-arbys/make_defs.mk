@@ -80,7 +80,7 @@ CC           := bgc99
 # NOTE: This is needed to enable posix_memalign().
 CPPROCFLAGS  := -D_POSIX_C_SOURCE=200112L
 CINCFLAGS    := -I/bgsys/drivers/ppcfloor -I/bgsys/drivers/ppcfloor/spi/include/kernel/cnk
-CMISCFLAGS   := -qthreaded -qsmp=omp -qasm=gcc -qkeyword=asm #-pg
+CMISCFLAGS   := -qthreaded -qsmp=omp -qasm=gcc -qkeyword=asm 
 CDBGFLAGS    := 
 CWARNFLAGS   := -w
 COPTFLAGS    := -O5

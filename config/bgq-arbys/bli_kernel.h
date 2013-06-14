@@ -35,7 +35,6 @@
 #ifndef BLIS_KERNEL_H
 #define BLIS_KERNEL_H
 
-
 // -- LEVEL-3 MICRO-KERNEL CONSTANTS -------------------------------------------
 
 // -- Default cache blocksizes --
