@@ -2,7 +2,7 @@
 #qsub -n 1 -t 5 --mode=c1 --env XL_BG_SPREADLAYOUT=YES ./test_libblis.x
 #echo "qsub -n 1 -t 5 --mode=c1 --env BG_THREADLAYOUT=2:BLIS_L2_NT=1:OMP_NUM_THREADS=4 $1"
 
-N_RANKS=16
+N_RANKS=1
 TIME=10
 LAYOUT=2
 OMP_THREADS=4

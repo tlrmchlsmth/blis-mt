@@ -32,183 +32,170 @@
 
 */
 
+#include <stdlib.h>
 #include <unistd.h>
-#include "blis.h"
 #include <mpi.h>
+#include <sys/time.h>
+
+static double gtod_ref_time_sec = 0.0;
+
+double bli_clock()
+{
+    double         the_time, norm_sec;
+    struct timeval tv; 
+
+    gettimeofday( &tv, NULL );
+
+    if ( gtod_ref_time_sec == 0.0 )
+        gtod_ref_time_sec = ( double ) tv.tv_sec;
+
+    norm_sec = ( double ) tv.tv_sec - gtod_ref_time_sec;
+
+    the_time = norm_sec + tv.tv_usec * 1.0e-6;
+
+    return the_time;
+}
+
+double bli_clock_min_diff( double time_min, double time_start )
+{
+    double time_min_prev;
+    double time_diff;
+
+    // Save the old value.
+    time_min_prev = time_min;
+
+    time_diff = bli_clock() - time_start;
+
+    time_min = time_min < time_diff ? time_min : time_diff;
+
+    // Assume that anything:
+    // - under or equal to zero,
+    // - over an hour, or
+    // - under a nanosecond
+    // is actually garbled due to the clocks being taken too closely together.
+    if      ( time_min <= 0.0    ) time_min = time_min_prev;
+    else if ( time_min >  3600.0 ) time_min = time_min_prev;
+    else if ( time_min <  1.0e-9 ) time_min = time_min_prev;
+
+    return time_min;
+}
 
 //           transa transb m     n     k     alpha    a        lda   b        ldb   beta     c        ldc
 void dgemm_( char*, char*, int*, int*, int*, double*, double*, int*, double*, int*, double*, double*, int* );
 
 //#define PRINT
+void fillrand(double * a, int n)
+{   
+    int max = 5;
+    int min = -5;
+    for(int i = 0; i < n; i++)
+    {
+        a[i] = ((double) rand() / (RAND_MAX+1)) * (max-min+1) + min;
+    }
+}
 
 int main( int argc, char** argv )
 {
-	obj_t a, b, c;
-	obj_t c_save;
-	obj_t alpha, beta;
-	dim_t m, n, k;
-	dim_t p;
-	dim_t p_begin, p_end, p_inc;
+    double* a;
+    double* b;
+    double* c;
+    double* c_save;
+    double alpha, beta;
+    int m, n, k; 
+    int p;
+	int p_begin, p_end, p_inc;
 	int   m_input, n_input, k_input;
-	num_t dt_a, dt_b, dt_c;
-	num_t dt_alpha, dt_beta;
 	int   r, n_repeats;
 
 	double dtime;
 	double dtime_save;
 	double gflops;
 
-    
     int world_size, world_rank, provided;
     MPI_Init_thread( NULL, NULL, MPI_THREAD_FUNNELED, &provided );
     MPI_Comm_size( MPI_COMM_WORLD, &world_size );
     MPI_Comm_rank( MPI_COMM_WORLD, &world_rank );
+	
+    n_repeats = 3;
 
-//	bli_init();
-
-	n_repeats = 3;
-
-#ifndef PRINT
 	p_begin = 40;
 	p_end   = 2000;
 	p_inc   = 40;
 
 	m_input = -1;
-	//m_input = 384;
 	n_input = -1;
-	//k_input = -1;
 	k_input = -1;
-#else
-	p_begin = 24;
-	p_end   = 24;
-	p_inc   = 1;
-
-	m_input = -1;
-	k_input = -1;
-	n_input = -1;
-#endif
-
-	dt_a = BLIS_DOUBLE;
-	dt_b = BLIS_DOUBLE;
-	dt_c = BLIS_DOUBLE;
-	dt_alpha = BLIS_DOUBLE;
-	dt_beta = BLIS_DOUBLE;
 
 	for ( p = p_begin; p <= p_end; p += p_inc )
 	{
 
-		if ( m_input < 0 ) m = p * ( dim_t )abs(m_input);
-		else               m =     ( dim_t )    m_input;
-		if ( n_input < 0 ) n = p * ( dim_t )abs(n_input);
-		else               n =     ( dim_t )    n_input;
-		if ( k_input < 0 ) k = p * ( dim_t )abs(k_input);
-		else               k =     ( dim_t )    k_input;
+		if ( m_input < 0 ) m = p * ( int )abs(m_input);
+		else               m =     ( int )    m_input;
+		if ( n_input < 0 ) n = p * ( int )abs(n_input);
+		else               n =     ( int )    n_input;
+		if ( k_input < 0 ) k = p * ( int )abs(k_input);
+		else               k =     ( int )    k_input;
 
+        a = (double*)malloc( m * k * sizeof(double));
+        b = (double*)malloc( k * n * sizeof(double));
+        c = (double*)malloc( m * n * sizeof(double));
+        c_save = (double*)malloc( m * n * sizeof(double));
+    
+        fillrand(a, m*k);
+        fillrand(b, m*k);
+        fillrand(c, m*k);
+        memcpy( c_save, c, m*n*sizeof(double) );
 
-		bli_obj_create( dt_alpha, 1, 1, 0, 0, &alpha );
-		bli_obj_create( dt_beta,  1, 1, 0, 0, &beta );
+        alpha = 1.0;
+        beta = 1.0;
 
-		bli_obj_create( dt_a, m, k, 0, 0, &a );
-		bli_obj_create( dt_b, k, n, 0, 0, &b );
-		bli_obj_create( dt_c, m, n, 0, 0, &c );
-		bli_obj_create( dt_c, m, n, 0, 0, &c_save );
-
-		bli_randm( &a );
-		bli_randm( &b );
-		bli_randm( &c );
-
-
-		bli_setsc(  (1.0/1.0), 0.0, &alpha );
-		bli_setsc(  (1.0/1.0), 0.0, &beta );
-
-		bli_copym( &c, &c_save );
-	
 		dtime_save = 1.0e9;
 
 		for ( r = 0; r < n_repeats; ++r )
 		{
-			bli_copym( &c_save, &c );
 
+            memcpy( c_save, c, m*n*sizeof(double) );
 
 			dtime = bli_clock();
 
 
-#ifdef PRINT
-			bli_printm( "a", &a, "%4.1f", "" );
-			bli_printm( "b", &b, "%4.1f", "" );
-			bli_printm( "c", &c, "%4.1f", "" );
-#endif
 
-#ifdef BLIS
-			//bli_error_checking_level_set( BLIS_NO_ERROR_CHECKING );
-            {
-                bli_gemm( &alpha,
-                          &a,
-                          &b,
-                          &beta,
-                          &c );
-            }
-
-#else
 			char    transa = 'N';
 			char    transb = 'N';
-			int     mm     = bli_obj_length( c );
-			int     kk     = bli_obj_width_after_trans( a );
-			int     nn     = bli_obj_width( c );
-			int     lda    = bli_obj_col_stride( a );
-			int     ldb    = bli_obj_col_stride( b );
-			int     ldc    = bli_obj_col_stride( c );
-			double* alphap = bli_obj_buffer( alpha );
-			double* ap     = bli_obj_buffer( a );
-			double* bp     = bli_obj_buffer( b );
-			double* betap  = bli_obj_buffer( beta );
-			double* cp     = bli_obj_buffer( c );
+			int     lda    = m;
+			int     ldb    = k;
+			int     ldc    = m;
 
 			dgemm_( &transa,
 			        &transb,
-			        &mm,
-			        &nn,
-			        &kk,
-			        alphap,
-			        ap, &lda,
-			        bp, &ldb,
-			        betap,
-			        cp, &ldc );
+			        &m,
+			        &n,
+			        &k,
+			        &alpha,
+			        a, &lda,
+			        b, &ldb,
+			        &beta,
+			        c, &ldc );
             
-#endif
-
-#ifdef PRINT
-			bli_printm( "c after", &c, "%4.1f", "" );
-			exit(1);
-#endif
-
 
 			dtime_save = bli_clock_min_diff( dtime_save, dtime );
 		}
 		
         gflops = ( 2.0 * m * k * n ) / ( dtime_save * 1.0e9 );
 
-        if(world_rank == 0){
-#ifdef BLIS
-            printf( "data_gemm_blis" );
-#else
-            printf( "data_gemm_%s", BLAS );
-#endif
+        if(world_rank == 0)
+        {
+            printf( "data_gemm_essl" );
             printf( "( %2ld, 1:5 ) = [ %4lu %4lu %4lu  %10.3e  %6.3f ];\n",
                     (p - p_begin + 1)/p_inc + 1, m, k, n, dtime_save, gflops );
 
         }
     
-        bli_obj_free( &alpha );
-        bli_obj_free( &beta );
-
-        bli_obj_free( &a );
-        bli_obj_free( &b );
-        bli_obj_free( &c );
-        bli_obj_free( &c_save );
+        free(a);
+        free(b);
+        free(c);
+        free(c_save);
 	}
-
-	bli_finalize();
 
     MPI_Finalize();
 
