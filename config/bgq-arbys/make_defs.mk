@@ -75,7 +75,7 @@ GIT_LOG    := $(GIT) log --decorate
 #
 
 # --- Determine the C compiler and related flags ---
-CC           := bgc99
+CC           := bgc99_r
 # Enable IEEE Standard 1003.1-2004 (POSIX.1d). 
 # NOTE: This is needed to enable posix_memalign().
 CPPROCFLAGS  := -D_POSIX_C_SOURCE=200112L

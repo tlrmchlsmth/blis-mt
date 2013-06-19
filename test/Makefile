@@ -45,7 +45,7 @@
 #
 
 .PHONY: all \
-        blis openblas atlas mkl \
+        blis openblas atlas mkl essl \
         clean cleanx
 
 
@@ -126,6 +126,7 @@ BLIS_LIB       := $(BLIS_LIB_PATH)/libblis.a
 
 # BLAS library path(s). This is where the BLAS libraries reside.
 BLAS_LIB_PATH  := $(HOME)/flame/lib
+ESSL_LIB_PATH  := /soft/libraries/essl/current/lib64
 
 # OpenBLAS, ATLAS, and MKL libraries.
 #BLAS_LIB       := $(LIB_PATH)/libblas.a
@@ -134,6 +135,11 @@ BLAS_LIB_PATH  := $(HOME)/flame/lib
 OPENBLAS_LIB   := $(BLAS_LIB_PATH)/libopenblas.a
 ATLAS_LIB      := $(BLAS_LIB_PATH)/libf77blas.a \
                   $(BLAS_LIB_PATH)/libatlas.a
+ESSL_LIB		:= $(ESSL_LIB_PATH)/libesslsmpbg.a   \
+				-L$(IBM_MAIN_DIR)/xlsmp/bg/3.1/lib64/ \
+				-L$(IBM_MAIN_DIR)/xlf/bg/14.1/lib64/ \
+				-lxlsmp -lxlf90_r -lxlfmath -lxl \
+				
 #MKL_LIB        := -L/opt/intel/mkl/10.2.2.025/lib/em64t/ \
                   -lmkl_sequential -lmkl_core -lmkl_intel_lp64
 
@@ -161,7 +167,7 @@ LINKER         := $(CC)
 #LDFLAGS        := -L/usr/lib/gcc/x86_64-redhat-linux/4.1.2 -L/usr/lib/gcc/x86_64-redhat-linux/4.1.2/../../../../lib64 -L/lib/../lib64 -L/usr/lib/../lib64 -lgfortranbegin -lgfortran -lm
 #LDFLAGS        += -lpthread
 #LDFLAGS        := -L/usr/lib/gcc/i486-linux-gnu/4.4.3 -L/usr/lib/gcc/i486-linux-gnu/4.4.3/../../../../lib -L/lib/../lib -L/usr/lib/../lib -L/usr/lib/gcc/i486-linux-gnu/4.4.3/../../.. -L/usr/lib/i486-linux-gnu -lgfortranbegin -lgfortran -lm
-LDFLAGS += -L/bgsys/drivers/ppcfloor/spi/lib -lSPI -lrt -lm -qthreaded -qsmp=omp
+LDFLAGS += -L/bgsys/drivers/ppcfloor/spi/lib -lSPI -lrt -qthreaded -qsmp=omp
 
 
 #
@@ -170,7 +176,9 @@ LDFLAGS += -L/bgsys/drivers/ppcfloor/spi/lib -lSPI -lrt -lm -qthreaded -qsmp=omp
 
 all: tyler
 
-tyler: test_gemm_blis.x
+tyler: test_gemm_blis.x \
+	   test_gemm_essl.x \
+	   test_gemm_mpi_essl.x
 
 blis: test_gemv_blis.x \
       test_ger_blis.x \
@@ -250,6 +258,9 @@ test_%_mkl.o: test_%.c
 test_%_blis.o: test_%.c
 	$(CC) $(CFLAGS) -DBLIS -c $< -o $@
 
+test_%_essl.o: test_%.c
+	$(CC) $(CFLAGS) -DBLAS=\"essl\" -c $< -o $@
+
 
 # -- Executable file rules --
 
@@ -269,6 +280,9 @@ test_%_mkl.x: test_%_mkl.o $(BLIS_LIB)
 
 test_%_blis.x: test_%_blis.o $(BLIS_LIB)
 	$(LINKER) $<                             $(BLIS_LIB) $(LDFLAGS) -o $@
+
+test_%_essl.x: test_%_essl.o $(BLIS_LIB)
+	$(LINKER) $<             $(ESSL_LIB)     $(BLIS_LIB) $(LDFLAGS) -o $@
 
 
 # -- Clean rules --

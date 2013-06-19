@@ -107,16 +107,17 @@ void bli_dgemm_8x8(
     vector4double pattern = vec_gpci( 02301 );
     //a_prefetch += PREFETCH_OFFSET;
     //b_prefetch += PREFETCH_OFFSET;
-   
+  
+    #pragma unroll(2) 
     for( dim_t i = 0; i < k; i++ )
     {
-        a0 = vec_lda( 0 * sizeof(double), a );
-        b0 = vec_lda( 0 * sizeof(double), b );
-        b1 = vec_lda( 4 * sizeof(double), b );
-        a1 = vec_lda( 4 * sizeof(double), a );
+        a0 = vec_lda( 0 * sizeof(double), &a[16 * i] );
+        b0 = vec_lda( 0 * sizeof(double), &b[16 * i] );
+        b1 = vec_lda( 4 * sizeof(double), &b[16 * i] );
+        a1 = vec_lda( 4 * sizeof(double), &a[16 * i] );
 
-        __dcbt( a + ap_offset);
-        __dcbt( b + bp_offset);
+        __dcbt( &a[16 * i] + ap_offset);
+        __dcbt( &b[16 * i] + bp_offset);
         
         c00a    = vec_xmadd( b0, a0, c00a );
         c00b    = vec_xxmadd( a0, b0, c00b );
@@ -141,11 +142,6 @@ void bli_dgemm_8x8(
         c11b    = vec_xxmadd( a1, b1, c11b );
         c11c    = vec_xmadd( b1p, a1, c11c );
         c11d    = vec_xxmadd( a1, b1p, c11d );
-
-        a += 8*2;
-        b += 8*2;
-        //a_prefetch += 16;
-        //b_prefetch += 16;
     }
     
     // Create patterns for permuting C

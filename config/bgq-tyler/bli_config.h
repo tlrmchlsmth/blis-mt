@@ -50,7 +50,7 @@
 // -- MULTITHREADING -----------------------------------------------------------
 
 // The maximum number of BLIS threads that will run concurrently.
-#define BLIS_MAX_NUM_THREADS             24
+#define BLIS_MAX_NUM_THREADS             4
 
 
 
@@ -124,13 +124,11 @@
 // -- BLAS-to-BLIS COMPATIBILITY LAYER -----------------------------------------
 
 // Enable the BLAS compatibility layer?
-#define BLIS_ENABLE_BLAS2BLIS
+//#define BLIS_ENABLE_BLAS2BLIS
 
 // Fortran-77 name-mangling macros.
 #define PASTEF77(ch1,name)       ch1        ## name ## _
 #define PASTEF772(ch1,ch2,name)  ch1 ## ch2 ## name ## _
-
-
 
 
 #endif

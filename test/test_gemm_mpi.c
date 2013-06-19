@@ -34,7 +34,7 @@
 
 #include <unistd.h>
 #include "blis.h"
-#include <omp.h>
+#include <mpi.h>
 
 //           transa transb m     n     k     alpha    a        lda   b        ldb   beta     c        ldc
 void dgemm_( char*, char*, int*, int*, int*, double*, double*, int*, double*, int*, double*, double*, int* );
@@ -54,23 +54,15 @@ int main( int argc, char** argv )
 	num_t dt_alpha, dt_beta;
 	int   r, n_repeats;
 
-#if 1
-	obj_t a_pack, b_pack;
-
-    dim_t l1_n_threads = 1;
-    dim_t l2_n_threads = 2;
-    dim_t l3_n_threads = 1;
-    dim_t l4_n_threads = 1;
-    dim_t l5_n_threads = 1;
-    dim_t pack_b_n_threads = l3_n_threads * l2_n_threads * l1_n_threads;
-    dim_t pack_a_n_threads = l2_n_threads * l1_n_threads;
-    dim_t total_threads = l1_n_threads * l2_n_threads;
-
-#endif
-
 	double dtime;
 	double dtime_save;
 	double gflops;
+
+    
+    int world_size, world_rank, provided;
+    MPI_Init_thread( NULL, NULL, MPI_THREAD_FUNNELED, &provided );
+    MPI_Comm_size( MPI_COMM_WORLD, &world_size );
+    MPI_Comm_rank( MPI_COMM_WORLD, &world_rank );
 
 	bli_init();
 
@@ -158,7 +150,6 @@ int main( int argc, char** argv )
             }
 
 #else
-
 			char    transa = 'N';
 			char    transb = 'N';
 			int     mm     = bli_obj_length( c );
@@ -183,6 +174,7 @@ int main( int argc, char** argv )
 			        bp, &ldb,
 			        betap,
 			        cp, &ldc );
+            
 #endif
 
 #ifdef PRINT
@@ -193,27 +185,32 @@ int main( int argc, char** argv )
 
 			dtime_save = bli_clock_min_diff( dtime_save, dtime );
 		}
+		
+        gflops = ( 2.0 * m * k * n ) / ( dtime_save * 1.0e9 );
 
-		gflops = ( 2.0 * m * k * n ) / ( dtime_save * 1.0e9 );
-
+        if(world_rank == 0){
 #ifdef BLIS
-		printf( "data_gemm_blis" );
+            printf( "data_gemm_blis" );
 #else
-		printf( "data_gemm_%s", BLAS );
+            printf( "data_gemm_%s", BLAS );
 #endif
-		printf( "( %2ld, 1:5 ) = [ %4lu %4lu %4lu  %10.3e  %6.3f ];\n",
-		        (p - p_begin + 1)/p_inc + 1, m, k, n, dtime_save, gflops );
+            printf( "( %2ld, 1:5 ) = [ %4lu %4lu %4lu  %10.3e  %6.3f ];\n",
+                    (p - p_begin + 1)/p_inc + 1, m, k, n, dtime_save, gflops );
 
-		bli_obj_free( &alpha );
-		bli_obj_free( &beta );
+        }
+    
+        bli_obj_free( &alpha );
+        bli_obj_free( &beta );
 
-		bli_obj_free( &a );
-		bli_obj_free( &b );
-		bli_obj_free( &c );
-		bli_obj_free( &c_save );
+        bli_obj_free( &a );
+        bli_obj_free( &b );
+        bli_obj_free( &c );
+        bli_obj_free( &c_save );
 	}
 
 	bli_finalize();
+
+    MPI_Finalize();
 
 	return 0;
 }

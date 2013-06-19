@@ -75,7 +75,8 @@ GIT_LOG    := $(GIT) log --decorate
 #
 
 # --- Determine the C compiler and related flags ---
-CC           := bgc99
+#CC           := mpixlc_r
+CC           := /bgsys/drivers/ppcfloor/comm/gcc.legacy/bin/mpixlc_r
 # Enable IEEE Standard 1003.1-2004 (POSIX.1d). 
 # NOTE: This is needed to enable posix_memalign().
 CPPROCFLAGS  := -D_POSIX_C_SOURCE=200112L
@@ -83,7 +84,7 @@ CINCFLAGS    := -I/bgsys/drivers/ppcfloor -I/bgsys/drivers/ppcfloor/spi/include/
 CMISCFLAGS   := -qthreaded -qsmp=omp -qasm=gcc -qkeyword=asm -qnoprefetch #-pg
 CDBGFLAGS    := #-qreport -qsource -qlistopt -qlist
 CWARNFLAGS   := -w
-COPTFLAGS    := -O5 -qnoprefetch
+COPTFLAGS    := -g -O5 -qnoprefetch
 CVECFLAGS    := -qarch=qp -qtune=qp -qsimd=auto -qhot=level=1 -qunroll=yes -qnoipa 
 
 # Aggregate all of the flags into two groups: one for optimizable code, and
