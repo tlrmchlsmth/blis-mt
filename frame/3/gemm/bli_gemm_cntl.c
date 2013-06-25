@@ -41,7 +41,7 @@ void bli_gemm_grid_cntl_create();
 
 bool_t do_gridlike = 0;
 
-dim_t l0_nt = BLIS_GEMM_UKERNEL_DEFAULT_THREADS; // Number of threads used in the microkernel. Currently not used in the gridlike threading.
+dim_t l0_nt = BLIS_GEMM_UKERNEL_THREADS; // Number of threads used in the microkernel. Currently not used in the gridlike threading.
 dim_t l1_nt = 1; 
 dim_t l2_nt = 1;
 dim_t l3_nt = 1;
@@ -415,6 +415,7 @@ void bli_gemm_hier_cntl_create()
 }
 
 // Stuff to free at the end
+// Need to rewrite this to support freeing arbitrary cntl trees
 void bli_free_gemm_multithreaded_cntls()
 {
     for( int i = 0; i < gemm_num_threads_default; i++)
@@ -447,7 +448,7 @@ void bli_free_gemm_multithreaded_cntls()
 }
 void bli_gemm_cntl_finalize()
 {
-    bli_free_gemm_multithreaded_cntls();
+    //bli_free_gemm_multithreaded_cntls();
 
 	bli_blksz_obj_free( gemm_mc );
 	bli_blksz_obj_free( gemm_nc );

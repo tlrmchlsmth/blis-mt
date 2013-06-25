@@ -42,7 +42,8 @@ void bli_sgemm_opt_30x8(
                     float*    beta,
                     float*    c, inc_t rs_c, inc_t cs_c,
                     float* a_next,
-                    float* b_next
+                    float* b_next,
+                    dim_t thread_id
                   )
 {
 }
@@ -329,7 +330,8 @@ void bli_dgemm_opt_30x8(
                     double*   beta,
                     double*   c, inc_t rs_c, inc_t cs_c,
                     double* a_next,
-                    double* b_next
+                    double* b_next,
+                    dim_t thread_id
                   )
 {
 
@@ -633,7 +635,8 @@ void bli_cgemm_opt_30x8(
                     scomplex* beta,
                     scomplex* c, inc_t rs_c, inc_t cs_c,
                     scomplex* a_next,
-                    scomplex* b_next
+                    scomplex* b_next,
+                    dim_t thread_id
                   )
 {
 }
@@ -646,7 +649,8 @@ void bli_zgemm_opt_30x8(
                     dcomplex* beta,
                     dcomplex* c, inc_t rs_c, inc_t cs_c,
                     dcomplex* a_next,
-                    dcomplex* b_next
+                    dcomplex* b_next,
+                    dim_t thread_id
                   )
 {
 }

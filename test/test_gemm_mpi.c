@@ -64,13 +64,13 @@ int main( int argc, char** argv )
     MPI_Comm_size( MPI_COMM_WORLD, &world_size );
     MPI_Comm_rank( MPI_COMM_WORLD, &world_rank );
 
-//	bli_init();
+	bli_init();
 
 	n_repeats = 3;
 
 #ifndef PRINT
 	p_begin = 40;
-	p_end   = 2000;
+	p_end   = 4000;
 	p_inc   = 40;
 
 	m_input = -1;

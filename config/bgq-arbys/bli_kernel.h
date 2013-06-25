@@ -35,6 +35,8 @@
 #ifndef BLIS_KERNEL_H
 #define BLIS_KERNEL_H
 
+#define BLIS_GEMM_UKERNEL_THREADS 1
+
 // -- LEVEL-3 MICRO-KERNEL CONSTANTS -------------------------------------------
 
 // -- Default cache blocksizes --
@@ -255,7 +257,7 @@
 // -- gemm --
 
 #define GEMM_UKERNEL         gemm_8x8
-#define GEMM_UKERNEL_MT         gemm_8x8_mt
+#define GEMM_UKERNEL_MT      gemm_8x8_mt
 
 // -- trsm-related --
 

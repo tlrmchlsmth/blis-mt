@@ -136,8 +136,8 @@ OPENBLAS_LIB   := $(BLAS_LIB_PATH)/libopenblas.a
 ATLAS_LIB      := $(BLAS_LIB_PATH)/libf77blas.a \
                   $(BLAS_LIB_PATH)/libatlas.a
 ESSL_LIB		:= $(ESSL_LIB_PATH)/libesslsmpbg.a   \
-				-L$(IBM_MAIN_DIR)/xlsmp/bg/3.1/lib64/ \
-				-L$(IBM_MAIN_DIR)/xlf/bg/14.1/lib64/ \
+				-L$(IBM_MAIN_DIR)/xlsmp/bg/3.1/bglib64/ \
+				-L$(IBM_MAIN_DIR)/xlf/bg/14.1/bglib64/ \
 				-lxlsmp -lxlf90_r -lxlfmath -lxl \
 				
 #MKL_LIB        := -L/opt/intel/mkl/10.2.2.025/lib/em64t/ \

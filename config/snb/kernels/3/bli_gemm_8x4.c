@@ -42,7 +42,8 @@ void bli_sgemm_8x4(
                         float*    b,
                         float*    beta,
                         float*    c, inc_t rs_c, inc_t cs_c,
-                        float* a_next, float* b_next
+                        float* a_next, float* b_next,
+                        dim_t thread_id
                       )
 {
 	bli_check_error_code( BLIS_NOT_YET_IMPLEMENTED );
@@ -55,7 +56,8 @@ void bli_dgemm_8x4(
                         double*   b,
                         double*   beta,
                         double*   c, inc_t rs_c, inc_t cs_c,
-                        double* a_next, double* b_next
+                        double* a_next, double* b_next,
+                        dim_t thread_id
                       )
 {
 
@@ -414,7 +416,8 @@ void bli_cgemm_8x4(
                         scomplex* b,
                         scomplex* beta,
                         scomplex* c, inc_t rs_c, inc_t cs_c,
-                        scomplex* a_next, scomplex* b_next
+                        scomplex* a_next, scomplex* b_next,
+                        dim_t thread_id
                       )
 {
 	bli_check_error_code( BLIS_NOT_YET_IMPLEMENTED );
@@ -427,7 +430,8 @@ void bli_zgemm_8x4(
                         dcomplex* b,
                         dcomplex* beta,
                         dcomplex* c, inc_t rs_c, inc_t cs_c,
-                        dcomplex* a_next, dcomplex* b_next
+                        dcomplex* a_next, dcomplex* b_next,
+                        dim_t thread_id
                       )
 {
 	bli_check_error_code( BLIS_NOT_YET_IMPLEMENTED );

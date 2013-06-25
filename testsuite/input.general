@@ -4,7 +4,7 @@ c #rji   # Vector storage scheme(s) to test ('c' = colvec/unit; 'r' = rowvec/uni
 0       # Test all combinations of storage schemes?
 32      # General stride spacing (for cases when testing general stride)
 d    # Datatype(s) to test
-1664     # Problem size: first to test
+128     # Problem size: first to test
 2048     # Problem size: maximum to test
 128     # Problem size: increment between experiments
 1       # Error-checking level (0 = disable error checking; 1 = full error checking)

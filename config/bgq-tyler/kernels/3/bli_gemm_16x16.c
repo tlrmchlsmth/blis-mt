@@ -108,7 +108,6 @@ void bli_dgemm_8x8(
     //a_prefetch += PREFETCH_OFFSET;
     //b_prefetch += PREFETCH_OFFSET;
   
-    #pragma unroll(2) 
     for( dim_t i = 0; i < k; i++ )
     {
         a0 = vec_lda( 0 * sizeof(double), &a[16 * i] );

@@ -35,7 +35,7 @@
 #ifndef BLIS_KERNEL_H
 #define BLIS_KERNEL_H
 
-#define BLIS_GEMM_UKERNEL_DEFAULT_THREADS 4
+#define BLIS_GEMM_UKERNEL_THREADS 4
 
 // -- LEVEL-3 MICRO-KERNEL CONSTANTS -------------------------------------------
 
@@ -66,8 +66,8 @@
 #define BLIS_DEFAULT_KC_S              256
 #define BLIS_DEFAULT_NC_S              8192
 
-#define BLIS_DEFAULT_MC_D              1024
-#define BLIS_DEFAULT_KC_D              2048
+#define BLIS_DEFAULT_MC_D              256
+#define BLIS_DEFAULT_KC_D              512
 #define BLIS_DEFAULT_NC_D              4096
 
 #define BLIS_DEFAULT_MC_C              128

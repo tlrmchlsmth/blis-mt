@@ -160,12 +160,28 @@ void bli_gemm( obj_t*  alpha,
 	//else          gemm_cntl = gemm_cntl_packab;
 	cntl = gemm_cntl;
 	if ( pack_c ) bli_abort();
+    
+    dim_t M, N, K;
+
+    N = bli_obj_width( *c );
+    K = bli_obj_width( *a );
+    M = bli_obj_length( *c );
 
 	// Invoke the internal back-end.
     _Pragma( "omp parallel num_threads(gemm_num_threads_default)" )
     {
         dim_t tid = omp_get_thread_num();
         gemm_t* cntl_mt = gemm_cntl_mts[tid];
+        
+        if( N <= BLIS_DEFAULT_NC_D )
+        {   
+            cntl_mt = cntl_sub_gemm( cntl_mt );
+            if( K <= BLIS_DEFAULT_KC_D )
+            {
+                cntl_mt = cntl_sub_gemm( cntl_mt );
+            }
+        }
+
         bli_gemm_int( &alpha_local,
                       a,
                       b,

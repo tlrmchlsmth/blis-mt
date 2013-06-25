@@ -318,7 +318,7 @@ void PASTEMAC(ch,varname)( \
 			                      bp, \
 			                      zero, \
 			                      ct, rs_ct, cs_ct, \
-			                      a2, b2 ); \
+			                      a2, b2, 0 ); \
 \
 			/* Scale the bottom edge of C and add the result from above. */ \
 			PASTEMAC(ch,xpbys_mxn)( m_left, NR, \
@@ -390,7 +390,7 @@ void PASTEMAC(ch,varname)( \
 			                      bp, \
 			                      zero, \
 			                      ct, rs_ct, cs_ct, \
-			                      a2, b2 ); \
+			                      a2, b2, 0 ); \
 \
 			/* Scale the bottom-right corner of C and add the result from above. */ \
 			PASTEMAC(ch,xpbys_mxn)( m_left, n_left, \
@@ -405,5 +405,5 @@ PASTEMAC(ch,fprintm)( stdout, "gemm_ker_var2: bd", k, NR*NDUP, bp, NR*NDUP, 1, "
 /*PASTEMAC(ch,fprintm)( stdout, "gemm_ker_var2: a1", MR, k, a1, 1, MR, "%4.1f", "" );*/ \
 }
 
-INSERT_GENTFUNC_BASIC( gemm_ker_var2, GEMM_UKERNEL_MT )
+INSERT_GENTFUNC_BASIC( gemm_ker_var2, GEMM_UKERNEL )
 

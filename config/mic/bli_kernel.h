@@ -36,6 +36,7 @@
 #define BLIS_KERNEL_H
 
 #define THREADS_PER_CORE 4
+#define BLIS_GEMM_UKERNEL_THREADS 1
 
 // -- LEVEL-3 MICRO-KERNEL CONSTANTS -------------------------------------------
 
