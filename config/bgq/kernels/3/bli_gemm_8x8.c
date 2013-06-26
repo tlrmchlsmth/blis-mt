@@ -63,8 +63,8 @@ void bli_sgemm_8x8(
  * I know the kernel John uses is 8x8, so 16 flops per loop iteration. 
  * Thus there must be 24 total instructions per iteration because 16/24 = 5.33.
  *
- * We have 4 loads per iteration, so we have 4 more instructions to play with. 2 are permutations of B,
- * and we use the xmadd and xxmadd instructions to effectively gain free permutations of B.
+ * Here, we have 6 loads per iteration. These are executed on a different pipeline from FMAs so
+ * we could (maybe) theoretically hit 100% of peak with this instruction mix
 */
 
 void bli_dgemm_8x8(
@@ -102,128 +102,116 @@ void bli_dgemm_8x8(
     vector4double c11c = vec_splats( 0.0 );
     vector4double c11d = vec_splats( 0.0 );
 
+    vector4double b0a, b1a;
+    vector4double b0b, b1b;
     vector4double a0, a1;
-    vector4double b0, b1;
-    vector4double b0p, b1p;
 
-    vector4double pattern = vec_gpci( 02301 );
-    
     for( dim_t i = 0; i < k; i++ )
     {
-        a0 = vec_lda( 0 * sizeof(double), a );
-        a1 = vec_lda( 4 * sizeof(double), a );
-        b0 = vec_lda( 0 * sizeof(double), b );
-        b1 = vec_lda( 4 * sizeof(double), b );
+        b0a = vec_ld2a( 0 * sizeof(double), &b[8*i] );
+        b0b = vec_ld2a( 2 * sizeof(double), &b[8*i] );
+        b1a = vec_ld2a( 4 * sizeof(double), &b[8*i] );
+        b1b = vec_ld2a( 6 * sizeof(double), &b[8*i] );
+
+        a0  = vec_lda ( 0 * sizeof(double), &a[8*i] );
+        a1  = vec_lda ( 4 * sizeof(double), &a[8*i] );
         
-        c00a    = vec_xmadd( b0, a0, c00a );
-        c00b    = vec_xxmadd( a0, b0, c00b );
-        b0p     = vec_perm( b0, b0, pattern ); 
-        c00c    = vec_xmadd( b0p, a0, c00c );
-        c00d    = vec_xxmadd( a0, b0p, c00d );
-        
-        c01a    = vec_xmadd( b1, a0, c01a );
-        c01b    = vec_xxmadd( a0, b1, c01b );
-        b1p     = vec_perm( b1, b1, pattern ); 
-        c01c    = vec_xmadd( b1p, a0, c01c );
-        c01d    = vec_xxmadd( a0, b1p, c01d );
+        c00a    = vec_xmadd ( b0a, a0, c00a );
+        c00b    = vec_xxmadd( a0, b0a, c00b );
+        c00c    = vec_xmadd ( b0b, a0, c00c );
+        c00d    = vec_xxmadd( a0, b0b, c00d );
 
+        c01a    = vec_xmadd ( b1a, a0, c01a );
+        c01b    = vec_xxmadd( a0, b1a, c01b );
+        c01c    = vec_xmadd ( b1b, a0, c01c );
+        c01d    = vec_xxmadd( a0, b1b, c01d );
 
-        c10a    = vec_xmadd( b0, a1, c10a );
-        c10b    = vec_xxmadd( a1, b0, c10b );
-        c10c    = vec_xmadd( b0p, a1, c10c );
-        c10d    = vec_xxmadd( a1, b0p, c10d );
+        c10a    = vec_xmadd ( b0a, a1, c10a );
+        c10b    = vec_xxmadd( a1, b0a, c10b );
+        c10c    = vec_xmadd ( b0b, a1, c10c );
+        c10d    = vec_xxmadd( a1, b0b, c10d );
 
-        c11a    = vec_xmadd( b1, a1, c11a );
-        c11b    = vec_xxmadd( a1, b1, c11b );
-        c11c    = vec_xmadd( b1p, a1, c11c );
-        c11d    = vec_xxmadd( a1, b1p, c11d );
-
-        a += 8;
-        b += 8;
+        c11a    = vec_xmadd ( b1a, a1, c11a );
+        c11b    = vec_xxmadd( a1, b1a, c11b );
+        c11c    = vec_xmadd ( b1b, a1, c11c );
+        c11d    = vec_xxmadd( a1, b1b, c11d );
     }
     
-    // Create patterns for permuting C
-    vector4double patternCA = vec_gpci( 00167 );
-    vector4double patternCC = vec_gpci( 04523 );
-    vector4double patternCB = vec_gpci( 01076 );
-    vector4double patternCD = vec_gpci( 05432 );
+    // Create patterns for permuting Cb and Cd
+    vector4double pattern = vec_gpci( 01032 );
 
     vector4double AB;
     vector4double C = vec_splats( 0.0 );
     vector4double betav = vec_splats( *beta );
     vector4double alphav = vec_splats( *alpha );
     double ct;
-    
+  
+    //Macro to update 4 elements of C in a column.
+    //REG is the register holding those 4 elements
+    //ADDR is the address to write them to
+    //OFFSET is the number of rows from ADDR to write to
 #define UPDATE( REG, ADDR, OFFSET )     \
 {                                       \
-    ct = *(ADDR + OFFSET);              \
+    ct = *(ADDR + (OFFSET + 0) * rs_c); \
     C = vec_insert( ct, C, 0 );         \
-    ct = *(ADDR + OFFSET + 1);          \
+    ct = *(ADDR + (OFFSET + 1) * rs_c); \
     C = vec_insert( ct, C, 1 );         \
-    ct = *(ADDR + OFFSET + 2 );         \
+    ct = *(ADDR + (OFFSET + 2) * rs_c); \
     C = vec_insert( ct, C, 2 );         \
-    ct = *(ADDR + OFFSET + 3 );         \
+    ct = *(ADDR + (OFFSET + 3) * rs_c); \
     C = vec_insert( ct, C, 3 );         \
                                         \
     AB = vec_mul( REG, alphav );        \
     AB = vec_madd( C, betav, AB);       \
                                         \
     ct = vec_extract( AB, 0 );          \
-    *(ADDR + OFFSET) = ct;              \
+    *(ADDR + (OFFSET + 0) * rs_c) = ct; \
     ct = vec_extract( AB, 1 );          \
-    *(ADDR + OFFSET + 1) = ct;          \
+    *(ADDR + (OFFSET + 1) * rs_c) = ct; \
     ct = vec_extract( AB, 2 );          \
-    *(ADDR + OFFSET + 2) = ct;          \
+    *(ADDR + (OFFSET + 2) * rs_c) = ct; \
     ct = vec_extract( AB, 3 );          \
-    *(ADDR + OFFSET + 3) = ct;          \
+    *(ADDR + (OFFSET + 3) * rs_c) = ct; \
 }  
     //Update c00 and c10 sub-blocks
-    AB = vec_perm( c00a, c00c, patternCA );
+    UPDATE( c00a, c, 0 );
+    UPDATE( c10a, c, 4 );
+
+    c = c + cs_c;
+    AB = vec_perm( c00b, c00b, pattern );
     UPDATE( AB, c, 0 );
-    AB = vec_perm( c10a, c10c, patternCA );
+    AB = vec_perm( c10b, c10b, pattern );
     UPDATE( AB, c, 4 );
 
     c = c + cs_c;
-    AB = vec_perm( c00b, c00d, patternCB );
-    UPDATE( AB, c, 0 );
-    AB = vec_perm( c10b, c10d, patternCB );
-    UPDATE( AB, c, 4 );
+    UPDATE( c00c, c, 0 );
+    UPDATE( c10c, c, 4 );
 
     c = c + cs_c;
-    AB = vec_perm( c00a, c00c, patternCC );
+    AB = vec_perm( c00d, c00d, pattern );
     UPDATE( AB, c, 0 );
-    AB = vec_perm( c10a, c10c, patternCC );
-    UPDATE( AB, c, 4 );
-
-    c = c + cs_c;
-    AB = vec_perm( c00b, c00d, patternCD );
-    UPDATE( AB, c, 0 );
-    AB = vec_perm( c10b, c10d, patternCD );
+    AB = vec_perm( c10d, c10d, pattern );
     UPDATE( AB, c, 4 );
 
     //Update c01 and c11 sub-blocks
     c = c + cs_c;
-    AB = vec_perm( c01a, c01c, patternCA );
+    UPDATE( c01a, c, 0 );
+    UPDATE( c11a, c, 4 );
+
+    c = c + cs_c;
+    AB = vec_perm( c01b, c01b, pattern );
     UPDATE( AB, c, 0 );
-    AB = vec_perm( c11a, c11c, patternCA );
+    AB = vec_perm( c11b, c11b, pattern );
     UPDATE( AB, c, 4 );
 
     c = c + cs_c;
-    AB = vec_perm( c01b, c01d, patternCB );
-    UPDATE( AB, c, 0 );
-    AB = vec_perm( c11b, c11d, patternCB );
-    UPDATE( AB, c, 4 );
+    UPDATE( c01c, c, 0 );
+    UPDATE( c11c, c, 4 );
 
     c = c + cs_c;
-    AB = vec_perm( c01a, c01c, patternCC );
+    AB = vec_perm( c01d, c01d, pattern );
     UPDATE( AB, c, 0 );
-    AB = vec_perm( c11a, c11c, patternCC );
-    UPDATE( AB, c, 4 );
-
-    c = c + cs_c;
-    AB = vec_perm( c01b, c01d, patternCD );
-    UPDATE( AB, c, 0 );
-    AB = vec_perm( c11b, c11d, patternCD );
+    AB = vec_perm( c11d, c11d, pattern );
     UPDATE( AB, c, 4 );
 }
 
@@ -246,160 +234,6 @@ void bli_dgemm_8x8_mt(
         rs_c, cs_c, NULL, NULL );
 }
 
-void bli_dgemm_16x4(
-                        dim_t     k,
-                        double*   alpha,
-                        double*   a,
-                        double*   b,
-                        double*   beta,
-                        double*   c, inc_t rs_c, inc_t cs_c,
-                        double* a_next, double* b_next
-                      )
-
-{
-    //Registers for storing C.
-    //4 4x4 subblocks of C, c00, c01, c10, c11
-    //4 registers per subblock: a, b, c, d
-    //There is an excel file that details which register ends up storing what
-    vector4double c00a = vec_splats( 0.0 );
-    vector4double c00b = vec_splats( 0.0 );
-    vector4double c00c = vec_splats( 0.0 );
-    vector4double c00d = vec_splats( 0.0 );
-
-    vector4double c10a = vec_splats( 0.0 );
-    vector4double c10b = vec_splats( 0.0 );
-    vector4double c10c = vec_splats( 0.0 );
-    vector4double c10d = vec_splats( 0.0 );
-
-    vector4double c20a = vec_splats( 0.0 );
-    vector4double c20b = vec_splats( 0.0 );
-    vector4double c20c = vec_splats( 0.0 );
-    vector4double c20d = vec_splats( 0.0 );
-
-    vector4double c30a = vec_splats( 0.0 );
-    vector4double c30b = vec_splats( 0.0 );
-    vector4double c30c = vec_splats( 0.0 );
-    vector4double c30d = vec_splats( 0.0 );
-
-    vector4double a0, a1, a2, a3;
-    vector4double b0;
-    vector4double b0p;
-
-    vector4double pattern = vec_gpci( 02301 );
-    
-    for( dim_t i = 0; i < k; i++ )
-    {
-        a0 = vec_lda(  0 * sizeof(double), a );
-        a1 = vec_lda(  4 * sizeof(double), a );
-        a2 = vec_lda(  8 * sizeof(double), a );
-        a3 = vec_lda( 12 * sizeof(double), a );
-
-        b0 = vec_lda( 0 * sizeof(double), b );
-        
-        c00a    = vec_xmadd( b0, a0, c00a );
-        c00b    = vec_xxmadd( a0, b0, c00b );
-        b0p     = vec_perm( b0, b0, pattern ); 
-        c00c    = vec_xmadd( b0p, a0, c00c );
-        c00d    = vec_xxmadd( a0, b0p, c00d );
-        
-        c10a    = vec_xmadd( b0, a1, c10a );
-        c10b    = vec_xxmadd( a1, b0, c10b );
-        c10c    = vec_xmadd( b0p, a1, c10c );
-        c10d    = vec_xxmadd( a1, b0p, c10d );
-        
-        c20a    = vec_xmadd( b0, a2, c20a );
-        c20b    = vec_xxmadd( a2, b0, c20b );
-        c20c    = vec_xmadd( b0p, a2, c20c );
-        c20d    = vec_xxmadd( a2, b0p, c20d );
-        
-        c30a    = vec_xmadd( b0, a3, c30a );
-        c30b    = vec_xxmadd( a3, b0, c30b );
-        c30c    = vec_xmadd( b0p, a3, c30c );
-        c30d    = vec_xxmadd( a3, b0p, c30d );
-
-        a += 16;
-        b += 4;
-    }
-    
-    // Create patterns for permuting C
-    vector4double patternCA = vec_gpci( 00167 );
-    vector4double patternCC = vec_gpci( 04523 );
-    vector4double patternCB = vec_gpci( 01076 );
-    vector4double patternCD = vec_gpci( 05432 );
-
-    vector4double AB;
-    vector4double C = vec_splats( 0.0 );
-    vector4double betav = vec_splats( *beta );
-    vector4double alphav = vec_splats( *alpha );
-    double ct;
-    
-#define UPDATE( REG, ADDR, OFFSET )     \
-{                                       \
-    ct = *(ADDR + OFFSET);              \
-    C = vec_insert( ct, C, 0 );         \
-    ct = *(ADDR + OFFSET + 1);          \
-    C = vec_insert( ct, C, 1 );         \
-    ct = *(ADDR + OFFSET + 2 );         \
-    C = vec_insert( ct, C, 2 );         \
-    ct = *(ADDR + OFFSET + 3 );         \
-    C = vec_insert( ct, C, 3 );         \
-                                        \
-    AB = vec_mul( REG, alphav );        \
-    AB = vec_madd( C, betav, AB);       \
-                                        \
-    ct = vec_extract( AB, 0 );          \
-    *(ADDR + OFFSET) = ct;              \
-    ct = vec_extract( AB, 1 );          \
-    *(ADDR + OFFSET + 1) = ct;          \
-    ct = vec_extract( AB, 2 );          \
-    *(ADDR + OFFSET + 2) = ct;          \
-    ct = vec_extract( AB, 3 );          \
-    *(ADDR + OFFSET + 3) = ct;          \
-}  
-    //Update c00 and c10 sub-blocks
-    AB = vec_perm( c00a, c00c, patternCA );
-    UPDATE( AB, c, 0 );
-    AB = vec_perm( c10a, c10c, patternCA );
-    UPDATE( AB, c, 4 );
-    AB = vec_perm( c20a, c20c, patternCA );
-    UPDATE( AB, c, 8 );
-    AB = vec_perm( c30a, c30c, patternCA );
-    UPDATE( AB, c, 12 );
-
-    c = c + cs_c;
-
-    AB = vec_perm( c00b, c00d, patternCB );
-    UPDATE( AB, c, 0 );
-    AB = vec_perm( c10b, c10d, patternCB );
-    UPDATE( AB, c, 4 );
-    AB = vec_perm( c20b, c20d, patternCB );
-    UPDATE( AB, c, 8 );
-    AB = vec_perm( c30b, c30d, patternCB );
-    UPDATE( AB, c, 12 );
-
-    c = c + cs_c;
-
-    AB = vec_perm( c00a, c00c, patternCC );
-    UPDATE( AB, c, 0 );
-    AB = vec_perm( c10a, c10c, patternCC );
-    UPDATE( AB, c, 4 );
-    AB = vec_perm( c20a, c20c, patternCC );
-    UPDATE( AB, c, 8 );
-    AB = vec_perm( c30a, c30c, patternCC );
-    UPDATE( AB, c, 12 );
-
-    c = c + cs_c;
-
-    AB = vec_perm( c00b, c00d, patternCD );
-    UPDATE( AB, c, 0 );
-    AB = vec_perm( c10b, c10d, patternCD );
-    UPDATE( AB, c, 4 );
-    AB = vec_perm( c20b, c20d, patternCD );
-    UPDATE( AB, c, 8 );
-    AB = vec_perm( c30b, c30d, patternCD );
-    UPDATE( AB, c, 12 );
-
-}
 void bli_cgemm_8x8(
                         dim_t     k,
                         scomplex* alpha,

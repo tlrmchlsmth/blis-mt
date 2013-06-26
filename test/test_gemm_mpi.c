@@ -70,7 +70,7 @@ int main( int argc, char** argv )
 
 #ifndef PRINT
 	p_begin = 40;
-	p_end   = 4000;
+	p_end   = 2000;
 	p_inc   = 40;
 
 	m_input = -1;
