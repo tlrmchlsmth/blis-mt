@@ -300,7 +300,7 @@ void PASTEMAC(ch,varname)( \
 		} \
 \
 		/* Bottom edge handling. */ \
-		if ( m_left && !l2_thread_id ) \
+		if ( m_left && !l1_thread_id ) \
 		{ \
 			a1  = a_cast + m_iter * rstep_a; \
 			c11 = c1 + m_iter * rstep_c; \
@@ -328,12 +328,12 @@ void PASTEMAC(ch,varname)( \
 \
 		} \
 \
-		b1 = b_cast + n_iter * cstep_b; \
-		c1 = c_cast + n_iter * cstep_c; \
 	} \
 \
 	if ( n_left && !l2_thread_id ) \
 	{ \
+		b1 = b_cast + n_iter * cstep_b; \
+		c1 = c_cast + n_iter * cstep_c; \
 \
 		/* If duplication is needed, copy the n_left (+ padding) columns
 		   of B to a local buffer with each value duplicated. */ \
@@ -375,7 +375,7 @@ void PASTEMAC(ch,varname)( \
 		} \
 \
 		/* Bottom-right corner handling. */ \
-		if ( m_left ) \
+		if ( m_left && !l1_thread_id ) \
 		{ \
 			a1  = a_cast + m_iter * rstep_a; \
 			c11 = c1 + m_iter * rstep_c; \
