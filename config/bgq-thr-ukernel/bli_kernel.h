@@ -35,7 +35,7 @@
 #ifndef BLIS_KERNEL_H
 #define BLIS_KERNEL_H
 
-#define BLIS_GEMM_UKERNEL_THREADS 1
+#define BLIS_GEMM_UKERNEL_THREADS 4
 
 // -- LEVEL-3 MICRO-KERNEL CONSTANTS -------------------------------------------
 
@@ -114,8 +114,8 @@
 #define BLIS_DEFAULT_MR_S              8
 #define BLIS_DEFAULT_NR_S              4
 
-#define BLIS_DEFAULT_MR_D              8
-#define BLIS_DEFAULT_NR_D              8
+#define BLIS_DEFAULT_MR_D              16
+#define BLIS_DEFAULT_NR_D              16
 
 #define BLIS_DEFAULT_MR_C              8
 #define BLIS_DEFAULT_NR_C              4
@@ -261,8 +261,7 @@
 
 // -- gemm --
 
-#define GEMM_UKERNEL         gemm_8x8
-#define GEMM_UKERNEL_MT      gemm_8x8_mt
+#define GEMM_UKERNEL         gemm_16x16
 
 // -- trsm-related --
 

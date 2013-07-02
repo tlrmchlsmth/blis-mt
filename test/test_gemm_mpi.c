@@ -35,6 +35,7 @@
 #include <unistd.h>
 #include "blis.h"
 #include <mpi.h>
+#include <spi/include/l1p/sprefetch.h>
 
 //           transa transb m     n     k     alpha    a        lda   b        ldb   beta     c        ldc
 void dgemm_( char*, char*, int*, int*, int*, double*, double*, int*, double*, int*, double*, double*, int* );
@@ -64,14 +65,17 @@ int main( int argc, char** argv )
     MPI_Comm_size( MPI_COMM_WORLD, &world_size );
     MPI_Comm_rank( MPI_COMM_WORLD, &world_rank );
 
+    //L1P_SetStreamPolicy( L1P_stream_disable );
+    //L1P_SetStreamDepth( 1 );
+
 	bli_init();
 
 	n_repeats = 3;
 
 #ifndef PRINT
-	p_begin = 40;
-	p_end   = 2000;
-	p_inc   = 40;
+	p_begin = 16;
+	p_end   = 2048;
+	p_inc   = 16;
 
 	m_input = -1;
 	//m_input = 384;
@@ -188,14 +192,15 @@ int main( int argc, char** argv )
 		
         gflops = ( 2.0 * m * k * n ) / ( dtime_save * 1.0e9 );
 
-        if(world_rank == 0){
+        //if(world_rank == 0)
+        {
 #ifdef BLIS
             printf( "data_gemm_blis" );
 #else
             printf( "data_gemm_%s", BLAS );
 #endif
-            printf( "( %2ld, 1:5 ) = [ %4lu %4lu %4lu  %10.3e  %6.3f ];\n",
-                    (p - p_begin + 1)/p_inc + 1, m, k, n, dtime_save, gflops );
+            printf( "( %2ld, 1:5 ) = [ %d %4lu %4lu %4lu  %10.3e  %6.3f ];\n",
+                    (p - p_begin + 1)/p_inc + 1, world_rank, m, k, n, dtime_save, gflops );
 
         }
     
