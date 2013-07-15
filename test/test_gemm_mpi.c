@@ -74,12 +74,12 @@ int main( int argc, char** argv )
 
 #ifndef PRINT
 	p_begin = 16;
-	p_end   = 2048;
+	p_end   = 4096;
 	p_inc   = 16;
 
-	m_input = -1;
+	m_input = 20480;
 	//m_input = 384;
-	n_input = -1;
+	n_input = 20480;
 	//k_input = -1;
 	k_input = -1;
 #else
@@ -98,7 +98,7 @@ int main( int argc, char** argv )
 	dt_alpha = BLIS_DOUBLE;
 	dt_beta = BLIS_DOUBLE;
 
-	for ( p = p_begin; p <= p_end; p += p_inc )
+	for ( p = p_begin + world_rank*p_inc; p <= p_end; p += p_inc * world_size)
 	{
 
 		if ( m_input < 0 ) m = p * ( dim_t )abs(m_input);
