@@ -142,8 +142,8 @@ void bli_dgemm_8x8(
 
     vector4double AB;
     vector4double C = vec_splats( 0.0 );
-    vector4double betav = vec_splats( *beta );
-    vector4double alphav = vec_splats( *alpha );
+    vector4double betav  = vec_lds( 0, beta );
+    vector4double alphav = vec_lds( 0, alpha );
     double ct;
   
     //Macro to update 4 elements of C in a column.

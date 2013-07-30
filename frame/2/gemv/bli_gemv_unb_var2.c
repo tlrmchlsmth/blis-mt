@@ -108,8 +108,8 @@ void bli_gemv_unb_var2( obj_t*  alpha,
 	// Index into the type combination array to extract the correct
 	// function pointer.
 	f = ftypes[dt_a][dt_x][dt_y];
-
-	// Invoke the function.
+	
+    // Invoke the function.
 	f( transa,
 	   conjx,
 	   m,

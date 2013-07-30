@@ -58,8 +58,8 @@ void PASTEMAC0(opname)( \
                         obj_t* y  \
                       ) \
 { \
-	if ( bli_error_checking_is_enabled() ) \
-		PASTEMAC(opname,_check)( alpha, x, y ); \
+	/*if ( bli_error_checking_is_enabled() ) \
+		PASTEMAC(opname,_check)( alpha, x, y ); */\
 \
 	PASTEMAC0(varname)( alpha, \
 	                    x, \

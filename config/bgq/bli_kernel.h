@@ -73,7 +73,7 @@
 //1 MPI RANK CASE:
 #define BLIS_DEFAULT_MC_D              1008
 #define BLIS_DEFAULT_KC_D              2016
-#define BLIS_DEFAULT_NC_D              8192
+#define BLIS_DEFAULT_NC_D              20480
 
 #define BLIS_DEFAULT_MC_C              128
 #define BLIS_DEFAULT_KC_C              256
@@ -232,7 +232,7 @@
 // are optimized.
 
 #define BLIS_DEFAULT_FUSING_FACTOR_S   8
-#define BLIS_DEFAULT_FUSING_FACTOR_D   4
+#define BLIS_DEFAULT_FUSING_FACTOR_D   8 
 #define BLIS_DEFAULT_FUSING_FACTOR_C   4
 #define BLIS_DEFAULT_FUSING_FACTOR_Z   2
 
@@ -312,7 +312,7 @@
 
 // -- axpyf --
 
-#define AXPYF_KERNEL         axpyf_unb_var1
+#define AXPYF_KERNEL         axpyf_opt_var1
 
 // -- dotxf --
 
@@ -331,8 +331,8 @@
 #define ADDV_KERNEL          addv_unb_var1
 
 // -- axpyv --
-
-#define AXPYV_KERNEL         axpyv_unb_var1
+#include "bli_axpyv_opt_var1.h"
+#define AXPYV_KERNEL         axpyv_opt_var1
 
 // -- copynzv --
 
@@ -343,8 +343,8 @@
 #define COPYV_KERNEL         copyv_unb_var1
 
 // -- dotv --
-
-#define DOTV_KERNEL          dotv_unb_var1
+#include "bli_dotv_opt_var1.h"
+#define DOTV_KERNEL          dotv_opt_var1
 
 // -- dotxv --
 

@@ -70,12 +70,11 @@ void bli_gemm_blk_var3( obj_t*  alpha,
                         obj_t*  c,
                         gemm_t* cntl )
 {
-	obj_t  a1_s, a1_pack_s;
-	obj_t  b1_s, b1_pack_s;
+	obj_t  a1_pack_s;
+	obj_t  b1_pack_s;
 	obj_t  c_pack_s;
      
-    obj_t* a1      = NULL;  
-    obj_t* b1      = NULL;  
+    obj_t a1, b1;
 	obj_t* a1_pack = NULL;
 	obj_t* b1_pack = NULL;
 	obj_t* c_pack  = NULL;
@@ -121,11 +120,12 @@ void bli_gemm_blk_var3( obj_t*  alpha,
         // Initialize a1_pack
         bli_obj_init_pack( &a1_pack_s );
     }
-    bli_gemm_a_barrier( cntl->thread_info );
+    a1_pack = bli_gemm_broadcast_a( cntl->thread_info, &a1_pack_s );
+
     if( bli_gemm_am_b_master( cntl->thread_info ) ) {
         bli_obj_init_pack( &b1_pack_s );
     }
-    bli_gemm_b_barrier( cntl->thread_info );
+    b1_pack = bli_gemm_broadcast_b( cntl->thread_info, &b1_pack_s );
 
     if( id_within_group == 0 ) {
         // Initialize c1_pack
@@ -170,42 +170,38 @@ void bli_gemm_blk_var3( obj_t*  alpha,
 		// complex and b is real.
 		b_alg = bli_determine_blocksize_f( i, end, b,
 		                                   cntl_blocksize( cntl ) );
+
+        // Acquire partitions for A1 
+        bli_acquire_mpart_l2r( BLIS_SUBPART1,
+                               i, b_alg, a, &a1 );
+        // Acquire partitions for B1.
+        bli_acquire_mpart_t2b( BLIS_SUBPART1,
+                               i, b_alg, b, &b1 );
         
         if( bli_gemm_am_a_master( cntl->thread_info )) {
-            // Acquire partitions for A1 
-            bli_acquire_mpart_l2r( BLIS_SUBPART1,
-                                   i, b_alg, a, &a1_s );
             // Initialize objects for packing A1 
-            bli_packm_init( &a1_s, &a1_pack_s,
+            bli_packm_init( &a1, &a1_pack_s,
                             cntl_sub_packm_a( cntl ) );
         }
-        a1 = bli_gemm_broadcast_a( cntl->thread_info, &a1_s );
-        a1_pack = bli_gemm_broadcast_a( cntl->thread_info, &a1_pack_s );
 
         if( bli_gemm_am_b_master( cntl->thread_info )) {
-            // Acquire partitions for B1.
-            bli_acquire_mpart_t2b( BLIS_SUBPART1,
-                                   i, b_alg, b, &b1_s );
             // Initialize objects for packing B1.
-            bli_packm_init( &b1_s, &b1_pack_s,
+            bli_packm_init( &b1, &b1_pack_s,
                             cntl_sub_packm_b( cntl ) );
         }
-        b1 = bli_gemm_broadcast_b( cntl->thread_info, &b1_s );
-        b1_pack = bli_gemm_broadcast_b( cntl->thread_info, &b1_pack_s );
 
         //printf("%d\t%d\t%d\t%d\n", a1, b1, a1_pack, b1_pack);   
-        // Packing must be done before computation is done.
         bli_gemm_a_barrier( cntl->thread_info );
         bli_gemm_b_barrier( cntl->thread_info );
 
 		// Pack A1 and scale by alpha (if instructed).
 		bli_packm_int( alpha,
-		               a1, a1_pack,
+		               &a1, a1_pack,
 		               cntl_sub_packm_a( cntl ) );
 
 		// Pack B1 and scale by alpha (if instructed).
 		bli_packm_int( alpha,
-		               b1, b1_pack,
+		               &b1, b1_pack,
 		               cntl_sub_packm_b( cntl ) );
 
 		// Since this variant executes multiple rank-k updates, we must use

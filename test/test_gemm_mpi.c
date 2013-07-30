@@ -74,12 +74,12 @@ int main( int argc, char** argv )
 
 #ifndef PRINT
 	p_begin = 16;
-	p_end   = 4096;
+	p_end   = 10240;
 	p_inc   = 16;
 
-	m_input = 20480;
+	m_input = 10240;
 	//m_input = 384;
-	n_input = 20480;
+	n_input = 10240;
 	//k_input = -1;
 	k_input = -1;
 #else
@@ -201,6 +201,7 @@ int main( int argc, char** argv )
 #endif
             printf( "( %2ld, 1:5 ) = [ %d %4lu %4lu %4lu  %10.3e  %6.3f ];\n",
                     (p - p_begin + 1)/p_inc + 1, world_rank, m, k, n, dtime_save, gflops );
+//              printf( "( %d, %f )\n", k, gflops);
 
         }
     
