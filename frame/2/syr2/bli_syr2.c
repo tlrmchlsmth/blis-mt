@@ -34,10 +34,10 @@
 
 #include "blis.h"
 
-extern her2_t* her2_cntl_bs_ke_lrow_ucol;
-extern her2_t* her2_cntl_bs_ke_lcol_urow;
-extern her2_t* her2_cntl_ge_lrow_ucol;
-extern her2_t* her2_cntl_ge_lcol_urow;
+extern her2_t* her2_cntl_bs_ke_row;
+extern her2_t* her2_cntl_bs_ke_col;
+extern her2_t* her2_cntl_ge_row;
+extern her2_t* her2_cntl_ge_col;
 
 void bli_syr2( obj_t*  alpha,
                obj_t*  x,
@@ -47,7 +47,7 @@ void bli_syr2( obj_t*  alpha,
 	her2_t* her2_cntl;
 	num_t   dt_targ_x;
 	num_t   dt_targ_y;
-	//num_t   dt_targ_c;
+	num_t   dt_targ_c;
 	bool_t  x_is_contig;
 	bool_t  y_is_contig;
 	bool_t  c_is_contig;
@@ -62,7 +62,7 @@ void bli_syr2( obj_t*  alpha,
 	// Query the target datatypes of each object.
 	dt_targ_x = bli_obj_target_datatype( *x );
 	dt_targ_y = bli_obj_target_datatype( *y );
-	//dt_targ_c = bli_obj_target_datatype( *c );
+	dt_targ_c = bli_obj_target_datatype( *c );
 
 	// Determine whether each operand is stored contiguously.
 	x_is_contig = ( bli_obj_vector_inc( *x ) == 1 );
@@ -86,20 +86,10 @@ void bli_syr2( obj_t*  alpha,
 	     y_is_contig &&
 	     c_is_contig )
 	{
-		// We use two control trees to handle the four cases corresponding to
-		// combinations of upper/lower triangular storage and row/column-storage.
-		// The row-stored lower triangular and column-stored upper triangular
-		// trees are identical. Same for the remaining two trees.
-		if ( bli_obj_is_lower( *c ) )
-		{
-			if ( bli_obj_is_row_stored( *c ) ) her2_cntl = her2_cntl_bs_ke_lrow_ucol;
-			else                               her2_cntl = her2_cntl_bs_ke_lcol_urow;
-		}
-		else // if ( bli_obj_is_upper( *c ) )
-		{
-			if ( bli_obj_is_row_stored( *c ) ) her2_cntl = her2_cntl_bs_ke_lcol_urow;
-			else                               her2_cntl = her2_cntl_bs_ke_lrow_ucol;
-		}
+		// Use different control trees depending on storage of the matrix
+		// operand.
+		if ( bli_obj_is_row_stored( *c ) ) her2_cntl = her2_cntl_bs_ke_row;
+		else                               her2_cntl = her2_cntl_bs_ke_col;
 	}
 	else
 	{
@@ -111,16 +101,8 @@ void bli_syr2( obj_t*  alpha,
 
 		// Here, we make a similar choice as above, except that (1) we look
 		// at storage tilt, and (2) we choose a tree that performs blocking.
-		if ( bli_obj_is_lower( *c ) )
-		{
-			if ( bli_obj_is_row_stored( *c ) ) her2_cntl = her2_cntl_ge_lrow_ucol;
-			else                               her2_cntl = her2_cntl_ge_lcol_urow;
-		}
-		else // if ( bli_obj_is_upper( *c ) )
-		{
-			if ( bli_obj_is_row_stored( *c ) ) her2_cntl = her2_cntl_ge_lcol_urow;
-			else                               her2_cntl = her2_cntl_ge_lrow_ucol;
-		}
+		if ( bli_obj_is_row_tilted( *c ) ) her2_cntl = her2_cntl_ge_row;
+		else                               her2_cntl = her2_cntl_ge_col;
 	}
 
 

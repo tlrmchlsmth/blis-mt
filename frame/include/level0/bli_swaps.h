@@ -41,131 +41,151 @@
 // - The first char encodes the type of x.
 // - The second char encodes the type of y.
 
-
 #define bli_ssswaps( x, y ) \
 { \
-	float    w; \
-	bli_sscopys( (y), (w) ); \
-	bli_sscopys( (x), (y) ); \
-	bli_sscopys( (w), (x) ); \
+	float    xnew; \
+	xnew      = ( float  ) (y); \
+	(y)       = ( float  ) (x); \
+	(x)       =            xnew; \
 }
 #define bli_dsswaps( x, y ) \
 { \
-	double   w; \
-	bli_sdcopys( (y), (w) ); \
-	bli_dscopys( (x), (y) ); \
-	bli_ddcopys( (w), (x) ); \
+	double   xnew; \
+	xnew      = ( double ) (y); \
+	(y)       = ( float  ) (x); \
+	(x)       =            xnew; \
 }
 #define bli_csswaps( x, y ) \
 { \
-	scomplex w; \
-	bli_sccopys( (y), (w) ); \
-	bli_cscopys( (x), (y) ); \
-	bli_cccopys( (w), (x) ); \
+	float    xnew; \
+	xnew      = ( float  ) (y); \
+	(y)       = ( float  ) (x).real; \
+	(x).real  =            xnew; \
+	(x).imag  = 0.0F; \
 }
 #define bli_zsswaps( x, y ) \
 { \
-	dcomplex w; \
-	bli_szcopys( (y), (w) ); \
-	bli_zscopys( (x), (y) ); \
-	bli_zzcopys( (w), (x) ); \
+	double   xnew; \
+	xnew      = ( double ) (y); \
+	(y)       = ( float  ) (x).real; \
+	(x).real  =            xnew; \
+	(x).imag  = 0.0; \
 }
-
 
 #define bli_sdswaps( x, y ) \
 { \
-	float    w; \
-	bli_dscopys( (y), (w) ); \
-	bli_sdcopys( (x), (y) ); \
-	bli_sscopys( (w), (x) ); \
+	float    xnew; \
+	xnew      = ( float  ) (y); \
+	(y)       = ( double ) (x); \
+	(x)       =            xnew; \
 }
 #define bli_ddswaps( x, y ) \
 { \
-	double   w; \
-	bli_ddcopys( (y), (w) ); \
-	bli_ddcopys( (x), (y) ); \
-	bli_ddcopys( (w), (x) ); \
+	double   xnew; \
+	xnew      = ( double ) (y); \
+	(y)       = ( double ) (x); \
+	(x)       =            xnew; \
 }
 #define bli_cdswaps( x, y ) \
 { \
-	scomplex w; \
-	bli_dccopys( (y), (w) ); \
-	bli_cdcopys( (x), (y) ); \
-	bli_cccopys( (w), (x) ); \
+	float    xnew; \
+	xnew      = ( float  ) (y); \
+	(y)       = ( double ) (x).real; \
+	(x).real  =            xnew; \
+	(x).imag  = 0.0F; \
 }
 #define bli_zdswaps( x, y ) \
 { \
-	dcomplex w; \
-	bli_dzcopys( (y), (w) ); \
-	bli_zdcopys( (x), (y) ); \
-	bli_zzcopys( (w), (x) ); \
+	double   xnew; \
+	xnew      = ( double ) (y); \
+	(y)       = ( double ) (x).real; \
+	(x).real  =            xnew; \
+	(x).imag  = 0.0; \
 }
-
 
 #define bli_scswaps( x, y ) \
 { \
-	float    w; \
-	bli_cscopys( (y), (w) ); \
-	bli_sccopys( (x), (y) ); \
-	bli_sscopys( (w), (x) ); \
+	float    xnew; \
+	xnew      = ( float  ) (y).real; \
+	(y).real  = ( float  ) (x); \
+	(y).imag  = 0.0F; \
+	(x)       =            xnew; \
 }
 #define bli_dcswaps( x, y ) \
 { \
-	double   w; \
-	bli_cdcopys( (y), (w) ); \
-	bli_dccopys( (x), (y) ); \
-	bli_ddcopys( (w), (x) ); \
+	double   xnew; \
+	xnew      = ( double ) (y).real; \
+	(y).real  = ( float  ) (x); \
+	(y).imag  = 0.0F; \
+	(x)       =            xnew; \
 }
 #define bli_ccswaps( x, y ) \
 { \
-	scomplex w; \
-	bli_cccopys( (y), (w) ); \
-	bli_cccopys( (x), (y) ); \
-	bli_cccopys( (w), (x) ); \
+	scomplex xnew; \
+	xnew      =            (y); \
+	(y)       =            (x); \
+	(x)       =            xnew; \
 }
 #define bli_zcswaps( x, y ) \
 { \
-	dcomplex w; \
-	bli_czcopys( (y), (w) ); \
-	bli_zccopys( (x), (y) ); \
-	bli_zzcopys( (w), (x) ); \
+	dcomplex xnew; \
+	xnew.real = ( double ) (y).real; \
+	xnew.imag = ( double ) (y).imag; \
+	(y).real  = ( float  ) (x).real; \
+	(y).imag  = ( float  ) (x).imag; \
+	(x)       =            xnew; \
 }
-
 
 #define bli_szswaps( x, y ) \
 { \
-	float    w; \
-	bli_zscopys( (y), (w) ); \
-	bli_szcopys( (x), (y) ); \
-	bli_sscopys( (w), (x) ); \
+	float    xnew; \
+	xnew      = ( float  ) (y).real; \
+	(y).real  = ( double ) (x); \
+	(y).imag  = 0.0; \
+	(x)       =            xnew; \
 }
 #define bli_dzswaps( x, y ) \
 { \
-	double   w; \
-	bli_zdcopys( (y), (w) ); \
-	bli_dzcopys( (x), (y) ); \
-	bli_ddcopys( (w), (x) ); \
+	double   xnew; \
+	xnew      = ( double ) (y).real; \
+	(y).real  = ( double ) (x); \
+	(y).imag  = 0.0; \
+	(x)       =            xnew; \
 }
 #define bli_czswaps( x, y ) \
 { \
-	scomplex w; \
-	bli_zccopys( (y), (w) ); \
-	bli_czcopys( (x), (y) ); \
-	bli_cccopys( (w), (x) ); \
+	scomplex xnew; \
+	xnew.real = ( float  ) (y).real; \
+	xnew.imag = ( float  ) (y).imag; \
+	(y).real  = ( double ) (x).real; \
+	(y).imag  = ( double ) (x).imag; \
+	(x)       =            xnew; \
 }
 #define bli_zzswaps( x, y ) \
 { \
-	dcomplex w; \
-	bli_zzcopys( (y), (w) ); \
-	bli_zzcopys( (x), (y) ); \
-	bli_zzcopys( (w), (x) ); \
+	dcomplex xnew; \
+	xnew      =            (y); \
+	(y)       =            (x); \
+	(x)       =            xnew; \
 }
 
 
-#define bli_sswaps( x, y )  bli_ssswaps( x, y )
-#define bli_dswaps( x, y )  bli_ddswaps( x, y )
-#define bli_cswaps( x, y )  bli_ccswaps( x, y )
-#define bli_zswaps( x, y )  bli_zzswaps( x, y )
+#define bli_sswaps( x, y ) \
+{ \
+	bli_ssswaps( x, y ); \
+}
+#define bli_dswaps( x, y ) \
+{ \
+	bli_ddswaps( x, y ); \
+}
+#define bli_cswaps( x, y ) \
+{ \
+	bli_ccswaps( x, y ); \
+}
+#define bli_zswaps( x, y ) \
+{ \
+	bli_zzswaps( x, y ); \
+}
 
 
 #endif

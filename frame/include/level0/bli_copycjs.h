@@ -40,119 +40,113 @@
 // Notes:
 // - The first char encodes the type of x.
 // - The second char encodes the type of y.
-
+// - x is (conditionally) copied in conjugated form.
 
 #define bli_sscopycjs( conj, x, y ) \
 { \
-	bli_sscopys( x, y ); \
+	(y) = ( float  ) (x); \
 }
 #define bli_dscopycjs( conj, x, y ) \
 { \
-	bli_dscopys( x, y ); \
+	(y) = ( float  ) (x); \
 }
 #define bli_cscopycjs( conj, x, y ) \
 { \
-	bli_cscopys( x, y ); \
+	(y) = ( float  ) (x).real; \
 }
 #define bli_zscopycjs( conj, x, y ) \
 { \
-	bli_zscopys( x, y ); \
+	(y) = ( float  ) (x).real; \
 }
-
 
 #define bli_sdcopycjs( conj, x, y ) \
 { \
-	bli_sdcopys( x, y ); \
+	(y) = ( double ) (x); \
 }
 #define bli_ddcopycjs( conj, x, y ) \
 { \
-	bli_ddcopys( x, y ); \
+	(y) = ( double ) (x); \
 }
 #define bli_cdcopycjs( conj, x, y ) \
 { \
-	bli_cdcopys( x, y ); \
+	(y) = ( double ) (x).real; \
 }
 #define bli_zdcopycjs( conj, x, y ) \
 { \
-	bli_zdcopys( x, y ); \
+	(y) = ( double ) (x).real; \
 }
-
-
-#ifndef BLIS_ENABLE_C99_COMPLEX
-
 
 #define bli_sccopycjs( conj, x, y ) \
 { \
-	bli_sccopys( x, y ); \
+	(y).real = ( float  ) (x); \
+	(y).imag = 0.0F; \
 }
 #define bli_dccopycjs( conj, x, y ) \
 { \
-	bli_dccopys( x, y ); \
+	(y).real = ( float  ) (x); \
+	(y).imag = 0.0F; \
 }
 #define bli_cccopycjs( conj, x, y ) \
 { \
-	bli_creal(y) =                          bli_creal(x); \
-	bli_cimag(y) = ( bli_is_conj( conj ) ? -bli_cimag(x) \
-	                                     :  bli_cimag(x) ); \
+	(y).real = ( float  )  (x).real; \
+	if ( bli_is_conj( conj ) ) \
+		(y).imag = ( float  ) -(x).imag; \
+	else \
+		(y).imag = ( float  )  (x).imag; \
 }
 #define bli_zccopycjs( conj, x, y ) \
 { \
-	bli_creal(y) =                          bli_zreal(x); \
-	bli_cimag(y) = ( bli_is_conj( conj ) ? -bli_zimag(x) \
-	                                     :  bli_zimag(x) ); \
+	(y).real = ( float  )  (x).real; \
+	if ( bli_is_conj( conj ) ) \
+		(y).imag = ( float  ) -(x).imag; \
+	else \
+		(y).imag = ( float  )  (x).imag; \
 }
-
 
 #define bli_szcopycjs( conj, x, y ) \
 { \
-	bli_szcopys( x, y ); \
+	(y).real = ( double ) (x); \
+	(y).imag = 0.0; \
 }
 #define bli_dzcopycjs( conj, x, y ) \
 { \
-	bli_dzcopys( x, y ); \
+	(y).real = ( double ) (x); \
+	(y).imag = 0.0; \
 }
 #define bli_czcopycjs( conj, x, y ) \
 { \
-	bli_zreal(y) =                          bli_creal(x); \
-	bli_zimag(y) = ( bli_is_conj( conj ) ? -bli_cimag(x) \
-	                                     :  bli_cimag(x) ); \
+	(y).real = ( double )  (x).real; \
+	if ( bli_is_conj( conj ) ) \
+		(y).imag = ( double ) -(x).imag; \
+	else \
+		(y).imag = ( double )  (x).imag; \
 }
 #define bli_zzcopycjs( conj, x, y ) \
 { \
-	bli_zreal(y) =                          bli_zreal(x); \
-	bli_zimag(y) = ( bli_is_conj( conj ) ? -bli_zimag(x) \
-	                                     :  bli_zimag(x) ); \
+	(y).real = ( double )  (x).real; \
+	if ( bli_is_conj( conj ) ) \
+		(y).imag = ( double ) -(x).imag; \
+	else \
+		(y).imag = ( double )  (x).imag; \
 }
 
 
-#else // ifdef BLIS_ENABLE_C99_COMPLEX
-
-
-#define bli_sccopycjs( conj, x, y )  { (y) = (x); }
-#define bli_dccopycjs( conj, x, y )  { (y) = (x); }
-#define bli_cccopycjs( conj, x, y )  { (y) = ( bli_is_conj( conj ) ? conjf(x) : (x) ); }
-#define bli_zccopycjs( conj, x, y )  { (y) = ( bli_is_conj( conj ) ? conj(x)  : (x) ); }
-
-#define bli_szcopycjs( conj, x, y )  { (y) = (x); }
-#define bli_dzcopycjs( conj, x, y )  { (y) = (x); }
-#define bli_czcopycjs( conj, x, y )  { (y) = ( bli_is_conj( conj ) ? conjf(x) : (x) ); }
-#define bli_zzcopycjs( conj, x, y )  { (y) = ( bli_is_conj( conj ) ? conj(x)  : (x) ); }
-
-
-#endif // BLIS_ENABLE_C99_COMPLEX
-
-
-#define bli_iicopycjs( conj, x, y ) \
+#define bli_scopycjs( conj, x, y ) \
 { \
-	(y) = ( gint_t ) (x); \
+	bli_sscopycjs( conj, x, y ); \
 }
-
-
-#define bli_scopycjs( conj, x, y )  bli_sscopycjs( conj, x, y )
-#define bli_dcopycjs( conj, x, y )  bli_ddcopycjs( conj, x, y )
-#define bli_ccopycjs( conj, x, y )  bli_cccopycjs( conj, x, y )
-#define bli_zcopycjs( conj, x, y )  bli_zzcopycjs( conj, x, y )
-#define bli_icopycjs( conj, x, y )  bli_iicopycjs( conj, x, y )
+#define bli_dcopycjs( conj, x, y ) \
+{ \
+	bli_ddcopycjs( conj, x, y ); \
+}
+#define bli_ccopycjs( conj, x, y ) \
+{ \
+	bli_cccopycjs( conj, x, y ); \
+}
+#define bli_zcopycjs( conj, x, y ) \
+{ \
+	bli_zzcopycjs( conj, x, y ); \
+}
 
 
 #endif

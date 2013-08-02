@@ -38,4 +38,3 @@ void bli_gemm_int( obj_t*  alpha,
                    obj_t*  beta,
                    obj_t*  c,
                    gemm_t* cntl );
-

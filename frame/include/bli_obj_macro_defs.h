@@ -40,30 +40,6 @@
 
 // Info query
 
-#define bli_obj_is_float( obj ) \
-\
-	( ( (obj).info & BLIS_DATATYPE_BITS ) == BLIS_BITVAL_FLOAT_TYPE )
-
-#define bli_obj_is_double( obj ) \
-\
-	( ( (obj).info & BLIS_DATATYPE_BITS ) == BLIS_BITVAL_DOUBLE_TYPE )
-
-#define bli_obj_is_scomplex( obj ) \
-\
-	( ( (obj).info & BLIS_DATATYPE_BITS ) == BLIS_BITVAL_SCOMPLEX_TYPE )
-
-#define bli_obj_is_dcomplex( obj ) \
-\
-	( ( (obj).info & BLIS_DATATYPE_BITS ) == BLIS_BITVAL_DCOMPLEX_TYPE )
-
-#define bli_obj_is_int( obj ) \
-\
-	( ( (obj).info & BLIS_DATATYPE_BITS ) == BLIS_BITVAL_INT_TYPE )
-
-#define bli_obj_is_const( obj ) \
-\
-	( ( (obj).info & BLIS_DATATYPE_BITS ) == BLIS_BITVAL_CONST_TYPE )
-
 #define bli_obj_domain( obj ) \
 \
 	(   (obj).info & BLIS_DOMAIN_BIT )
@@ -104,11 +80,35 @@
 \
 	( ( (obj).info & BLIS_EXECUTION_DT_BITS ) >> BLIS_EXECUTION_DT_SHIFT )
 
+#define bli_obj_is_float( obj ) \
+\
+	( ( (obj).info & BLIS_DATATYPE_BITS ) == BLIS_BITVAL_FLOAT_TYPE )
+
+#define bli_obj_is_double( obj ) \
+\
+	( ( (obj).info & BLIS_DATATYPE_BITS ) == BLIS_BITVAL_DOUBLE_TYPE )
+
+#define bli_obj_is_scomplex( obj ) \
+\
+	( ( (obj).info & BLIS_DATATYPE_BITS ) == BLIS_BITVAL_SCOMPLEX_TYPE )
+
+#define bli_obj_is_dcomplex( obj ) \
+\
+	( ( (obj).info & BLIS_DATATYPE_BITS ) == BLIS_BITVAL_DCOMPLEX_TYPE )
+
+#define bli_obj_is_int( obj ) \
+\
+	( ( (obj).info & BLIS_DATATYPE_BITS ) == BLIS_BITVAL_INT_TYPE )
+
+#define bli_obj_is_const( obj ) \
+\
+	( ( (obj).info & BLIS_DATATYPE_BITS ) == BLIS_BITVAL_CONST_TYPE )
+
 #define bli_obj_conjtrans_status( obj ) \
 \
 	(   (obj).info & BLIS_CONJTRANS_BITS )
 
-#define bli_obj_onlytrans_status( obj ) \
+#define bli_obj_trans_status( obj ) \
 \
 	(   (obj).info & BLIS_TRANS_BIT )
 
@@ -227,7 +227,7 @@
 	(obj).info = ( (obj).info & ~BLIS_CONJTRANS_BITS ) | (conjtrans); \
 }
 
-#define bli_obj_set_onlytrans( trans, obj ) \
+#define bli_obj_set_trans( trans, obj ) \
 { \
 	(obj).info = ( (obj).info & ~BLIS_TRANS_BIT ) | (trans); \
 }
@@ -485,10 +485,8 @@ bli_obj_width_stored( obj )
 
 #define bli_obj_vector_inc( x ) \
 \
-	( bli_obj_is_scalar( x ) ? 1 : \
 	( bli_obj_length( x ) == 1 ? bli_obj_col_stride( x ) \
-	                           : bli_obj_row_stride( x ) ) \
-	)
+	                           : bli_obj_row_stride( x ) )
 
 #define bli_obj_is_vector( x ) \
 \
@@ -507,11 +505,6 @@ bli_obj_width_stored( obj )
 \
 	( bli_obj_length( obj ) == 0 || \
 	  bli_obj_width( obj )  == 0 )
-
-#define bli_obj_is_scalar( x ) \
-\
-	( bli_obj_length( x ) == 1 && \
-	  bli_obj_width( x )  == 1 )
 
 
 // Dimension modification
@@ -871,7 +864,7 @@ bli_obj_width_stored( obj )
 
 // Submatrix/scalar buffer acquisition
 
-#define BLIS_CONSTANT_SLOT_SIZE  BLIS_MAX_TYPE_SIZE
+#define BLIS_CONSTANT_SLOT_SIZE  sizeof(dcomplex)
 #define BLIS_CONSTANT_SIZE       ( 5 * BLIS_CONSTANT_SLOT_SIZE )
 
 #define bli_obj_buffer_for_const( dt, obj ) \
@@ -894,16 +887,6 @@ bli_obj_width_stored( obj )
 	                                   : ( bli_obj_buffer_at_off( obj ) ) \
 	         )
 
-
-// Swap objects
-
-#define bli_obj_swap( a, b ) \
-{ \
-	obj_t t; \
-	t = b; b = a; a = t; \
-}
-
-
 // Swap object pointers
 
 #define bli_obj_swap_pointers( a, b ) \
@@ -911,7 +894,6 @@ bli_obj_width_stored( obj )
 	obj_t* t; \
 	t = b; b = a; a = t; \
 }
-
 
 // If a transposition is needed, induce one: swap dimensions, increments
 // and offsets, and then clear the trans bit.
@@ -938,9 +920,8 @@ bli_obj_width_stored( obj )
 		/* Note that this macro DOES NOT touch the transposition bit! If
 		   the calling code is using this macro to handle an object whose
 		   transposition bit is set prior to computation, that code needs
-		   to manually clear or toggle the bit, via
-		   bli_obj_set_onlytrans() or bli_obj_toggle_trans(),
-		   respectively. */ \
+		   to manually clear or toggle the bit, via bli_obj_set_trans() or
+		   bli_obj_toggle_trans(), respectively. */ \
 	} \
 }
 

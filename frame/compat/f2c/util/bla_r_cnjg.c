@@ -36,9 +36,12 @@
 
 #ifdef BLIS_ENABLE_BLAS2BLIS
 
-void bla_r_cnjg(singlecomplex *dest, singlecomplex *src)
+#include "bli_f2c.h"
+
+void r_cnjg(complex *dest, complex *src)
 {
-	bli_ccopyjs( *src, *dest );
+	dest->r =   src->r ;
+	dest->i = -(src->i);
 }
 
 #endif

@@ -36,7 +36,7 @@
 
 // -- General stuff ------------------------------------------------------------
 
-err_t bli_check_error_code_helper( gint_t code, char* file, guint_t line )
+err_t bli_check_error_code_helper( int code, char* file, unsigned int line )
 {
 	if ( code == BLIS_SUCCESS ) return code;
 
@@ -606,10 +606,8 @@ err_t bli_check_valid_3x1_subpart( subpart_t part )
 {
 	err_t e_val = BLIS_SUCCESS;
 
-	if ( part != BLIS_SUBPART0  &&
-	     part != BLIS_SUBPART1T &&
-	     part != BLIS_SUBPART1  &&
-	     part != BLIS_SUBPART1B &&
+	if ( part != BLIS_SUBPART0 &&
+	     part != BLIS_SUBPART1 &&
 	     part != BLIS_SUBPART2 )
 		e_val = BLIS_INVALID_3x1_SUBPART;
 
@@ -620,10 +618,8 @@ err_t bli_check_valid_1x3_subpart( subpart_t part )
 {
 	err_t e_val = BLIS_SUCCESS;
 
-	if ( part != BLIS_SUBPART0  &&
-	     part != BLIS_SUBPART1L &&
-	     part != BLIS_SUBPART1  &&
-	     part != BLIS_SUBPART1R &&
+	if ( part != BLIS_SUBPART0 &&
+	     part != BLIS_SUBPART1 &&
 	     part != BLIS_SUBPART2 )
 		e_val = BLIS_INVALID_1x3_SUBPART;
 

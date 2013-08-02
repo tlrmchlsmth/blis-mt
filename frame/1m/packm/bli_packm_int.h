@@ -37,3 +37,7 @@ void bli_packm_int( obj_t*   beta,
                     obj_t*   p,
                     packm_t* cntl );
 
+void bli_packm_int_mt( obj_t*   beta,
+                    obj_t*   c,
+                    obj_t*   p,
+                    packm_t* cntl );

@@ -51,7 +51,6 @@
 //#define BLIS_ENABLE_C99_COMPLEX
 
 
-
 // -- MULTITHREADING -----------------------------------------------------------
 
 // The maximum number of BLIS threads that will run concurrently.

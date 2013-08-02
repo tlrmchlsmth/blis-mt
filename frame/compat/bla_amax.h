@@ -36,15 +36,15 @@
 //
 // Prototype BLAS-to-BLIS interfaces.
 //
-#undef  GENTPROT
-#define GENTPROT( ftype_x, chx, blasname ) \
+#undef  GENTPROT2I
+#define GENTPROT2I( ftype_x, ftype_i, chx, chi, blasname ) \
 \
-f77_int PASTEF772(i,chx,blasname)( \
-                                   f77_int* n, \
-                                   ftype_x* x, f77_int* incx  \
-                                 ); \
+ftype_i PASTEF772(chi,chx,blasname)( \
+                                     fint*    n, \
+                                     ftype_x* x, fint* incx  \
+                                   ); \
 
 #ifdef BLIS_ENABLE_BLAS2BLIS
-INSERT_GENTPROT_BLAS( amax )
+INSERT_GENTPROT2I_BLAS( amax )
 #endif
 

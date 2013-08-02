@@ -39,6 +39,7 @@ double FLA_Clock( void );
 
 extern gemm_t* gemm_cntl;
 //           trans  m     n     alpha    a        lda   x        incx  beta     y       incy
+<<<<<<< HEAD
 //void dgemv_( char*, int*, int*, double*, double*, int*, double*, int*, double*, double*, int* );
 //void dger_( int*, int*, double*, double*, int*, double*, int*, double*, int* );
 //void dsymv_( char*, int*, double*, double*, int*, double*, int*, double*, double*, int* );
@@ -46,6 +47,15 @@ extern gemm_t* gemm_cntl;
 //void dsyr2_( char*, int*, double*, double*, int*, double*, int*, double*, int* );
 //void dtrmv_( char*, char*, char*, int*, double*, int*, double*, int* );
 //void dtrsv_( char*, char*, char*, int*, double*, int*, double*, int* );
+=======
+void dgemv_( char*, int*, int*, double*, double*, int*, double*, int*, double*, double*, int* );
+void dger_( int*, int*, double*, double*, int*, double*, int*, double*, int* );
+void dsymv_( char*, int*, double*, double*, int*, double*, int*, double*, double*, int* );
+void dsyr_( char*, int*, double*, double*, int*, double*, int* );
+void dsyr2_( char*, int*, double*, double*, int*, double*, int*, double*, int* );
+void dtrmv_( char*, char*, char*, int*, double*, int*, double*, int* );
+void dtrsv_( char*, char*, char*, int*, double*, int*, double*, int* );
+>>>>>>> 0c1c78278bbd9c281bcbe933cc2f3bdb3bd74ef1
 
 //           trans  trans m     n     k     alpha    a        lda   b        ldb   beta     c        ldc
 void dgemm_( char*, char*, int*, int*, int*, double*, double*, int*, double*, int*, double*, double*, int* );
@@ -240,8 +250,13 @@ int main( int argc, char** argv )
 		packm_cntl_a =
 		bli_packm_cntl_obj_create( BLIS_BLOCKED,
 		                           BLIS_VARIANT2,
+<<<<<<< HEAD
 		                           mr,
 		                           kr,
+=======
+		                           mr, NULL,
+		                           kr, NULL,
+>>>>>>> 0c1c78278bbd9c281bcbe933cc2f3bdb3bd74ef1
 		                           TRUE,  // scale?
 		                           TRUE,  // densify?
 		                           FALSE, // invert diagonal?
@@ -252,8 +267,13 @@ int main( int argc, char** argv )
 		packm_cntl_b =
 		bli_packm_cntl_obj_create( BLIS_BLOCKED,
 		                           BLIS_VARIANT2,
+<<<<<<< HEAD
 		                           kr,
 		                           nr,
+=======
+		                           kr, NULL,
+		                           nr, NULL,
+>>>>>>> 0c1c78278bbd9c281bcbe933cc2f3bdb3bd74ef1
 		                           FALSE, // scale?
 		                           FALSE, // densify?
 		                           FALSE, // invert diagonal?
@@ -1381,7 +1401,11 @@ int main( int argc, char** argv )
 	//bli_obj_set_uplo( BLIS_LOWER, a );
 	bli_obj_set_diag_offset( -7, a );
 	bli_obj_set_diag( BLIS_UNIT_DIAG, a );
+<<<<<<< HEAD
 	bli_obj_set_onlytrans( BLIS_TRANSPOSE, a );
+=======
+	bli_obj_set_trans( BLIS_TRANSPOSE, a );
+>>>>>>> 0c1c78278bbd9c281bcbe933cc2f3bdb3bd74ef1
 	//bli_obj_set_conj( BLIS_CONJUGATE, a );
 
 	bli_axpyd( &alpha, &a, &b );
@@ -1429,7 +1453,11 @@ int main( int argc, char** argv )
 	//bli_obj_set_uplo( BLIS_LOWER, a );
 	bli_obj_set_diag_offset( -7, a );
 	bli_obj_set_diag( BLIS_NONUNIT_DIAG, a );
+<<<<<<< HEAD
 	bli_obj_set_onlytrans( BLIS_TRANSPOSE, a );
+=======
+	bli_obj_set_trans( BLIS_TRANSPOSE, a );
+>>>>>>> 0c1c78278bbd9c281bcbe933cc2f3bdb3bd74ef1
 	//bli_obj_set_conj( BLIS_CONJUGATE, a );
 
 	bli_copyd( &a, &b );
@@ -1480,7 +1508,11 @@ int main( int argc, char** argv )
 	//bli_obj_set_uplo( BLIS_LOWER, a );
 	bli_obj_set_diag_offset( 2, a );
 	bli_obj_set_diag( BLIS_NONUNIT_DIAG, a );
+<<<<<<< HEAD
 	bli_obj_set_onlytrans( BLIS_TRANSPOSE, a );
+=======
+	bli_obj_set_trans( BLIS_TRANSPOSE, a );
+>>>>>>> 0c1c78278bbd9c281bcbe933cc2f3bdb3bd74ef1
 	//bli_obj_set_conj( BLIS_CONJUGATE, a );
 
 	bli_scal2d( &beta, &a, &b );
@@ -1632,7 +1664,11 @@ int main( int argc, char** argv )
 	//bli_obj_set_uplo( BLIS_LOWER, a );
 	bli_obj_set_diag_offset( 2, a );
 	bli_obj_set_diag( BLIS_UNIT_DIAG, a );
+<<<<<<< HEAD
 	bli_obj_set_onlytrans( BLIS_TRANSPOSE, a );
+=======
+	bli_obj_set_trans( BLIS_TRANSPOSE, a );
+>>>>>>> 0c1c78278bbd9c281bcbe933cc2f3bdb3bd74ef1
 	//bli_obj_set_conj( BLIS_CONJUGATE, a );
 
 	bli_axpym( &alpha, &a, &b );
@@ -1680,7 +1716,11 @@ int main( int argc, char** argv )
 	bli_obj_set_struc( BLIS_TRIANGULAR, a );
 	//bli_obj_set_uplo( BLIS_UPPER, a );
 	bli_obj_set_uplo( BLIS_LOWER, a );
+<<<<<<< HEAD
 	bli_obj_set_onlytrans( BLIS_TRANSPOSE, a );
+=======
+	bli_obj_set_trans( BLIS_TRANSPOSE, a );
+>>>>>>> 0c1c78278bbd9c281bcbe933cc2f3bdb3bd74ef1
 
 	bli_copym( &a, &b );
 
@@ -1773,7 +1813,11 @@ int main( int argc, char** argv )
 	//bli_obj_set_uplo( BLIS_LOWER, a );
 	bli_obj_set_diag_offset( -2, a );
 	bli_obj_set_diag( BLIS_UNIT_DIAG, a );
+<<<<<<< HEAD
 	bli_obj_set_onlytrans( BLIS_TRANSPOSE, a );
+=======
+	bli_obj_set_trans( BLIS_TRANSPOSE, a );
+>>>>>>> 0c1c78278bbd9c281bcbe933cc2f3bdb3bd74ef1
 	//bli_obj_set_conj( BLIS_CONJUGATE, a );
 
 	bli_scal2m( &beta, &a, &b );
@@ -1825,7 +1869,11 @@ int main( int argc, char** argv )
 	//bli_obj_set_uplo( BLIS_LOWER, a );
 	bli_obj_set_diag_offset( -2, a );
 	bli_obj_set_diag( BLIS_NONUNIT_DIAG, a );
+<<<<<<< HEAD
 	bli_obj_set_onlytrans( BLIS_TRANSPOSE, a );
+=======
+	bli_obj_set_trans( BLIS_TRANSPOSE, a );
+>>>>>>> 0c1c78278bbd9c281bcbe933cc2f3bdb3bd74ef1
 	//bli_obj_set_conj( BLIS_CONJUGATE, a );
 
 	mult_m = bli_blksz_obj_create( 2, 4, 2, 2 );
@@ -1901,7 +1949,11 @@ p.n = p.pack_mem->n;
 	//bli_obj_set_diag_offset( -2, a );
 	bli_obj_set_diag_offset( 0, a );
 	//bli_obj_set_diag( BLIS_UNIT_DIAG, a );
+<<<<<<< HEAD
 	//bli_obj_set_onlytrans( BLIS_TRANSPOSE, a );
+=======
+	//bli_obj_set_trans( BLIS_TRANSPOSE, a );
+>>>>>>> 0c1c78278bbd9c281bcbe933cc2f3bdb3bd74ef1
 	//bli_obj_set_conj( BLIS_CONJUGATE, a );
 
 	mult_m = bli_blksz_obj_create( 2, 4, 2, 2 );

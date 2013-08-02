@@ -36,28 +36,31 @@
 
 #ifdef BLIS_ENABLE_BLAS2BLIS
 
+#include "bli_f2c.h"
+
 /* chpr2.f -- translated by f2c (version 19991025).
    You must link the resulting object file with the libraries:
 	-lf2c -lm   (in that order)
 */
 
-/* Subroutine */ int PASTEF77(c,hpr2)(character *uplo, integer *n, singlecomplex *alpha, singlecomplex *x, integer *incx, singlecomplex *y, integer *incy, singlecomplex *ap)
+/* Subroutine */ int PASTEF77(c,hpr2)(char *uplo, integer *n, complex *alpha, complex *
+	x, integer *incx, complex *y, integer *incy, complex *ap)
 {
     /* System generated locals */
     integer i__1, i__2, i__3, i__4, i__5, i__6;
     real r__1;
-    singlecomplex q__1, q__2, q__3, q__4;
+    complex q__1, q__2, q__3, q__4;
 
     /* Builtin functions */
-    void bla_r_cnjg(singlecomplex *, singlecomplex *);
+    void r_cnjg(complex *, complex *);
 
     /* Local variables */
     integer info;
-    singlecomplex temp1, temp2;
+    complex temp1, temp2;
     integer i__, j, k;
-    extern logical PASTEF770(lsame)(character *, character *, ftnlen, ftnlen);
+    extern logical lsame_(char *, char *, ftnlen, ftnlen);
     integer kk, ix, iy, jx = 0, jy = 0, kx = 0, ky = 0;
-    extern /* Subroutine */ int PASTEF770(xerbla)(character *, integer *, ftnlen);
+    extern /* Subroutine */ int xerbla_(char *, integer *, ftnlen);
 
 /*     .. Scalar Arguments .. */
 /*     .. Array Arguments .. */
@@ -167,7 +170,7 @@
 
     /* Function Body */
     info = 0;
-    if (! PASTEF770(lsame)(uplo, "U", (ftnlen)1, (ftnlen)1) && ! PASTEF770(lsame)(uplo, "L", (
+    if (! lsame_(uplo, "U", (ftnlen)1, (ftnlen)1) && ! lsame_(uplo, "L", (
 	    ftnlen)1, (ftnlen)1)) {
 	info = 1;
     } else if (*n < 0) {
@@ -178,13 +181,13 @@
 	info = 7;
     }
     if (info != 0) {
-	PASTEF770(xerbla)("CHPR2 ", &info, (ftnlen)6);
+	xerbla_("CHPR2 ", &info, (ftnlen)6);
 	return 0;
     }
 
 /*     Quick return if possible. */
 
-    if (*n == 0 || (alpha->real == 0.f && alpha->imag == 0.f)) {
+    if (*n == 0 || (alpha->r == 0.f && alpha->i == 0.f)) {
 	return 0;
     }
 
@@ -210,7 +213,7 @@
 /*     are accessed sequentially with one pass through AP. */
 
     kk = 1;
-    if (PASTEF770(lsame)(uplo, "U", (ftnlen)1, (ftnlen)1)) {
+    if (lsame_(uplo, "U", (ftnlen)1, (ftnlen)1)) {
 
 /*        Form  A  when upper triangle is stored in AP. */
 
@@ -219,56 +222,56 @@
 	    for (j = 1; j <= i__1; ++j) {
 		i__2 = j;
 		i__3 = j;
-		if (x[i__2].real != 0.f || x[i__2].imag != 0.f || (y[i__3].real != 0.f 
-			|| y[i__3].imag != 0.f)) {
-		    bla_r_cnjg(&q__2, &y[j]);
-		    q__1.real = alpha->real * q__2.real - alpha->imag * q__2.imag, q__1.imag = 
-			    alpha->real * q__2.imag + alpha->imag * q__2.real;
-		    temp1.real = q__1.real, temp1.imag = q__1.imag;
+		if (x[i__2].r != 0.f || x[i__2].i != 0.f || (y[i__3].r != 0.f 
+			|| y[i__3].i != 0.f)) {
+		    r_cnjg(&q__2, &y[j]);
+		    q__1.r = alpha->r * q__2.r - alpha->i * q__2.i, q__1.i = 
+			    alpha->r * q__2.i + alpha->i * q__2.r;
+		    temp1.r = q__1.r, temp1.i = q__1.i;
 		    i__2 = j;
-		    q__2.real = alpha->real * x[i__2].real - alpha->imag * x[i__2].imag, 
-			    q__2.imag = alpha->real * x[i__2].imag + alpha->imag * x[i__2]
-			    .real;
-		    bla_r_cnjg(&q__1, &q__2);
-		    temp2.real = q__1.real, temp2.imag = q__1.imag;
+		    q__2.r = alpha->r * x[i__2].r - alpha->i * x[i__2].i, 
+			    q__2.i = alpha->r * x[i__2].i + alpha->i * x[i__2]
+			    .r;
+		    r_cnjg(&q__1, &q__2);
+		    temp2.r = q__1.r, temp2.i = q__1.i;
 		    k = kk;
 		    i__2 = j - 1;
 		    for (i__ = 1; i__ <= i__2; ++i__) {
 			i__3 = k;
 			i__4 = k;
 			i__5 = i__;
-			q__3.real = x[i__5].real * temp1.real - x[i__5].imag * temp1.imag, 
-				q__3.imag = x[i__5].real * temp1.imag + x[i__5].imag * 
-				temp1.real;
-			q__2.real = ap[i__4].real + q__3.real, q__2.imag = ap[i__4].imag + 
-				q__3.imag;
+			q__3.r = x[i__5].r * temp1.r - x[i__5].i * temp1.i, 
+				q__3.i = x[i__5].r * temp1.i + x[i__5].i * 
+				temp1.r;
+			q__2.r = ap[i__4].r + q__3.r, q__2.i = ap[i__4].i + 
+				q__3.i;
 			i__6 = i__;
-			q__4.real = y[i__6].real * temp2.real - y[i__6].imag * temp2.imag, 
-				q__4.imag = y[i__6].real * temp2.imag + y[i__6].imag * 
-				temp2.real;
-			q__1.real = q__2.real + q__4.real, q__1.imag = q__2.imag + q__4.imag;
-			ap[i__3].real = q__1.real, ap[i__3].imag = q__1.imag;
+			q__4.r = y[i__6].r * temp2.r - y[i__6].i * temp2.i, 
+				q__4.i = y[i__6].r * temp2.i + y[i__6].i * 
+				temp2.r;
+			q__1.r = q__2.r + q__4.r, q__1.i = q__2.i + q__4.i;
+			ap[i__3].r = q__1.r, ap[i__3].i = q__1.i;
 			++k;
 /* L10: */
 		    }
 		    i__2 = kk + j - 1;
 		    i__3 = kk + j - 1;
 		    i__4 = j;
-		    q__2.real = x[i__4].real * temp1.real - x[i__4].imag * temp1.imag, 
-			    q__2.imag = x[i__4].real * temp1.imag + x[i__4].imag * 
-			    temp1.real;
+		    q__2.r = x[i__4].r * temp1.r - x[i__4].i * temp1.i, 
+			    q__2.i = x[i__4].r * temp1.i + x[i__4].i * 
+			    temp1.r;
 		    i__5 = j;
-		    q__3.real = y[i__5].real * temp2.real - y[i__5].imag * temp2.imag, 
-			    q__3.imag = y[i__5].real * temp2.imag + y[i__5].imag * 
-			    temp2.real;
-		    q__1.real = q__2.real + q__3.real, q__1.imag = q__2.imag + q__3.imag;
-		    r__1 = ap[i__3].real + q__1.real;
-		    ap[i__2].real = r__1, ap[i__2].imag = 0.f;
+		    q__3.r = y[i__5].r * temp2.r - y[i__5].i * temp2.i, 
+			    q__3.i = y[i__5].r * temp2.i + y[i__5].i * 
+			    temp2.r;
+		    q__1.r = q__2.r + q__3.r, q__1.i = q__2.i + q__3.i;
+		    r__1 = ap[i__3].r + q__1.r;
+		    ap[i__2].r = r__1, ap[i__2].i = 0.f;
 		} else {
 		    i__2 = kk + j - 1;
 		    i__3 = kk + j - 1;
-		    r__1 = ap[i__3].real;
-		    ap[i__2].real = r__1, ap[i__2].imag = 0.f;
+		    r__1 = ap[i__3].r;
+		    ap[i__2].r = r__1, ap[i__2].i = 0.f;
 		}
 		kk += j;
 /* L20: */
@@ -278,18 +281,18 @@
 	    for (j = 1; j <= i__1; ++j) {
 		i__2 = jx;
 		i__3 = jy;
-		if (x[i__2].real != 0.f || x[i__2].imag != 0.f || (y[i__3].real != 0.f 
-			|| y[i__3].imag != 0.f)) {
-		    bla_r_cnjg(&q__2, &y[jy]);
-		    q__1.real = alpha->real * q__2.real - alpha->imag * q__2.imag, q__1.imag = 
-			    alpha->real * q__2.imag + alpha->imag * q__2.real;
-		    temp1.real = q__1.real, temp1.imag = q__1.imag;
+		if (x[i__2].r != 0.f || x[i__2].i != 0.f || (y[i__3].r != 0.f 
+			|| y[i__3].i != 0.f)) {
+		    r_cnjg(&q__2, &y[jy]);
+		    q__1.r = alpha->r * q__2.r - alpha->i * q__2.i, q__1.i = 
+			    alpha->r * q__2.i + alpha->i * q__2.r;
+		    temp1.r = q__1.r, temp1.i = q__1.i;
 		    i__2 = jx;
-		    q__2.real = alpha->real * x[i__2].real - alpha->imag * x[i__2].imag, 
-			    q__2.imag = alpha->real * x[i__2].imag + alpha->imag * x[i__2]
-			    .real;
-		    bla_r_cnjg(&q__1, &q__2);
-		    temp2.real = q__1.real, temp2.imag = q__1.imag;
+		    q__2.r = alpha->r * x[i__2].r - alpha->i * x[i__2].i, 
+			    q__2.i = alpha->r * x[i__2].i + alpha->i * x[i__2]
+			    .r;
+		    r_cnjg(&q__1, &q__2);
+		    temp2.r = q__1.r, temp2.i = q__1.i;
 		    ix = kx;
 		    iy = ky;
 		    i__2 = kk + j - 2;
@@ -297,17 +300,17 @@
 			i__3 = k;
 			i__4 = k;
 			i__5 = ix;
-			q__3.real = x[i__5].real * temp1.real - x[i__5].imag * temp1.imag, 
-				q__3.imag = x[i__5].real * temp1.imag + x[i__5].imag * 
-				temp1.real;
-			q__2.real = ap[i__4].real + q__3.real, q__2.imag = ap[i__4].imag + 
-				q__3.imag;
+			q__3.r = x[i__5].r * temp1.r - x[i__5].i * temp1.i, 
+				q__3.i = x[i__5].r * temp1.i + x[i__5].i * 
+				temp1.r;
+			q__2.r = ap[i__4].r + q__3.r, q__2.i = ap[i__4].i + 
+				q__3.i;
 			i__6 = iy;
-			q__4.real = y[i__6].real * temp2.real - y[i__6].imag * temp2.imag, 
-				q__4.imag = y[i__6].real * temp2.imag + y[i__6].imag * 
-				temp2.real;
-			q__1.real = q__2.real + q__4.real, q__1.imag = q__2.imag + q__4.imag;
-			ap[i__3].real = q__1.real, ap[i__3].imag = q__1.imag;
+			q__4.r = y[i__6].r * temp2.r - y[i__6].i * temp2.i, 
+				q__4.i = y[i__6].r * temp2.i + y[i__6].i * 
+				temp2.r;
+			q__1.r = q__2.r + q__4.r, q__1.i = q__2.i + q__4.i;
+			ap[i__3].r = q__1.r, ap[i__3].i = q__1.i;
 			ix += *incx;
 			iy += *incy;
 /* L30: */
@@ -315,21 +318,21 @@
 		    i__2 = kk + j - 1;
 		    i__3 = kk + j - 1;
 		    i__4 = jx;
-		    q__2.real = x[i__4].real * temp1.real - x[i__4].imag * temp1.imag, 
-			    q__2.imag = x[i__4].real * temp1.imag + x[i__4].imag * 
-			    temp1.real;
+		    q__2.r = x[i__4].r * temp1.r - x[i__4].i * temp1.i, 
+			    q__2.i = x[i__4].r * temp1.i + x[i__4].i * 
+			    temp1.r;
 		    i__5 = jy;
-		    q__3.real = y[i__5].real * temp2.real - y[i__5].imag * temp2.imag, 
-			    q__3.imag = y[i__5].real * temp2.imag + y[i__5].imag * 
-			    temp2.real;
-		    q__1.real = q__2.real + q__3.real, q__1.imag = q__2.imag + q__3.imag;
-		    r__1 = ap[i__3].real + q__1.real;
-		    ap[i__2].real = r__1, ap[i__2].imag = 0.f;
+		    q__3.r = y[i__5].r * temp2.r - y[i__5].i * temp2.i, 
+			    q__3.i = y[i__5].r * temp2.i + y[i__5].i * 
+			    temp2.r;
+		    q__1.r = q__2.r + q__3.r, q__1.i = q__2.i + q__3.i;
+		    r__1 = ap[i__3].r + q__1.r;
+		    ap[i__2].r = r__1, ap[i__2].i = 0.f;
 		} else {
 		    i__2 = kk + j - 1;
 		    i__3 = kk + j - 1;
-		    r__1 = ap[i__3].real;
-		    ap[i__2].real = r__1, ap[i__2].imag = 0.f;
+		    r__1 = ap[i__3].r;
+		    ap[i__2].r = r__1, ap[i__2].i = 0.f;
 		}
 		jx += *incx;
 		jy += *incy;
@@ -346,56 +349,56 @@
 	    for (j = 1; j <= i__1; ++j) {
 		i__2 = j;
 		i__3 = j;
-		if (x[i__2].real != 0.f || x[i__2].imag != 0.f || (y[i__3].real != 0.f 
-			|| y[i__3].imag != 0.f)) {
-		    bla_r_cnjg(&q__2, &y[j]);
-		    q__1.real = alpha->real * q__2.real - alpha->imag * q__2.imag, q__1.imag = 
-			    alpha->real * q__2.imag + alpha->imag * q__2.real;
-		    temp1.real = q__1.real, temp1.imag = q__1.imag;
+		if (x[i__2].r != 0.f || x[i__2].i != 0.f || (y[i__3].r != 0.f 
+			|| y[i__3].i != 0.f)) {
+		    r_cnjg(&q__2, &y[j]);
+		    q__1.r = alpha->r * q__2.r - alpha->i * q__2.i, q__1.i = 
+			    alpha->r * q__2.i + alpha->i * q__2.r;
+		    temp1.r = q__1.r, temp1.i = q__1.i;
 		    i__2 = j;
-		    q__2.real = alpha->real * x[i__2].real - alpha->imag * x[i__2].imag, 
-			    q__2.imag = alpha->real * x[i__2].imag + alpha->imag * x[i__2]
-			    .real;
-		    bla_r_cnjg(&q__1, &q__2);
-		    temp2.real = q__1.real, temp2.imag = q__1.imag;
+		    q__2.r = alpha->r * x[i__2].r - alpha->i * x[i__2].i, 
+			    q__2.i = alpha->r * x[i__2].i + alpha->i * x[i__2]
+			    .r;
+		    r_cnjg(&q__1, &q__2);
+		    temp2.r = q__1.r, temp2.i = q__1.i;
 		    i__2 = kk;
 		    i__3 = kk;
 		    i__4 = j;
-		    q__2.real = x[i__4].real * temp1.real - x[i__4].imag * temp1.imag, 
-			    q__2.imag = x[i__4].real * temp1.imag + x[i__4].imag * 
-			    temp1.real;
+		    q__2.r = x[i__4].r * temp1.r - x[i__4].i * temp1.i, 
+			    q__2.i = x[i__4].r * temp1.i + x[i__4].i * 
+			    temp1.r;
 		    i__5 = j;
-		    q__3.real = y[i__5].real * temp2.real - y[i__5].imag * temp2.imag, 
-			    q__3.imag = y[i__5].real * temp2.imag + y[i__5].imag * 
-			    temp2.real;
-		    q__1.real = q__2.real + q__3.real, q__1.imag = q__2.imag + q__3.imag;
-		    r__1 = ap[i__3].real + q__1.real;
-		    ap[i__2].real = r__1, ap[i__2].imag = 0.f;
+		    q__3.r = y[i__5].r * temp2.r - y[i__5].i * temp2.i, 
+			    q__3.i = y[i__5].r * temp2.i + y[i__5].i * 
+			    temp2.r;
+		    q__1.r = q__2.r + q__3.r, q__1.i = q__2.i + q__3.i;
+		    r__1 = ap[i__3].r + q__1.r;
+		    ap[i__2].r = r__1, ap[i__2].i = 0.f;
 		    k = kk + 1;
 		    i__2 = *n;
 		    for (i__ = j + 1; i__ <= i__2; ++i__) {
 			i__3 = k;
 			i__4 = k;
 			i__5 = i__;
-			q__3.real = x[i__5].real * temp1.real - x[i__5].imag * temp1.imag, 
-				q__3.imag = x[i__5].real * temp1.imag + x[i__5].imag * 
-				temp1.real;
-			q__2.real = ap[i__4].real + q__3.real, q__2.imag = ap[i__4].imag + 
-				q__3.imag;
+			q__3.r = x[i__5].r * temp1.r - x[i__5].i * temp1.i, 
+				q__3.i = x[i__5].r * temp1.i + x[i__5].i * 
+				temp1.r;
+			q__2.r = ap[i__4].r + q__3.r, q__2.i = ap[i__4].i + 
+				q__3.i;
 			i__6 = i__;
-			q__4.real = y[i__6].real * temp2.real - y[i__6].imag * temp2.imag, 
-				q__4.imag = y[i__6].real * temp2.imag + y[i__6].imag * 
-				temp2.real;
-			q__1.real = q__2.real + q__4.real, q__1.imag = q__2.imag + q__4.imag;
-			ap[i__3].real = q__1.real, ap[i__3].imag = q__1.imag;
+			q__4.r = y[i__6].r * temp2.r - y[i__6].i * temp2.i, 
+				q__4.i = y[i__6].r * temp2.i + y[i__6].i * 
+				temp2.r;
+			q__1.r = q__2.r + q__4.r, q__1.i = q__2.i + q__4.i;
+			ap[i__3].r = q__1.r, ap[i__3].i = q__1.i;
 			++k;
 /* L50: */
 		    }
 		} else {
 		    i__2 = kk;
 		    i__3 = kk;
-		    r__1 = ap[i__3].real;
-		    ap[i__2].real = r__1, ap[i__2].imag = 0.f;
+		    r__1 = ap[i__3].r;
+		    ap[i__2].r = r__1, ap[i__2].i = 0.f;
 		}
 		kk = kk + *n - j + 1;
 /* L60: */
@@ -405,31 +408,31 @@
 	    for (j = 1; j <= i__1; ++j) {
 		i__2 = jx;
 		i__3 = jy;
-		if (x[i__2].real != 0.f || x[i__2].imag != 0.f || (y[i__3].real != 0.f 
-			|| y[i__3].imag != 0.f)) {
-		    bla_r_cnjg(&q__2, &y[jy]);
-		    q__1.real = alpha->real * q__2.real - alpha->imag * q__2.imag, q__1.imag = 
-			    alpha->real * q__2.imag + alpha->imag * q__2.real;
-		    temp1.real = q__1.real, temp1.imag = q__1.imag;
+		if (x[i__2].r != 0.f || x[i__2].i != 0.f || (y[i__3].r != 0.f 
+			|| y[i__3].i != 0.f)) {
+		    r_cnjg(&q__2, &y[jy]);
+		    q__1.r = alpha->r * q__2.r - alpha->i * q__2.i, q__1.i = 
+			    alpha->r * q__2.i + alpha->i * q__2.r;
+		    temp1.r = q__1.r, temp1.i = q__1.i;
 		    i__2 = jx;
-		    q__2.real = alpha->real * x[i__2].real - alpha->imag * x[i__2].imag, 
-			    q__2.imag = alpha->real * x[i__2].imag + alpha->imag * x[i__2]
-			    .real;
-		    bla_r_cnjg(&q__1, &q__2);
-		    temp2.real = q__1.real, temp2.imag = q__1.imag;
+		    q__2.r = alpha->r * x[i__2].r - alpha->i * x[i__2].i, 
+			    q__2.i = alpha->r * x[i__2].i + alpha->i * x[i__2]
+			    .r;
+		    r_cnjg(&q__1, &q__2);
+		    temp2.r = q__1.r, temp2.i = q__1.i;
 		    i__2 = kk;
 		    i__3 = kk;
 		    i__4 = jx;
-		    q__2.real = x[i__4].real * temp1.real - x[i__4].imag * temp1.imag, 
-			    q__2.imag = x[i__4].real * temp1.imag + x[i__4].imag * 
-			    temp1.real;
+		    q__2.r = x[i__4].r * temp1.r - x[i__4].i * temp1.i, 
+			    q__2.i = x[i__4].r * temp1.i + x[i__4].i * 
+			    temp1.r;
 		    i__5 = jy;
-		    q__3.real = y[i__5].real * temp2.real - y[i__5].imag * temp2.imag, 
-			    q__3.imag = y[i__5].real * temp2.imag + y[i__5].imag * 
-			    temp2.real;
-		    q__1.real = q__2.real + q__3.real, q__1.imag = q__2.imag + q__3.imag;
-		    r__1 = ap[i__3].real + q__1.real;
-		    ap[i__2].real = r__1, ap[i__2].imag = 0.f;
+		    q__3.r = y[i__5].r * temp2.r - y[i__5].i * temp2.i, 
+			    q__3.i = y[i__5].r * temp2.i + y[i__5].i * 
+			    temp2.r;
+		    q__1.r = q__2.r + q__3.r, q__1.i = q__2.i + q__3.i;
+		    r__1 = ap[i__3].r + q__1.r;
+		    ap[i__2].r = r__1, ap[i__2].i = 0.f;
 		    ix = jx;
 		    iy = jy;
 		    i__2 = kk + *n - j;
@@ -439,24 +442,24 @@
 			i__3 = k;
 			i__4 = k;
 			i__5 = ix;
-			q__3.real = x[i__5].real * temp1.real - x[i__5].imag * temp1.imag, 
-				q__3.imag = x[i__5].real * temp1.imag + x[i__5].imag * 
-				temp1.real;
-			q__2.real = ap[i__4].real + q__3.real, q__2.imag = ap[i__4].imag + 
-				q__3.imag;
+			q__3.r = x[i__5].r * temp1.r - x[i__5].i * temp1.i, 
+				q__3.i = x[i__5].r * temp1.i + x[i__5].i * 
+				temp1.r;
+			q__2.r = ap[i__4].r + q__3.r, q__2.i = ap[i__4].i + 
+				q__3.i;
 			i__6 = iy;
-			q__4.real = y[i__6].real * temp2.real - y[i__6].imag * temp2.imag, 
-				q__4.imag = y[i__6].real * temp2.imag + y[i__6].imag * 
-				temp2.real;
-			q__1.real = q__2.real + q__4.real, q__1.imag = q__2.imag + q__4.imag;
-			ap[i__3].real = q__1.real, ap[i__3].imag = q__1.imag;
+			q__4.r = y[i__6].r * temp2.r - y[i__6].i * temp2.i, 
+				q__4.i = y[i__6].r * temp2.i + y[i__6].i * 
+				temp2.r;
+			q__1.r = q__2.r + q__4.r, q__1.i = q__2.i + q__4.i;
+			ap[i__3].r = q__1.r, ap[i__3].i = q__1.i;
 /* L70: */
 		    }
 		} else {
 		    i__2 = kk;
 		    i__3 = kk;
-		    r__1 = ap[i__3].real;
-		    ap[i__2].real = r__1, ap[i__2].imag = 0.f;
+		    r__1 = ap[i__3].r;
+		    ap[i__2].r = r__1, ap[i__2].i = 0.f;
 		}
 		jx += *incx;
 		jy += *incy;
@@ -477,7 +480,9 @@
 	-lf2c -lm   (in that order)
 */
 
-/* Subroutine */ int PASTEF77(z,hpr2)(character *uplo, integer *n, doublecomplex *alpha, doublecomplex *x, integer *incx, doublecomplex *y, integer *incy, doublecomplex *ap)
+/* Subroutine */ int PASTEF77(z,hpr2)(char *uplo, integer *n, doublecomplex *alpha, 
+	doublecomplex *x, integer *incx, doublecomplex *y, integer *incy, 
+	doublecomplex *ap)
 {
     /* System generated locals */
     integer i__1, i__2, i__3, i__4, i__5, i__6;
@@ -485,15 +490,15 @@
     doublecomplex z__1, z__2, z__3, z__4;
 
     /* Builtin functions */
-    void bla_d_cnjg(doublecomplex *, doublecomplex *);
+    void d_cnjg(doublecomplex *, doublecomplex *);
 
     /* Local variables */
     integer info;
     doublecomplex temp1, temp2;
     integer i__, j, k;
-    extern logical PASTEF770(lsame)(character *, character *, ftnlen, ftnlen);
+    extern logical lsame_(char *, char *, ftnlen, ftnlen);
     integer kk, ix, iy, jx = 0, jy = 0, kx = 0, ky = 0;
-    extern /* Subroutine */ int PASTEF770(xerbla)(character *, integer *, ftnlen);
+    extern /* Subroutine */ int xerbla_(char *, integer *, ftnlen);
 
 /*     .. Scalar Arguments .. */
 /*     .. Array Arguments .. */
@@ -603,7 +608,7 @@
 
     /* Function Body */
     info = 0;
-    if (! PASTEF770(lsame)(uplo, "U", (ftnlen)1, (ftnlen)1) && ! PASTEF770(lsame)(uplo, "L", (
+    if (! lsame_(uplo, "U", (ftnlen)1, (ftnlen)1) && ! lsame_(uplo, "L", (
 	    ftnlen)1, (ftnlen)1)) {
 	info = 1;
     } else if (*n < 0) {
@@ -614,13 +619,13 @@
 	info = 7;
     }
     if (info != 0) {
-	PASTEF770(xerbla)("ZHPR2 ", &info, (ftnlen)6);
+	xerbla_("ZHPR2 ", &info, (ftnlen)6);
 	return 0;
     }
 
 /*     Quick return if possible. */
 
-    if (*n == 0 || (alpha->real == 0. && alpha->imag == 0.)) {
+    if (*n == 0 || (alpha->r == 0. && alpha->i == 0.)) {
 	return 0;
     }
 
@@ -646,7 +651,7 @@
 /*     are accessed sequentially with one pass through AP. */
 
     kk = 1;
-    if (PASTEF770(lsame)(uplo, "U", (ftnlen)1, (ftnlen)1)) {
+    if (lsame_(uplo, "U", (ftnlen)1, (ftnlen)1)) {
 
 /*        Form  A  when upper triangle is stored in AP. */
 
@@ -655,56 +660,56 @@
 	    for (j = 1; j <= i__1; ++j) {
 		i__2 = j;
 		i__3 = j;
-		if (x[i__2].real != 0. || x[i__2].imag != 0. || (y[i__3].real != 0. || 
-			y[i__3].imag != 0.)) {
-		    bla_d_cnjg(&z__2, &y[j]);
-		    z__1.real = alpha->real * z__2.real - alpha->imag * z__2.imag, z__1.imag = 
-			    alpha->real * z__2.imag + alpha->imag * z__2.real;
-		    temp1.real = z__1.real, temp1.imag = z__1.imag;
+		if (x[i__2].r != 0. || x[i__2].i != 0. || (y[i__3].r != 0. || 
+			y[i__3].i != 0.)) {
+		    d_cnjg(&z__2, &y[j]);
+		    z__1.r = alpha->r * z__2.r - alpha->i * z__2.i, z__1.i = 
+			    alpha->r * z__2.i + alpha->i * z__2.r;
+		    temp1.r = z__1.r, temp1.i = z__1.i;
 		    i__2 = j;
-		    z__2.real = alpha->real * x[i__2].real - alpha->imag * x[i__2].imag, 
-			    z__2.imag = alpha->real * x[i__2].imag + alpha->imag * x[i__2]
-			    .real;
-		    bla_d_cnjg(&z__1, &z__2);
-		    temp2.real = z__1.real, temp2.imag = z__1.imag;
+		    z__2.r = alpha->r * x[i__2].r - alpha->i * x[i__2].i, 
+			    z__2.i = alpha->r * x[i__2].i + alpha->i * x[i__2]
+			    .r;
+		    d_cnjg(&z__1, &z__2);
+		    temp2.r = z__1.r, temp2.i = z__1.i;
 		    k = kk;
 		    i__2 = j - 1;
 		    for (i__ = 1; i__ <= i__2; ++i__) {
 			i__3 = k;
 			i__4 = k;
 			i__5 = i__;
-			z__3.real = x[i__5].real * temp1.real - x[i__5].imag * temp1.imag, 
-				z__3.imag = x[i__5].real * temp1.imag + x[i__5].imag * 
-				temp1.real;
-			z__2.real = ap[i__4].real + z__3.real, z__2.imag = ap[i__4].imag + 
-				z__3.imag;
+			z__3.r = x[i__5].r * temp1.r - x[i__5].i * temp1.i, 
+				z__3.i = x[i__5].r * temp1.i + x[i__5].i * 
+				temp1.r;
+			z__2.r = ap[i__4].r + z__3.r, z__2.i = ap[i__4].i + 
+				z__3.i;
 			i__6 = i__;
-			z__4.real = y[i__6].real * temp2.real - y[i__6].imag * temp2.imag, 
-				z__4.imag = y[i__6].real * temp2.imag + y[i__6].imag * 
-				temp2.real;
-			z__1.real = z__2.real + z__4.real, z__1.imag = z__2.imag + z__4.imag;
-			ap[i__3].real = z__1.real, ap[i__3].imag = z__1.imag;
+			z__4.r = y[i__6].r * temp2.r - y[i__6].i * temp2.i, 
+				z__4.i = y[i__6].r * temp2.i + y[i__6].i * 
+				temp2.r;
+			z__1.r = z__2.r + z__4.r, z__1.i = z__2.i + z__4.i;
+			ap[i__3].r = z__1.r, ap[i__3].i = z__1.i;
 			++k;
 /* L10: */
 		    }
 		    i__2 = kk + j - 1;
 		    i__3 = kk + j - 1;
 		    i__4 = j;
-		    z__2.real = x[i__4].real * temp1.real - x[i__4].imag * temp1.imag, 
-			    z__2.imag = x[i__4].real * temp1.imag + x[i__4].imag * 
-			    temp1.real;
+		    z__2.r = x[i__4].r * temp1.r - x[i__4].i * temp1.i, 
+			    z__2.i = x[i__4].r * temp1.i + x[i__4].i * 
+			    temp1.r;
 		    i__5 = j;
-		    z__3.real = y[i__5].real * temp2.real - y[i__5].imag * temp2.imag, 
-			    z__3.imag = y[i__5].real * temp2.imag + y[i__5].imag * 
-			    temp2.real;
-		    z__1.real = z__2.real + z__3.real, z__1.imag = z__2.imag + z__3.imag;
-		    d__1 = ap[i__3].real + z__1.real;
-		    ap[i__2].real = d__1, ap[i__2].imag = 0.;
+		    z__3.r = y[i__5].r * temp2.r - y[i__5].i * temp2.i, 
+			    z__3.i = y[i__5].r * temp2.i + y[i__5].i * 
+			    temp2.r;
+		    z__1.r = z__2.r + z__3.r, z__1.i = z__2.i + z__3.i;
+		    d__1 = ap[i__3].r + z__1.r;
+		    ap[i__2].r = d__1, ap[i__2].i = 0.;
 		} else {
 		    i__2 = kk + j - 1;
 		    i__3 = kk + j - 1;
-		    d__1 = ap[i__3].real;
-		    ap[i__2].real = d__1, ap[i__2].imag = 0.;
+		    d__1 = ap[i__3].r;
+		    ap[i__2].r = d__1, ap[i__2].i = 0.;
 		}
 		kk += j;
 /* L20: */
@@ -714,18 +719,18 @@
 	    for (j = 1; j <= i__1; ++j) {
 		i__2 = jx;
 		i__3 = jy;
-		if (x[i__2].real != 0. || x[i__2].imag != 0. || (y[i__3].real != 0. || 
-			y[i__3].imag != 0.)) {
-		    bla_d_cnjg(&z__2, &y[jy]);
-		    z__1.real = alpha->real * z__2.real - alpha->imag * z__2.imag, z__1.imag = 
-			    alpha->real * z__2.imag + alpha->imag * z__2.real;
-		    temp1.real = z__1.real, temp1.imag = z__1.imag;
+		if (x[i__2].r != 0. || x[i__2].i != 0. || (y[i__3].r != 0. || 
+			y[i__3].i != 0.)) {
+		    d_cnjg(&z__2, &y[jy]);
+		    z__1.r = alpha->r * z__2.r - alpha->i * z__2.i, z__1.i = 
+			    alpha->r * z__2.i + alpha->i * z__2.r;
+		    temp1.r = z__1.r, temp1.i = z__1.i;
 		    i__2 = jx;
-		    z__2.real = alpha->real * x[i__2].real - alpha->imag * x[i__2].imag, 
-			    z__2.imag = alpha->real * x[i__2].imag + alpha->imag * x[i__2]
-			    .real;
-		    bla_d_cnjg(&z__1, &z__2);
-		    temp2.real = z__1.real, temp2.imag = z__1.imag;
+		    z__2.r = alpha->r * x[i__2].r - alpha->i * x[i__2].i, 
+			    z__2.i = alpha->r * x[i__2].i + alpha->i * x[i__2]
+			    .r;
+		    d_cnjg(&z__1, &z__2);
+		    temp2.r = z__1.r, temp2.i = z__1.i;
 		    ix = kx;
 		    iy = ky;
 		    i__2 = kk + j - 2;
@@ -733,17 +738,17 @@
 			i__3 = k;
 			i__4 = k;
 			i__5 = ix;
-			z__3.real = x[i__5].real * temp1.real - x[i__5].imag * temp1.imag, 
-				z__3.imag = x[i__5].real * temp1.imag + x[i__5].imag * 
-				temp1.real;
-			z__2.real = ap[i__4].real + z__3.real, z__2.imag = ap[i__4].imag + 
-				z__3.imag;
+			z__3.r = x[i__5].r * temp1.r - x[i__5].i * temp1.i, 
+				z__3.i = x[i__5].r * temp1.i + x[i__5].i * 
+				temp1.r;
+			z__2.r = ap[i__4].r + z__3.r, z__2.i = ap[i__4].i + 
+				z__3.i;
 			i__6 = iy;
-			z__4.real = y[i__6].real * temp2.real - y[i__6].imag * temp2.imag, 
-				z__4.imag = y[i__6].real * temp2.imag + y[i__6].imag * 
-				temp2.real;
-			z__1.real = z__2.real + z__4.real, z__1.imag = z__2.imag + z__4.imag;
-			ap[i__3].real = z__1.real, ap[i__3].imag = z__1.imag;
+			z__4.r = y[i__6].r * temp2.r - y[i__6].i * temp2.i, 
+				z__4.i = y[i__6].r * temp2.i + y[i__6].i * 
+				temp2.r;
+			z__1.r = z__2.r + z__4.r, z__1.i = z__2.i + z__4.i;
+			ap[i__3].r = z__1.r, ap[i__3].i = z__1.i;
 			ix += *incx;
 			iy += *incy;
 /* L30: */
@@ -751,21 +756,21 @@
 		    i__2 = kk + j - 1;
 		    i__3 = kk + j - 1;
 		    i__4 = jx;
-		    z__2.real = x[i__4].real * temp1.real - x[i__4].imag * temp1.imag, 
-			    z__2.imag = x[i__4].real * temp1.imag + x[i__4].imag * 
-			    temp1.real;
+		    z__2.r = x[i__4].r * temp1.r - x[i__4].i * temp1.i, 
+			    z__2.i = x[i__4].r * temp1.i + x[i__4].i * 
+			    temp1.r;
 		    i__5 = jy;
-		    z__3.real = y[i__5].real * temp2.real - y[i__5].imag * temp2.imag, 
-			    z__3.imag = y[i__5].real * temp2.imag + y[i__5].imag * 
-			    temp2.real;
-		    z__1.real = z__2.real + z__3.real, z__1.imag = z__2.imag + z__3.imag;
-		    d__1 = ap[i__3].real + z__1.real;
-		    ap[i__2].real = d__1, ap[i__2].imag = 0.;
+		    z__3.r = y[i__5].r * temp2.r - y[i__5].i * temp2.i, 
+			    z__3.i = y[i__5].r * temp2.i + y[i__5].i * 
+			    temp2.r;
+		    z__1.r = z__2.r + z__3.r, z__1.i = z__2.i + z__3.i;
+		    d__1 = ap[i__3].r + z__1.r;
+		    ap[i__2].r = d__1, ap[i__2].i = 0.;
 		} else {
 		    i__2 = kk + j - 1;
 		    i__3 = kk + j - 1;
-		    d__1 = ap[i__3].real;
-		    ap[i__2].real = d__1, ap[i__2].imag = 0.;
+		    d__1 = ap[i__3].r;
+		    ap[i__2].r = d__1, ap[i__2].i = 0.;
 		}
 		jx += *incx;
 		jy += *incy;
@@ -782,56 +787,56 @@
 	    for (j = 1; j <= i__1; ++j) {
 		i__2 = j;
 		i__3 = j;
-		if (x[i__2].real != 0. || x[i__2].imag != 0. || (y[i__3].real != 0. || 
-			y[i__3].imag != 0.)) {
-		    bla_d_cnjg(&z__2, &y[j]);
-		    z__1.real = alpha->real * z__2.real - alpha->imag * z__2.imag, z__1.imag = 
-			    alpha->real * z__2.imag + alpha->imag * z__2.real;
-		    temp1.real = z__1.real, temp1.imag = z__1.imag;
+		if (x[i__2].r != 0. || x[i__2].i != 0. || (y[i__3].r != 0. || 
+			y[i__3].i != 0.)) {
+		    d_cnjg(&z__2, &y[j]);
+		    z__1.r = alpha->r * z__2.r - alpha->i * z__2.i, z__1.i = 
+			    alpha->r * z__2.i + alpha->i * z__2.r;
+		    temp1.r = z__1.r, temp1.i = z__1.i;
 		    i__2 = j;
-		    z__2.real = alpha->real * x[i__2].real - alpha->imag * x[i__2].imag, 
-			    z__2.imag = alpha->real * x[i__2].imag + alpha->imag * x[i__2]
-			    .real;
-		    bla_d_cnjg(&z__1, &z__2);
-		    temp2.real = z__1.real, temp2.imag = z__1.imag;
+		    z__2.r = alpha->r * x[i__2].r - alpha->i * x[i__2].i, 
+			    z__2.i = alpha->r * x[i__2].i + alpha->i * x[i__2]
+			    .r;
+		    d_cnjg(&z__1, &z__2);
+		    temp2.r = z__1.r, temp2.i = z__1.i;
 		    i__2 = kk;
 		    i__3 = kk;
 		    i__4 = j;
-		    z__2.real = x[i__4].real * temp1.real - x[i__4].imag * temp1.imag, 
-			    z__2.imag = x[i__4].real * temp1.imag + x[i__4].imag * 
-			    temp1.real;
+		    z__2.r = x[i__4].r * temp1.r - x[i__4].i * temp1.i, 
+			    z__2.i = x[i__4].r * temp1.i + x[i__4].i * 
+			    temp1.r;
 		    i__5 = j;
-		    z__3.real = y[i__5].real * temp2.real - y[i__5].imag * temp2.imag, 
-			    z__3.imag = y[i__5].real * temp2.imag + y[i__5].imag * 
-			    temp2.real;
-		    z__1.real = z__2.real + z__3.real, z__1.imag = z__2.imag + z__3.imag;
-		    d__1 = ap[i__3].real + z__1.real;
-		    ap[i__2].real = d__1, ap[i__2].imag = 0.;
+		    z__3.r = y[i__5].r * temp2.r - y[i__5].i * temp2.i, 
+			    z__3.i = y[i__5].r * temp2.i + y[i__5].i * 
+			    temp2.r;
+		    z__1.r = z__2.r + z__3.r, z__1.i = z__2.i + z__3.i;
+		    d__1 = ap[i__3].r + z__1.r;
+		    ap[i__2].r = d__1, ap[i__2].i = 0.;
 		    k = kk + 1;
 		    i__2 = *n;
 		    for (i__ = j + 1; i__ <= i__2; ++i__) {
 			i__3 = k;
 			i__4 = k;
 			i__5 = i__;
-			z__3.real = x[i__5].real * temp1.real - x[i__5].imag * temp1.imag, 
-				z__3.imag = x[i__5].real * temp1.imag + x[i__5].imag * 
-				temp1.real;
-			z__2.real = ap[i__4].real + z__3.real, z__2.imag = ap[i__4].imag + 
-				z__3.imag;
+			z__3.r = x[i__5].r * temp1.r - x[i__5].i * temp1.i, 
+				z__3.i = x[i__5].r * temp1.i + x[i__5].i * 
+				temp1.r;
+			z__2.r = ap[i__4].r + z__3.r, z__2.i = ap[i__4].i + 
+				z__3.i;
 			i__6 = i__;
-			z__4.real = y[i__6].real * temp2.real - y[i__6].imag * temp2.imag, 
-				z__4.imag = y[i__6].real * temp2.imag + y[i__6].imag * 
-				temp2.real;
-			z__1.real = z__2.real + z__4.real, z__1.imag = z__2.imag + z__4.imag;
-			ap[i__3].real = z__1.real, ap[i__3].imag = z__1.imag;
+			z__4.r = y[i__6].r * temp2.r - y[i__6].i * temp2.i, 
+				z__4.i = y[i__6].r * temp2.i + y[i__6].i * 
+				temp2.r;
+			z__1.r = z__2.r + z__4.r, z__1.i = z__2.i + z__4.i;
+			ap[i__3].r = z__1.r, ap[i__3].i = z__1.i;
 			++k;
 /* L50: */
 		    }
 		} else {
 		    i__2 = kk;
 		    i__3 = kk;
-		    d__1 = ap[i__3].real;
-		    ap[i__2].real = d__1, ap[i__2].imag = 0.;
+		    d__1 = ap[i__3].r;
+		    ap[i__2].r = d__1, ap[i__2].i = 0.;
 		}
 		kk = kk + *n - j + 1;
 /* L60: */
@@ -841,31 +846,31 @@
 	    for (j = 1; j <= i__1; ++j) {
 		i__2 = jx;
 		i__3 = jy;
-		if (x[i__2].real != 0. || x[i__2].imag != 0. || (y[i__3].real != 0. || 
-			y[i__3].imag != 0.)) {
-		    bla_d_cnjg(&z__2, &y[jy]);
-		    z__1.real = alpha->real * z__2.real - alpha->imag * z__2.imag, z__1.imag = 
-			    alpha->real * z__2.imag + alpha->imag * z__2.real;
-		    temp1.real = z__1.real, temp1.imag = z__1.imag;
+		if (x[i__2].r != 0. || x[i__2].i != 0. || (y[i__3].r != 0. || 
+			y[i__3].i != 0.)) {
+		    d_cnjg(&z__2, &y[jy]);
+		    z__1.r = alpha->r * z__2.r - alpha->i * z__2.i, z__1.i = 
+			    alpha->r * z__2.i + alpha->i * z__2.r;
+		    temp1.r = z__1.r, temp1.i = z__1.i;
 		    i__2 = jx;
-		    z__2.real = alpha->real * x[i__2].real - alpha->imag * x[i__2].imag, 
-			    z__2.imag = alpha->real * x[i__2].imag + alpha->imag * x[i__2]
-			    .real;
-		    bla_d_cnjg(&z__1, &z__2);
-		    temp2.real = z__1.real, temp2.imag = z__1.imag;
+		    z__2.r = alpha->r * x[i__2].r - alpha->i * x[i__2].i, 
+			    z__2.i = alpha->r * x[i__2].i + alpha->i * x[i__2]
+			    .r;
+		    d_cnjg(&z__1, &z__2);
+		    temp2.r = z__1.r, temp2.i = z__1.i;
 		    i__2 = kk;
 		    i__3 = kk;
 		    i__4 = jx;
-		    z__2.real = x[i__4].real * temp1.real - x[i__4].imag * temp1.imag, 
-			    z__2.imag = x[i__4].real * temp1.imag + x[i__4].imag * 
-			    temp1.real;
+		    z__2.r = x[i__4].r * temp1.r - x[i__4].i * temp1.i, 
+			    z__2.i = x[i__4].r * temp1.i + x[i__4].i * 
+			    temp1.r;
 		    i__5 = jy;
-		    z__3.real = y[i__5].real * temp2.real - y[i__5].imag * temp2.imag, 
-			    z__3.imag = y[i__5].real * temp2.imag + y[i__5].imag * 
-			    temp2.real;
-		    z__1.real = z__2.real + z__3.real, z__1.imag = z__2.imag + z__3.imag;
-		    d__1 = ap[i__3].real + z__1.real;
-		    ap[i__2].real = d__1, ap[i__2].imag = 0.;
+		    z__3.r = y[i__5].r * temp2.r - y[i__5].i * temp2.i, 
+			    z__3.i = y[i__5].r * temp2.i + y[i__5].i * 
+			    temp2.r;
+		    z__1.r = z__2.r + z__3.r, z__1.i = z__2.i + z__3.i;
+		    d__1 = ap[i__3].r + z__1.r;
+		    ap[i__2].r = d__1, ap[i__2].i = 0.;
 		    ix = jx;
 		    iy = jy;
 		    i__2 = kk + *n - j;
@@ -875,24 +880,24 @@
 			i__3 = k;
 			i__4 = k;
 			i__5 = ix;
-			z__3.real = x[i__5].real * temp1.real - x[i__5].imag * temp1.imag, 
-				z__3.imag = x[i__5].real * temp1.imag + x[i__5].imag * 
-				temp1.real;
-			z__2.real = ap[i__4].real + z__3.real, z__2.imag = ap[i__4].imag + 
-				z__3.imag;
+			z__3.r = x[i__5].r * temp1.r - x[i__5].i * temp1.i, 
+				z__3.i = x[i__5].r * temp1.i + x[i__5].i * 
+				temp1.r;
+			z__2.r = ap[i__4].r + z__3.r, z__2.i = ap[i__4].i + 
+				z__3.i;
 			i__6 = iy;
-			z__4.real = y[i__6].real * temp2.real - y[i__6].imag * temp2.imag, 
-				z__4.imag = y[i__6].real * temp2.imag + y[i__6].imag * 
-				temp2.real;
-			z__1.real = z__2.real + z__4.real, z__1.imag = z__2.imag + z__4.imag;
-			ap[i__3].real = z__1.real, ap[i__3].imag = z__1.imag;
+			z__4.r = y[i__6].r * temp2.r - y[i__6].i * temp2.i, 
+				z__4.i = y[i__6].r * temp2.i + y[i__6].i * 
+				temp2.r;
+			z__1.r = z__2.r + z__4.r, z__1.i = z__2.i + z__4.i;
+			ap[i__3].r = z__1.r, ap[i__3].i = z__1.i;
 /* L70: */
 		    }
 		} else {
 		    i__2 = kk;
 		    i__3 = kk;
-		    d__1 = ap[i__3].real;
-		    ap[i__2].real = d__1, ap[i__2].imag = 0.;
+		    d__1 = ap[i__3].r;
+		    ap[i__2].r = d__1, ap[i__2].i = 0.;
 		}
 		jx += *incx;
 		jy += *incy;

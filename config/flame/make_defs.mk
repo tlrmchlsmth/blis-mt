@@ -102,6 +102,5 @@ LINKER         := $(CC)
 LDFLAGS        := 
 
 
-
 # end of ifndef MAKE_DEFS_MK_INCLUDED conditional block
 endif

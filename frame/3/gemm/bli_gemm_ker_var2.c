@@ -45,6 +45,13 @@ typedef void (*FUNCPTR_T)(
                            void*   b, inc_t rs_b, inc_t cs_b, inc_t ps_b,
                            void*   beta,
                            void*   c, inc_t rs_c, inc_t cs_c
+                           void*   c, inc_t rs_c, inc_t cs_c,
+                           dim_t   l2_num_threads,
+                           dim_t   l2_thread_id,
+                           dim_t   l1_num_threads,
+                           dim_t   l1_thread_id,
+                           dim_t   l0_thread_id,
+                           void*   other
                          );
 
 static FUNCPTR_T GENARRAY(ftypes,gemm_ker_var2);
@@ -83,6 +90,13 @@ void bli_gemm_ker_var2( obj_t*  alpha,
 	num_t     dt_beta;
 	void*     buf_beta;
 
+    dim_t l2_num_threads = bli_gemm_l2_num_threads( cntl->thread_info ); 
+    dim_t l2_thread_id   = bli_gemm_l2_tid( cntl->thread_info );
+    dim_t l1_num_threads = bli_gemm_l1_num_threads( cntl->thread_info ); 
+    dim_t l1_thread_id   = bli_gemm_l1_tid( cntl->thread_info );
+    dim_t l0_thread_id   = bli_gemm_l0_tid( cntl->thread_info );
+    void* other          = ((gemm_ker_thread_info_t*)cntl->thread_info)->other;
+
 	FUNCPTR_T f;
 
 /*
@@ -116,8 +130,8 @@ void bli_gemm_ker_var2( obj_t*  alpha,
 	// Index into the type combination array to extract the correct
 	// function pointer.
 	f = ftypes[dt_exec];
-
-	// Invoke the function.
+	
+    // Invoke the function.
 	f( m,
 	   n,
 	   k,
@@ -125,7 +139,13 @@ void bli_gemm_ker_var2( obj_t*  alpha,
 	   buf_a, rs_a, cs_a, ps_a,
 	   buf_b, rs_b, cs_b, ps_b,
 	   buf_beta,
-	   buf_c, rs_c, cs_c );
+	   buf_c, rs_c, cs_c,
+       l2_num_threads,
+       l2_thread_id,
+       l1_num_threads,
+       l1_thread_id,
+       l0_thread_id,
+       other );
 }
 
 
@@ -140,7 +160,13 @@ void PASTEMAC(ch,varname)( \
                            void*   a, inc_t rs_a, inc_t cs_a, inc_t ps_a, \
                            void*   b, inc_t rs_b, inc_t cs_b, inc_t ps_b, \
                            void*   beta, \
-                           void*   c, inc_t rs_c, inc_t cs_c \
+                           void*   c, inc_t rs_c, inc_t cs_c, \
+                           dim_t   l2_num_threads, \
+                           dim_t   l2_thread_id, \
+                           dim_t   l1_num_threads, \
+                           dim_t   l1_thread_id, \
+                           dim_t   l0_thread_id, \
+                           void*   other \
                          ) \
 { \
 	/* Temporary buffer for duplicating elements of B. */ \
@@ -222,20 +248,18 @@ void PASTEMAC(ch,varname)( \
 	rstep_c = rs_c * MR; \
 	cstep_c = cs_c * NR; \
 \
-	b1 = b_cast; \
-	c1 = c_cast; \
-\
 	/* If the micro-kernel needs elements of B duplicated, set bp to
 	   point to the duplication buffer. If no duplication is called for,
 	   bp will be set to the current column panel of B for each iteration
 	   of the outer loop below. */ \
 	if ( DUPB ) bp = bd; \
 \
+\
 	/* Loop over the n dimension (NR columns at a time). */ \
-	for ( j = 0; j < n_iter; ++j ) \
+	for ( j = l2_thread_id; j < n_iter; j += l2_num_threads  ) \
 	{ \
-		a1  = a_cast; \
-		c11 = c1; \
+        b1 = b_cast + j * cstep_b; \
+        c1 = c_cast + j * cstep_c; \
 \
 		/* If duplication is needed, copy the current iteration's NR
 		   columns of B to a local buffer with each value duplicated. */ \
@@ -246,8 +270,11 @@ void PASTEMAC(ch,varname)( \
 		b2 = b1; \
 \
 		/* Interior loop over the m dimension (MR rows at a time). */ \
-		for ( i = 0; i < m_iter; ++i ) \
+		for ( i = l1_thread_id; i < m_iter; i += l1_num_threads ) \
 		{ \
+			a1  = a_cast + i * rstep_a; \
+			c11 = c1 + i * rstep_c; \
+\
 			/* Compute the addresses of the next panels of A and B. */ \
 			a2 = a1 + rstep_a; \
 			if ( i == m_iter - 1 && m_left == 0 ) \
@@ -265,15 +292,19 @@ void PASTEMAC(ch,varname)( \
 			                      bp, \
 			                      beta_cast, \
 			                      c11, rs_c, cs_c, \
-			                      a2, b2 ); \
+			                      a2, b2, l0_thread_id ); \
 \
-			a1  += rstep_a; \
-			c11 += rstep_c; \
+            /*if( ++n_ukernels == 4 ){ \
+                bli_barrier( comm ); \
+                n_ukernels = 0; \
+            }\*/\
 		} \
 \
 		/* Bottom edge handling. */ \
-		if ( m_left ) \
+		if ( m_left && !l1_thread_id ) \
 		{ \
+			a1  = a_cast + m_iter * rstep_a; \
+			c11 = c1 + m_iter * rstep_c; \
 			/* Compute the addresses of the next panels of A and B. */ \
 			a2 = a_cast; \
 			b2 = b1 + cstep_b; \
@@ -288,23 +319,22 @@ void PASTEMAC(ch,varname)( \
 			                      bp, \
 			                      zero, \
 			                      ct, rs_ct, cs_ct, \
-			                      a2, b2 ); \
+			                      a2, b2, 0 ); \
 \
 			/* Scale the bottom edge of C and add the result from above. */ \
 			PASTEMAC(ch,xpbys_mxn)( m_left, NR, \
 			                        ct,  rs_ct, cs_ct, \
 			                        beta_cast, \
 			                        c11, rs_c,  cs_c ); \
+\
 		} \
 \
-		b1 += cstep_b; \
-		c1 += cstep_c; \
 	} \
 \
-	if ( n_left ) \
+	if ( n_left && !l2_thread_id ) \
 	{ \
-		a1  = a_cast; \
-		c11 = c1; \
+		b1 = b_cast + n_iter * cstep_b; \
+		c1 = c_cast + n_iter * cstep_c; \
 \
 		/* If duplication is needed, copy the n_left (+ padding) columns
 		   of B to a local buffer with each value duplicated. */ \
@@ -315,8 +345,11 @@ void PASTEMAC(ch,varname)( \
 		b2 = b1; \
 \
 		/* Right edge loop over the m dimension (MR rows at a time). */ \
-		for ( i = 0; i < m_iter; ++i ) \
+		for ( i = l1_thread_id; i < m_iter; i += l1_num_threads ) \
 		{ \
+			a1  = a_cast + i * rstep_a; \
+			c11 = c1 + i * rstep_c; \
+\
 			/* Compute the addresses of the next panels of A and B. */ \
 			a2 = a1 + rstep_a; \
 			if ( i == m_iter - 1 && m_left == 0 ) \
@@ -332,7 +365,7 @@ void PASTEMAC(ch,varname)( \
 			                      bp, \
 			                      zero, \
 			                      ct, rs_ct, cs_ct, \
-			                      a2, b2 ); \
+			                      a2, b2, l0_thread_id ); \
 \
 			/* Scale the right edge of C and add the result from above. */ \
 			PASTEMAC(ch,xpbys_mxn)( MR, n_left, \
@@ -340,13 +373,13 @@ void PASTEMAC(ch,varname)( \
 			                        beta_cast, \
 			                        c11, rs_c,  cs_c ); \
 \
-			a1  += rstep_a; \
-			c11 += rstep_c; \
 		} \
 \
 		/* Bottom-right corner handling. */ \
-		if ( m_left ) \
+		if ( m_left && !l1_thread_id ) \
 		{ \
+			a1  = a_cast + m_iter * rstep_a; \
+			c11 = c1 + m_iter * rstep_c; \
 			/* Compute the address of the next panel of A. */ \
 			a2 = a_cast; \
 			b2 = b_cast; \
@@ -358,7 +391,7 @@ void PASTEMAC(ch,varname)( \
 			                      bp, \
 			                      zero, \
 			                      ct, rs_ct, cs_ct, \
-			                      a2, b2 ); \
+			                      a2, b2, 0 ); \
 \
 			/* Scale the bottom-right corner of C and add the result from above. */ \
 			PASTEMAC(ch,xpbys_mxn)( m_left, n_left, \

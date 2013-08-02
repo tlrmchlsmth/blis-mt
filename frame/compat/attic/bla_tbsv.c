@@ -42,13 +42,13 @@
 #define GENTFUNC( ftype, ch, blasname, blisname ) \
 \
 void PASTEF77(ch,blasname)( \
-                            f77_char* uploa, \
-                            f77_char* transa, \
-                            f77_char* diaga, \
-                            f77_int*  m, \
-                            f77_int*  k, \
-                            ftype*    a, f77_int* lda, \
-                            ftype*    x, f77_int* incx  \
+                            fchar*  uploa, \
+                            fchar*  transa, \
+                            fchar*  diaga, \
+                            fint*   m, \
+                            fint*   k, \
+                            ftype*  a, fint* lda, \
+                            ftype*  x, fint* incx  \
                           ) \
 { \
 	uplo_t  blis_uploa; \

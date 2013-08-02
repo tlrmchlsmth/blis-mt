@@ -74,7 +74,8 @@ void bli_trsv_int( obj_t*  alpha,
 	if ( bli_error_checking_is_enabled() )
 		bli_trsv_int_check( alpha, a, x, cntl );
 
-	// If x has a zero dimension, return early.
+	// Return early if one of the operands has a zero dimension.
+	if ( bli_obj_has_zero_dim( *a ) ) return;
 	if ( bli_obj_has_zero_dim( *x ) ) return;
 
 	// Alias A in case we need to induce a transformation (ie: transposition).
@@ -107,7 +108,7 @@ void bli_trsv_int( obj_t*  alpha,
 	if ( bli_obj_has_trans( a_local ) )
 	{
 		//bli_obj_induce_trans( a_local );
-		//bli_obj_set_onlytrans( BLIS_NO_TRANSPOSE, a_local );
+		//bli_obj_set_trans( BLIS_NO_TRANSPOSE, a_local );
 		bli_toggle_bool( uplo );
 	}
 

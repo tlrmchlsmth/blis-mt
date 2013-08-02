@@ -44,44 +44,12 @@
 
 #define bli_ssabval2s( x, a ) \
 { \
-	bli_sssetris( fabsf(x), 0.0, (a) ); \
+	a = ( float  )fabsf( ( float  )x ); \
 }
 #define bli_dsabval2s( x, a ) \
 { \
-	bli_dssetris( fabs(x),  0.0, (a) ); \
+	a = ( float  )fabs( ( double )x ); \
 }
-
-#define bli_sdabval2s( x, a ) \
-{ \
-	bli_sdsetris( fabsf(x), 0.0, (a) ); \
-}
-#define bli_ddabval2s( x, a ) \
-{ \
-	bli_ddsetris( fabs(x),  0.0, (a) ); \
-}
-
-#define bli_scabval2s( x, a ) \
-{ \
-	bli_scsetris( fabsf(x), 0.0, (a) ); \
-}
-#define bli_dcabval2s( x, a ) \
-{ \
-	bli_dcsetris( fabs(x),  0.0, (a) ); \
-}
-
-#define bli_szabval2s( x, a ) \
-{ \
-	bli_szsetris( fabsf(x), 0.0, (a) ); \
-}
-#define bli_dzabval2s( x, a ) \
-{ \
-	bli_dzsetris( fabs(x),  0.0, (a) ); \
-}
-
-
-#ifndef BLIS_ENABLE_C99_COMPLEX
-
-
 #define bli_csabval2s( x, a ) \
 { \
 	bli_csabsq2s( x, a ); \
@@ -93,6 +61,15 @@
 	bli_sssqrt2s( a, a ); \
 }
 
+
+#define bli_sdabval2s( x, a ) \
+{ \
+	a = ( double )fabsf( ( float  )x ); \
+}
+#define bli_ddabval2s( x, a ) \
+{ \
+	a = ( double )fabs( ( double )x ); \
+}
 #define bli_cdabval2s( x, a ) \
 { \
 	bli_cdabsq2s( x, a ); \
@@ -104,6 +81,17 @@
 	bli_ddsqrt2s( a, a ); \
 }
 
+
+#define bli_scabval2s( x, a ) \
+{ \
+	(a).real = ( float  )fabsf( ( float  )x ); \
+	(a).imag = 0.0F; \
+}
+#define bli_dcabval2s( x, a ) \
+{ \
+	(a).real = ( float  )fabs( ( double )x ); \
+	(a).imag = 0.0F; \
+}
 #define bli_ccabval2s( x, a ) \
 { \
 	bli_ccabsq2s( x, a ); \
@@ -115,6 +103,17 @@
 	bli_ccsqrt2s( a, a ); \
 }
 
+
+#define bli_szabval2s( x, a ) \
+{ \
+	(a).real = ( double )fabsf( ( float  )x ); \
+	(a).imag = 0.0F; \
+}
+#define bli_dzabval2s( x, a ) \
+{ \
+	(a).real = ( double )fabs( ( double )x ); \
+	(a).imag = 0.0F; \
+}
 #define bli_czabval2s( x, a ) \
 { \
 	bli_czabsq2s( x, a ); \
@@ -127,30 +126,22 @@
 }
 
 
-#else // ifdef BLIS_ENABLE_C99_COMPLEX
-
-
-#define bli_csabval2s( x, a )  { (a) = cabsf(x); }
-#define bli_zsabval2s( x, a )  { (a) = cabs(x);  }
-
-#define bli_cdabval2s( x, a )  { (a) = cabsf(x); }
-#define bli_zdabval2s( x, a )  { (a) = cabs(x);  }
-
-#define bli_ccabval2s( x, a )  { (a) = cabsf(x); }
-#define bli_zcabval2s( x, a )  { (a) = cabs(x);  }
-
-#define bli_czabval2s( x, a )  { (a) = cabsf(x); }
-#define bli_zzabval2s( x, a )  { (a) = cabs(x);  }
-
-
-
-#endif // BLIS_ENABLE_C99_COMPLEX
-
-
-#define bli_sabval2s( x, a )  bli_ssabval2s( x, a )
-#define bli_dabval2s( x, a )  bli_ddabval2s( x, a )
-#define bli_cabval2s( x, a )  bli_ccabval2s( x, a )
-#define bli_zabval2s( x, a )  bli_zzabval2s( x, a )
+#define bli_sabval2s( x, a ) \
+{ \
+	bli_ssabval2s( x, a ); \
+}
+#define bli_dabval2s( x, a ) \
+{ \
+	bli_ddabval2s( x, a ); \
+}
+#define bli_cabval2s( x, a ) \
+{ \
+	bli_ccabval2s( x, a ); \
+}
+#define bli_zabval2s( x, a ) \
+{ \
+	bli_zzabval2s( x, a ); \
+}
 
 
 #endif

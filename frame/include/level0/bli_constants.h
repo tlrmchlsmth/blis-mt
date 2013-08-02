@@ -57,7 +57,7 @@
 
 #define bli_i2 \
 \
-	( ( gint_t*   ) bli_obj_buffer_for_const( BLIS_INT,      BLIS_TWO ) )
+	( ( int*      ) bli_obj_buffer_for_const( BLIS_INT,      BLIS_TWO ) )
 
 // 1
 
@@ -79,7 +79,7 @@
 
 #define bli_i1 \
 \
-	( ( gint_t*   ) bli_obj_buffer_for_const( BLIS_INT,      BLIS_ONE ) )
+	( ( int*      ) bli_obj_buffer_for_const( BLIS_INT,      BLIS_ONE ) )
 
 // 0
 
@@ -101,7 +101,7 @@
 
 #define bli_i0 \
 \
-	( ( gint_t*   ) bli_obj_buffer_for_const( BLIS_INT,      BLIS_ZERO ) )
+	( ( int*      ) bli_obj_buffer_for_const( BLIS_INT,      BLIS_ZERO ) )
 
 // -1
 
@@ -123,7 +123,7 @@
 
 #define bli_im1 \
 \
-	( ( gint_t*   ) bli_obj_buffer_for_const( BLIS_INT,      BLIS_MINUS_ONE ) )
+	( ( int*      ) bli_obj_buffer_for_const( BLIS_INT,      BLIS_MINUS_ONE ) )
 
 // -2
 
@@ -145,28 +145,9 @@
 
 #define bli_im2 \
 \
-	( ( gint_t*   ) bli_obj_buffer_for_const( BLIS_INT,      BLIS_MINUS_TWO ) )
+	( ( int*      ) bli_obj_buffer_for_const( BLIS_INT,      BLIS_MINUS_TWO ) )
 
 // set to constant
-
-// set1s
-
-#define bli_sset1s( a ) \
-{ \
-	(a) = 1.0F; \
-}
-#define bli_dset1s( a ) \
-{ \
-	(a) = 1.0; \
-}
-#define bli_cset1s( a ) \
-{ \
-	bli_csetris( 1.0F, 0.0F, (a) ); \
-}
-#define bli_zset1s( a ) \
-{ \
-	bli_zsetris( 1.0, 0.0, (a) ); \
-}
 
 // set0s
 
@@ -180,11 +161,13 @@
 }
 #define bli_cset0s( a ) \
 { \
-	bli_csetris( 0.0F, 0.0F, (a) ); \
+	(a).real = 0.0F; \
+	(a).imag = 0.0F; \
 }
 #define bli_zset0s( a ) \
 { \
-	bli_zsetris( 0.0, 0.0, (a) ); \
+	(a).real = 0.0; \
+	(a).imag = 0.0; \
 }
 
 // setimag0
@@ -199,12 +182,11 @@
 }
 #define bli_csetimag0( a ) \
 { \
-	bli_csetis( 0.0F, (a) ); \
+	(a).imag = 0.0F; \
 }
 #define bli_zsetimag0( a ) \
 { \
-	bli_zsetis( 0.0, (a) ); \
+	(a).imag = 0.0; \
 }
 
 #endif
-

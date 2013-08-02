@@ -40,12 +40,12 @@
 #define GENTPROTRO( ftype, ch, blasname ) \
 \
 void PASTEF77(ch,blasname)( \
-                            f77_char* uploa, \
-                            f77_int*  m, \
+                            fchar*    uploa, \
+                            fint*     m, \
                             ftype*    alpha, \
-                            ftype*    x, f77_int* incx, \
-                            ftype*    y, f77_int* incy, \
-                            ftype*    a, f77_int* lda   \
+                            ftype*    x, fint* incx, \
+                            ftype*    y, fint* incy, \
+                            ftype*    a, fint* lda   \
                           );
 
 #ifdef BLIS_ENABLE_BLAS2BLIS

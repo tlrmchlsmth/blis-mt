@@ -37,25 +37,15 @@
 extern scalm_t*   scalm_cntl;
 extern gemm_t*    gemm_cntl_bp_ke;
 
-trmm_t*           trmm_l_cntl;
-trmm_t*           trmm_r_cntl;
+trmm_t*           trmm_cntl;
 
 trmm_t*           trmm_cntl_bp_ke;
+trmm_t*           trmm_cntl_op_bp;
+trmm_t*           trmm_cntl_mm_op;
+trmm_t*           trmm_cntl_vl_mm;
 
-trmm_t*           trmm_l_cntl_op_bp;
-trmm_t*           trmm_l_cntl_mm_op;
-trmm_t*           trmm_l_cntl_vl_mm;
-
-trmm_t*           trmm_r_cntl_op_bp;
-trmm_t*           trmm_r_cntl_mm_op;
-trmm_t*           trmm_r_cntl_vl_mm;
-
-packm_t*          trmm_l_packa_cntl;
-packm_t*          trmm_l_packb_cntl;
-
-packm_t*          trmm_r_packa_cntl;
-packm_t*          trmm_r_packb_cntl;
-
+packm_t*          trmm_packa_cntl;
+packm_t*          trmm_packb_cntl;
 packm_t*          trmm_packc_cntl;
 unpackm_t*        trmm_unpackc_cntl;
 
@@ -65,57 +55,75 @@ blksz_t*          trmm_kc;
 blksz_t*          trmm_mr;
 blksz_t*          trmm_nr;
 blksz_t*          trmm_kr;
+blksz_t*          trmm_extmr;
+blksz_t*          trmm_extnr;
+blksz_t*          trmm_extkr;
 blksz_t*          trmm_ni;
 
 
 void bli_trmm_cntl_init()
 {
 	// Create blocksize objects for each dimension.
-	trmm_mc = bli_blksz_obj_create( BLIS_DEFAULT_MC_S, BLIS_EXTEND_MC_S,
-	                                BLIS_DEFAULT_MC_D, BLIS_EXTEND_MC_D,
-	                                BLIS_DEFAULT_MC_C, BLIS_EXTEND_MC_C,
-	                                BLIS_DEFAULT_MC_Z, BLIS_EXTEND_MC_Z );
+	trmm_mc = bli_blksz_obj_create( BLIS_DEFAULT_MC_S,
+	                                BLIS_DEFAULT_MC_D,
+	                                BLIS_DEFAULT_MC_C,
+	                                BLIS_DEFAULT_MC_Z );
 
-	trmm_nc = bli_blksz_obj_create( BLIS_DEFAULT_NC_S, BLIS_EXTEND_NC_S,
-	                                BLIS_DEFAULT_NC_D, BLIS_EXTEND_NC_D,
-	                                BLIS_DEFAULT_NC_C, BLIS_EXTEND_NC_C,
-	                                BLIS_DEFAULT_NC_Z, BLIS_EXTEND_NC_Z );
+	trmm_nc = bli_blksz_obj_create( BLIS_DEFAULT_NC_S,
+	                                BLIS_DEFAULT_NC_D,
+	                                BLIS_DEFAULT_NC_C,
+	                                BLIS_DEFAULT_NC_Z );
 
-	trmm_kc = bli_blksz_obj_create( BLIS_DEFAULT_KC_S, BLIS_EXTEND_KC_S,
-	                                BLIS_DEFAULT_KC_D, BLIS_EXTEND_KC_D,
-	                                BLIS_DEFAULT_KC_C, BLIS_EXTEND_KC_C,
-	                                BLIS_DEFAULT_KC_Z, BLIS_EXTEND_KC_Z );
+	trmm_kc = bli_blksz_obj_create( BLIS_DEFAULT_KC_S,
+	                                BLIS_DEFAULT_KC_D,
+	                                BLIS_DEFAULT_KC_C,
+	                                BLIS_DEFAULT_KC_Z );
 
-	trmm_mr = bli_blksz_obj_create( BLIS_DEFAULT_MR_S, BLIS_EXTEND_MR_S,
-	                                BLIS_DEFAULT_MR_D, BLIS_EXTEND_MR_D,
-	                                BLIS_DEFAULT_MR_C, BLIS_EXTEND_MR_C,
-	                                BLIS_DEFAULT_MR_Z, BLIS_EXTEND_MR_Z );
+	trmm_mr = bli_blksz_obj_create( BLIS_DEFAULT_MR_S,
+	                                BLIS_DEFAULT_MR_D,
+	                                BLIS_DEFAULT_MR_C,
+	                                BLIS_DEFAULT_MR_Z );
 
-	trmm_nr = bli_blksz_obj_create( BLIS_DEFAULT_NR_S, BLIS_EXTEND_NR_S,
-	                                BLIS_DEFAULT_NR_D, BLIS_EXTEND_NR_D,
-	                                BLIS_DEFAULT_NR_C, BLIS_EXTEND_NR_C,
-	                                BLIS_DEFAULT_NR_Z, BLIS_EXTEND_NR_Z );
+	trmm_nr = bli_blksz_obj_create( BLIS_DEFAULT_NR_S,
+	                                BLIS_DEFAULT_NR_D,
+	                                BLIS_DEFAULT_NR_C,
+	                                BLIS_DEFAULT_NR_Z );
 
-	trmm_kr = bli_blksz_obj_create( BLIS_DEFAULT_KR_S, BLIS_EXTEND_KR_S,
-	                                BLIS_DEFAULT_KR_D, BLIS_EXTEND_KR_D,
-	                                BLIS_DEFAULT_KR_C, BLIS_EXTEND_KR_C,
-	                                BLIS_DEFAULT_KR_Z, BLIS_EXTEND_KR_Z );
+	trmm_kr = bli_blksz_obj_create( BLIS_DEFAULT_KR_S,
+	                                BLIS_DEFAULT_KR_D,
+	                                BLIS_DEFAULT_KR_C,
+	                                BLIS_DEFAULT_KR_Z );
 
-	trmm_ni = bli_blksz_obj_create( BLIS_DEFAULT_NI_S, 0,
-	                                BLIS_DEFAULT_NI_D, 0,
-	                                BLIS_DEFAULT_NI_C, 0,
-	                                BLIS_DEFAULT_NI_Z, 0 );
+	trmm_extmr = bli_blksz_obj_create( BLIS_EXTEND_MR_S,
+	                                   BLIS_EXTEND_MR_D,
+	                                   BLIS_EXTEND_MR_C,
+	                                   BLIS_EXTEND_MR_Z );
+
+	trmm_extnr = bli_blksz_obj_create( BLIS_EXTEND_NR_S,
+	                                   BLIS_EXTEND_NR_D,
+	                                   BLIS_EXTEND_NR_C,
+	                                   BLIS_EXTEND_NR_Z );
+
+	trmm_extkr = bli_blksz_obj_create( BLIS_EXTEND_KR_S,
+	                                   BLIS_EXTEND_KR_D,
+	                                   BLIS_EXTEND_KR_C,
+	                                   BLIS_EXTEND_KR_Z );
+
+	trmm_ni = bli_blksz_obj_create( BLIS_DEFAULT_NI_S,
+	                                BLIS_DEFAULT_NI_D,
+	                                BLIS_DEFAULT_NI_C,
+	                                BLIS_DEFAULT_NI_Z );
 
 
-	// Create control tree objects for packm operations (left side).
-	trmm_l_packa_cntl
+	// Create control tree objects for packm operations on a, b, and c.
+	trmm_packa_cntl
 	=
 	bli_packm_cntl_obj_create( BLIS_BLOCKED,
 	                           BLIS_VARIANT3, // pack panels of A compactly
 	                           // IMPORTANT: for consistency with trsm, "k" dim
 	                           // multiple is set to mr.
-	                           trmm_mr,
-	                           trmm_mr,
+	                           trmm_mr, trmm_extmr,
+	                           trmm_mr, trmm_extmr,
 	                           FALSE, // do NOT scale by alpha
 	                           TRUE,  // densify
 	                           FALSE, // do NOT invert diagonal
@@ -124,62 +132,28 @@ void bli_trmm_cntl_init()
 	                           BLIS_PACKED_ROW_PANELS,
 	                           BLIS_BUFFER_FOR_A_BLOCK );
 
-	trmm_l_packb_cntl
+	trmm_packb_cntl
 	=
 	bli_packm_cntl_obj_create( BLIS_BLOCKED,
 	                           BLIS_VARIANT2,
 	                           // IMPORTANT: m dim multiple here must be mr
 	                           // since "k" dim multiple is set to mr above.
-	                           trmm_mr,
-	                           trmm_nr,
+	                           trmm_mr, trmm_extmr,
+	                           trmm_nr, trmm_extnr,
 	                           FALSE, // do NOT scale by alpha
-	                           FALSE, // already dense
+	                           FALSE, // already dense; densify not necessary
 	                           FALSE, // do NOT invert diagonal
 	                           FALSE, // reverse iteration if upper?
 	                           FALSE, // reverse iteration if lower?
 	                           BLIS_PACKED_COL_PANELS,
 	                           BLIS_BUFFER_FOR_B_PANEL );
 
-	// Create control tree objects for packm operations (right side).
-	trmm_r_packa_cntl
-	=
-	bli_packm_cntl_obj_create( BLIS_BLOCKED,
-	                           BLIS_VARIANT2,
-	                           // IMPORTANT: for consistency with trsm, "k" dim
-	                           // multiple is set to nr.
-	                           trmm_mr,
-	                           trmm_nr,
-	                           FALSE, // do NOT scale by alpha
-	                           FALSE, // already dense
-	                           FALSE, // do NOT invert diagonal
-	                           FALSE, // reverse iteration if upper?
-	                           FALSE, // reverse iteration if lower?
-	                           BLIS_PACKED_ROW_PANELS,
-	                           BLIS_BUFFER_FOR_A_BLOCK );
-
-	trmm_r_packb_cntl
-	=
-	bli_packm_cntl_obj_create( BLIS_BLOCKED,
-	                           BLIS_VARIANT3, // pack panels of B compactly
-	                           // IMPORTANT: m dim multiple here must be nr
-	                           // since "k" dim multiple is set to nr above.
-	                           trmm_nr,
-	                           trmm_nr,
-	                           FALSE, // do NOT scale by alpha
-	                           TRUE,  // densify
-	                           FALSE, // do NOT invert diagonal
-	                           FALSE, // reverse iteration if upper?
-	                           FALSE, // reverse iteration if lower?
-	                           BLIS_PACKED_COL_PANELS,
-	                           BLIS_BUFFER_FOR_B_PANEL );
-
-	// Create control tree objects for packm/unpackm operations on C.
 	trmm_packc_cntl
 	=
 	bli_packm_cntl_obj_create( BLIS_UNBLOCKED,
 	                           BLIS_VARIANT1,
-	                           trmm_mr,
-	                           trmm_nr,
+	                           trmm_mr, trmm_extmr,
+	                           trmm_nr, trmm_extmr,
 	                           FALSE, // do NOT scale by beta
 	                           FALSE, // already dense; densify not necessary
 	                           FALSE, // do NOT invert diagonal
@@ -204,24 +178,25 @@ void bli_trmm_cntl_init()
 	                          NULL, NULL, NULL, NULL );
 
 	// Create control tree object for outer panel (to block-panel)
-	// problem (left side).
-	trmm_l_cntl_op_bp
+	// problem, packing a and b.
+	trmm_cntl_op_bp
 	=
 	bli_trmm_cntl_obj_create( BLIS_BLOCKED,
+	                          //BLIS_VARIANT4,  // var1 with incremental pack in iter 0
 	                          BLIS_VARIANT1,
 	                          trmm_mc,
 	                          trmm_ni,
 	                          NULL,
-	                          trmm_l_packa_cntl,
-	                          trmm_l_packb_cntl,
+	                          trmm_packa_cntl,
+	                          trmm_packb_cntl,
 	                          NULL,
 	                          trmm_cntl_bp_ke,
 	                          gemm_cntl_bp_ke,
 	                          NULL );
 
 	// Create control tree object for general problem via multiple
-	// rank-k (outer panel) updates (left side).
-	trmm_l_cntl_mm_op
+	// rank-k (outer panel) updates, packing a and b.
+	trmm_cntl_mm_op
 	=
 	bli_trmm_cntl_obj_create( BLIS_BLOCKED,
 	                          BLIS_VARIANT3,
@@ -231,13 +206,13 @@ void bli_trmm_cntl_init()
 	                          NULL, 
 	                          NULL,
 	                          NULL,
-	                          trmm_l_cntl_op_bp,
+	                          trmm_cntl_op_bp,
 	                          NULL,
 	                          NULL );
 
 	// Create control tree object for very large problem via multiple
-	// general problems (left side).
-	trmm_l_cntl_vl_mm
+	// general problems, packing a and b.
+	trmm_cntl_vl_mm
 	=
 	bli_trmm_cntl_obj_create( BLIS_BLOCKED,
 	                          BLIS_VARIANT2,
@@ -247,61 +222,13 @@ void bli_trmm_cntl_init()
 	                          NULL,
 	                          NULL,
 	                          NULL,
-	                          trmm_l_cntl_mm_op,
+	                          trmm_cntl_mm_op,
 	                          NULL,
 	                          NULL );
 
-	// Create control tree object for outer panel (to block-panel)
-	// problem (right side).
-	trmm_r_cntl_op_bp
-	=
-	bli_trmm_cntl_obj_create( BLIS_BLOCKED,
-	                          BLIS_VARIANT1,
-	                          trmm_mc,
-	                          trmm_ni,
-	                          NULL,
-	                          trmm_r_packa_cntl,
-	                          trmm_r_packb_cntl,
-	                          NULL,
-	                          trmm_cntl_bp_ke,
-	                          gemm_cntl_bp_ke,
-	                          NULL );
-
-	// Create control tree object for general problem via multiple
-	// rank-k (outer panel) updates (right side).
-	trmm_r_cntl_mm_op
-	=
-	bli_trmm_cntl_obj_create( BLIS_BLOCKED,
-	                          BLIS_VARIANT3,
-	                          trmm_kc,
-	                          NULL,
-	                          NULL,
-	                          NULL, 
-	                          NULL,
-	                          NULL,
-	                          trmm_r_cntl_op_bp,
-	                          NULL,
-	                          NULL );
-
-	// Create control tree object for very large problem via multiple
-	// general problems (right side).
-	trmm_r_cntl_vl_mm
-	=
-	bli_trmm_cntl_obj_create( BLIS_BLOCKED,
-	                          BLIS_VARIANT2,
-	                          trmm_nc,
-	                          NULL,
-	                          NULL,
-	                          NULL,
-	                          NULL,
-	                          NULL,
-	                          trmm_r_cntl_mm_op,
-	                          NULL,
-	                          NULL );
-
-	// Alias the "master" trmm control trees to shorter names.
-	trmm_l_cntl = trmm_l_cntl_vl_mm;
-	trmm_r_cntl = trmm_r_cntl_vl_mm;
+	// Alias the "master" trmm control tree to a shorter name.
+	//trmm_cntl = trmm_cntl_mm_op;
+	trmm_cntl = trmm_cntl_vl_mm;
 }
 
 void bli_trmm_cntl_finalize()
@@ -314,20 +241,15 @@ void bli_trmm_cntl_finalize()
 	bli_blksz_obj_free( trmm_kr );
 	bli_blksz_obj_free( trmm_ni );
 
-	bli_cntl_obj_free( trmm_l_packa_cntl );
-	bli_cntl_obj_free( trmm_l_packb_cntl );
-	bli_cntl_obj_free( trmm_r_packa_cntl );
-	bli_cntl_obj_free( trmm_r_packb_cntl );
+	bli_cntl_obj_free( trmm_packa_cntl );
+	bli_cntl_obj_free( trmm_packb_cntl );
 	bli_cntl_obj_free( trmm_packc_cntl );
 	bli_cntl_obj_free( trmm_unpackc_cntl );
 
 	bli_cntl_obj_free( trmm_cntl_bp_ke );
-	bli_cntl_obj_free( trmm_l_cntl_op_bp );
-	bli_cntl_obj_free( trmm_l_cntl_mm_op );
-	bli_cntl_obj_free( trmm_l_cntl_vl_mm );
-	bli_cntl_obj_free( trmm_r_cntl_op_bp );
-	bli_cntl_obj_free( trmm_r_cntl_mm_op );
-	bli_cntl_obj_free( trmm_r_cntl_vl_mm );
+	bli_cntl_obj_free( trmm_cntl_op_bp );
+	bli_cntl_obj_free( trmm_cntl_mm_op );
+	bli_cntl_obj_free( trmm_cntl_vl_mm );
 }
 
 trmm_t* bli_trmm_cntl_obj_create( impl_t     impl_type,

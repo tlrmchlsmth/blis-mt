@@ -77,7 +77,6 @@
 // non-zero, blocksizes used at edge cases are extended (enlarged) if
 // such an extension would encompass the remaining portion of the
 // matrix dimension.
-
 #define BLIS_EXTEND_MC_S               0 //(BLIS_DEFAULT_MC_S/4)
 #define BLIS_EXTEND_KC_S               0 //(BLIS_DEFAULT_KC_S/4)
 #define BLIS_EXTEND_NC_S               0 //(BLIS_DEFAULT_NC_S/4)

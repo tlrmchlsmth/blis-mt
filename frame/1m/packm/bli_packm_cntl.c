@@ -172,7 +172,8 @@ packm_t* bli_packm_cntl_obj_create( impl_t     impl_type,
                                     bool_t     rev_iter_if_upper,
                                     bool_t     rev_iter_if_lower,
                                     pack_t     pack_schema,
-                                    packbuf_t  pack_buf_type )
+                                    packbuf_t  pack_buf_type,
+                                    packm_thread_info_t* thread_info )
 {
 	packm_t* cntl;
 
@@ -189,15 +190,69 @@ packm_t* bli_packm_cntl_obj_create( impl_t     impl_type,
 	cntl->rev_iter_if_lower = rev_iter_if_lower;
 	cntl->pack_schema       = pack_schema;
 	cntl->pack_buf_type     = pack_buf_type;
+    cntl->thread_info       = thread_info;
 
 	return cntl;
+}
+
+void bli_packm_cntl_obj_init_mt( packm_t*   cntl,
+                              impl_t     impl_type,
+                              varnum_t   var_num,
+                              blksz_t*   mr_def,
+                              blksz_t*   mr_ext,
+                              blksz_t*   nr_def,
+                              blksz_t*   nr_ext,
+                              bool_t     does_scale,
+                              bool_t     does_densify,
+                              bool_t     does_invert_diag,
+                              bool_t     rev_iter_if_upper,
+                              bool_t     rev_iter_if_lower,
+                              pack_t     pack_schema,
+                              packbuf_t  pack_buf_type,
+                              packm_thread_info_t* thread_info )
+{
+	cntl->impl_type         = impl_type;
+	cntl->var_num           = var_num;
+	cntl->mr_def            = mr_def;
+	cntl->mr_ext            = mr_ext;
+	cntl->nr_def            = nr_def;
+	cntl->nr_ext            = nr_ext;
+	cntl->does_scale        = does_scale;
+	cntl->does_densify      = does_densify;
+	cntl->does_invert_diag  = does_invert_diag;
+	cntl->rev_iter_if_upper = rev_iter_if_upper;
+	cntl->rev_iter_if_lower = rev_iter_if_lower;
+	cntl->pack_schema       = pack_schema;
+	cntl->pack_buf_type     = pack_buf_type;
+    cntl->thread_info       = thread_info;
+}
+
+packm_t* bli_packm_cntl_obj_create( impl_t     impl_type,
+                                    varnum_t   var_num,
+                                    blksz_t*   mr_def,
+                                    blksz_t*   mr_ext,
+                                    blksz_t*   nr_def,
+                                    blksz_t*   nr_ext,
+                                    bool_t     does_scale,
+                                    bool_t     does_densify,
+                                    bool_t     does_invert_diag,
+                                    bool_t     rev_iter_if_upper,
+                                    bool_t     rev_iter_if_lower,
+                                    pack_t     pack_schema,
+                                    packbuf_t  pack_buf_type )
+{
+    return bli_packm_cntl_obj_create_mt( impl_type, var_num, mr_def, mr_ext, nr_def, nr_ext,
+        does_scale, does_densify, does_invert_diag, rev_iter_if_upper, rev_iter_if_lower,
+        pack_schema, pack_buf_type, NULL);
 }
 
 void bli_packm_cntl_obj_init( packm_t*   cntl,
                               impl_t     impl_type,
                               varnum_t   var_num,
-                              blksz_t*   mr,
-                              blksz_t*   nr,
+                              blksz_t*   mr_def,
+                              blksz_t*   mr_ext,
+                              blksz_t*   nr_def,
+                              blksz_t*   nr_ext,
                               bool_t     does_scale,
                               bool_t     does_densify,
                               bool_t     does_invert_diag,
@@ -206,16 +261,8 @@ void bli_packm_cntl_obj_init( packm_t*   cntl,
                               pack_t     pack_schema,
                               packbuf_t  pack_buf_type )
 {
-	cntl->impl_type         = impl_type;
-	cntl->var_num           = var_num;
-	cntl->mr                = mr;
-	cntl->nr                = nr;
-	cntl->does_scale        = does_scale;
-	cntl->does_densify      = does_densify;
-	cntl->does_invert_diag  = does_invert_diag;
-	cntl->rev_iter_if_upper = rev_iter_if_upper;
-	cntl->rev_iter_if_lower = rev_iter_if_lower;
-	cntl->pack_schema       = pack_schema;
-	cntl->pack_buf_type     = pack_buf_type;
+    bli_packm_cntl_obj_init_mt( cntl, impl_type, var_num, mr_def, mr_ext, nr_def, nr_ext,
+        does_scale, does_densify, does_invert_diag, rev_iter_if_upper, rev_iter_if_lower,
+        pack_schema, pack_buf_type, NULL);
 }
 

@@ -40,9 +40,9 @@
 #define GENTPROTSCAL( ftype_a, ftype_x, cha, chx, blasname ) \
 \
 void PASTEF772(chx,cha,blasname)( \
-                                  f77_int* n, \
-                                  ftype_a* alpha, \
-                                  ftype_x* x, f77_int* incx  \
+                                  fint*     n, \
+                                  ftype_a*  alpha, \
+                                  ftype_x*  x, fint* incx  \
                                 );
 
 #ifdef BLIS_ENABLE_BLAS2BLIS

@@ -36,7 +36,11 @@
 #include "blis.h"
 
 //           side   uploa  m     n     alpha    a        lda   b        ldb   beta     c        ldc
+<<<<<<< HEAD
 //void dsymm_( char*, char*, int*, int*, double*, double*, int*, double*, int*, double*, double*, int* );
+=======
+void dsymm_( char*, char*, int*, int*, double*, double*, int*, double*, int*, double*, double*, int* );
+>>>>>>> 0c1c78278bbd9c281bcbe933cc2f3bdb3bd74ef1
 
 //#define PRINT
 
@@ -54,7 +58,10 @@ int main( int argc, char** argv )
 	int   r, n_repeats;
 	side_t side;
 
+<<<<<<< HEAD
 #if 0
+=======
+>>>>>>> 0c1c78278bbd9c281bcbe933cc2f3bdb3bd74ef1
 	blksz_t* mr;
 	blksz_t* nr;
 	blksz_t* kr;
@@ -71,7 +78,10 @@ int main( int argc, char** argv )
 	gemm_t*  gemm_cntl_op_bp;
 	gemm_t*  gemm_cntl_mm_op;
 	gemm_t*  gemm_cntl_vl_mm;
+<<<<<<< HEAD
 #endif
+=======
+>>>>>>> 0c1c78278bbd9c281bcbe933cc2f3bdb3bd74ef1
 
 	double dtime;
 	double dtime_save;
@@ -103,8 +113,13 @@ int main( int argc, char** argv )
 	dt_alpha = BLIS_DOUBLE;
 	dt_beta = BLIS_DOUBLE;
 
+<<<<<<< HEAD
 	//side = BLIS_LEFT;
 	side = BLIS_RIGHT;
+=======
+	side = BLIS_LEFT;
+	//side = BLIS_RIGHT;
+>>>>>>> 0c1c78278bbd9c281bcbe933cc2f3bdb3bd74ef1
 
 	for ( p = p_begin; p <= p_end; p += p_inc )
 	{
@@ -131,6 +146,7 @@ int main( int argc, char** argv )
 		bli_randm( &c );
 
 		bli_obj_set_struc( BLIS_HERMITIAN, a );
+<<<<<<< HEAD
 		//bli_obj_set_uplo( BLIS_LOWER, a );
 		bli_obj_set_uplo( BLIS_UPPER, a );
 
@@ -140,11 +156,17 @@ int main( int argc, char** argv )
 		bli_randm( &a );
 		bli_mkherm( &a );
 		bli_mktrim( &a );
+=======
+		bli_obj_set_uplo( BLIS_LOWER, a );
+>>>>>>> 0c1c78278bbd9c281bcbe933cc2f3bdb3bd74ef1
 
 		bli_setsc(  (2.0/1.0), 0.0, &alpha );
 		bli_setsc( -(1.0/1.0), 0.0, &beta );
 
+<<<<<<< HEAD
 #if 0
+=======
+>>>>>>> 0c1c78278bbd9c281bcbe933cc2f3bdb3bd74ef1
 		mr = bli_blksz_obj_create( 2, 4, 2, 2 );
 		kr = bli_blksz_obj_create( 1, 1, 1, 1 );
 		nr = bli_blksz_obj_create( 1, 4, 1, 1 );
@@ -160,8 +182,13 @@ int main( int argc, char** argv )
 		packm_cntl_a =
 		bli_packm_cntl_obj_create( BLIS_BLOCKED,
 		                           BLIS_VARIANT2,
+<<<<<<< HEAD
 		                           mr,
 		                           kr,
+=======
+		                           mr, NULL,
+		                           kr, NULL,
+>>>>>>> 0c1c78278bbd9c281bcbe933cc2f3bdb3bd74ef1
 		                           FALSE, // scale?
 		                           TRUE,  // densify?
 		                           FALSE, // invert diagonal?
@@ -173,8 +200,13 @@ int main( int argc, char** argv )
 		packm_cntl_b =
 		bli_packm_cntl_obj_create( BLIS_BLOCKED,
 		                           BLIS_VARIANT2,
+<<<<<<< HEAD
 		                           kr,
 		                           nr,
+=======
+		                           kr, NULL,
+		                           nr, NULL,
+>>>>>>> 0c1c78278bbd9c281bcbe933cc2f3bdb3bd74ef1
 		                           FALSE, // scale?
 		                           FALSE, // densify?
 		                           FALSE, // invert diagonal?
@@ -225,7 +257,11 @@ int main( int argc, char** argv )
 		                          NULL,
 		                          gemm_cntl_mm_op,
 		                          NULL );
+<<<<<<< HEAD
 #endif
+=======
+
+>>>>>>> 0c1c78278bbd9c281bcbe933cc2f3bdb3bd74ef1
 
 		bli_copym( &c, &c_save );
 	
@@ -248,7 +284,11 @@ int main( int argc, char** argv )
 
 			//bli_error_checking_level_set( BLIS_NO_ERROR_CHECKING );
 
+<<<<<<< HEAD
 			bli_hemm( side,
+=======
+			bli_hemm( BLIS_LEFT,
+>>>>>>> 0c1c78278bbd9c281bcbe933cc2f3bdb3bd74ef1
 			          &alpha,
 			          &a,
 			          &b,
@@ -257,6 +297,7 @@ int main( int argc, char** argv )
 
 #else
 
+<<<<<<< HEAD
 			f77_char side   = 'R';
 			f77_char uplo   = 'U';
 			f77_int  mm     = bli_obj_length( c );
@@ -269,6 +310,20 @@ int main( int argc, char** argv )
 			double*  bp     = bli_obj_buffer( b );
 			double*  betap  = bli_obj_buffer( beta );
 			double*  cp     = bli_obj_buffer( c );
+=======
+			char    side   = 'L';
+			char    uplo   = 'L';
+			int     mm     = bli_obj_length( c );
+			int     nn     = bli_obj_width( c );
+			int     lda    = bli_obj_col_stride( a );
+			int     ldb    = bli_obj_col_stride( b );
+			int     ldc    = bli_obj_col_stride( c );
+			double* alphap = bli_obj_buffer( alpha );
+			double* ap     = bli_obj_buffer( a );
+			double* bp     = bli_obj_buffer( b );
+			double* betap  = bli_obj_buffer( beta );
+			double* cp     = bli_obj_buffer( c );
+>>>>>>> 0c1c78278bbd9c281bcbe933cc2f3bdb3bd74ef1
 
 			dsymm_( &side,
 			        &uplo,
@@ -302,7 +357,10 @@ int main( int argc, char** argv )
 		printf( "( %2ld, 1:4 ) = [ %4lu %4lu  %10.3e  %6.3f ];\n",
 		        (p - p_begin + 1)/p_inc + 1, m, n, dtime_save, gflops );
 
+<<<<<<< HEAD
 #if 0
+=======
+>>>>>>> 0c1c78278bbd9c281bcbe933cc2f3bdb3bd74ef1
 		bli_blksz_obj_free( mr );
 		bli_blksz_obj_free( nr );
 		bli_blksz_obj_free( kr );
@@ -318,7 +376,11 @@ int main( int argc, char** argv )
 		bli_cntl_obj_free( gemm_cntl_op_bp );
 		bli_cntl_obj_free( gemm_cntl_mm_op );
 		bli_cntl_obj_free( gemm_cntl_vl_mm );
+<<<<<<< HEAD
 #endif
+=======
+
+>>>>>>> 0c1c78278bbd9c281bcbe933cc2f3bdb3bd74ef1
 		bli_obj_free( &alpha );
 		bli_obj_free( &beta );
 

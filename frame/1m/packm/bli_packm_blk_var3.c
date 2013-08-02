@@ -52,7 +52,8 @@ typedef void (*FUNCPTR_T)(
                            void*   beta,
                            void*   c, inc_t rs_c, inc_t cs_c,
                            void*   p, inc_t rs_p, inc_t cs_p,
-                                      dim_t pd_p, inc_t ps_p
+                                      dim_t pd_p, inc_t ps_p,
+                          packm_thread_info_t* thread_info 
                          );
 
 static FUNCPTR_T GENARRAY(ftypes,packm_blk_var3);
@@ -60,7 +61,8 @@ static FUNCPTR_T GENARRAY(ftypes,packm_blk_var3);
 
 void bli_packm_blk_var3( obj_t*   beta,
                          obj_t*   c,
-                         obj_t*   p )
+                         obj_t*   p,
+                         packm_thread_info_t* thread_info )
 {
 	num_t     dt_cp     = bli_obj_datatype( *c );
 
@@ -112,7 +114,8 @@ void bli_packm_blk_var3( obj_t*   beta,
 	   buf_beta,
 	   buf_c, rs_c, cs_c,
 	   buf_p, rs_p, cs_p,
-	          pd_p, ps_p );
+	          pd_p, ps_p,
+       thread_info );
 }
 
 
@@ -135,7 +138,8 @@ void PASTEMAC(ch,varname )( \
                             void*   beta, \
                             void*   c, inc_t rs_c, inc_t cs_c, \
                             void*   p, inc_t rs_p, inc_t cs_p, \
-                                       dim_t pd_p, inc_t ps_p  \
+                                       dim_t pd_p, inc_t ps_p, \
+                            packm_thread_info_t* thread_info \
                           ) \
 { \
 	ctype* restrict beta_cast = beta; \

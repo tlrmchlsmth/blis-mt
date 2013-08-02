@@ -6,7 +6,8 @@
 #ifdef __cplusplus
 extern "C" {
 #endif
-#include "blis.h"
+#include "bli_f2c.h"
+#include "stdio.h"
 
 double bli_pow_ri( real* a, integer* n );
 
@@ -45,7 +46,7 @@ double bli_pow_ri(real *ap, integer *bp)
 	return pow;
 }
 
-real bli_slamch(character *cmach, ftnlen cmach_len)
+real bli_slamch(char *cmach, ftnlen cmach_len)
 {
     /* Initialized data */
 
@@ -65,7 +66,7 @@ real bli_slamch(character *cmach, ftnlen cmach_len)
     static integer imin, imax;
     static logical lrnd;
     static real rmin, rmax, t, rmach;
-    extern logical bli_lsame(character *, character *, ftnlen, ftnlen);
+    extern logical bli_lsame(char *, char *, ftnlen, ftnlen);
     static real small, sfmin;
     extern /* Subroutine */ int bli_slamc2(integer *, integer *, logical *, real 
 	    *, integer *, real *, integer *, real *);
@@ -407,7 +408,7 @@ L30:
     static logical iwarn = FALSE_;
 
     /* Format strings */
-    static character fmt_9999[] = "(//\002 WARNING. The value EMIN may be incorre\
+    static char fmt_9999[] = "(//\002 WARNING. The value EMIN may be incorre\
 ct:-\002,\002  EMIN = \002,i8,/\002 If, after inspection, the value EMIN loo\
 ks\002,\002 acceptable please comment out \002,/\002 the IF block as marked \
 within the code of routine\002,\002 SLAMC2,\002,/\002 otherwise supply EMIN \
@@ -419,7 +420,7 @@ explicitly.\002,/)";
 
     /* Builtin functions */
     double bli_pow_ri(real *, integer *);
-    //integer s_wsfe(cilist *), do_fio(integer *, character *, ftnlen), e_wsfe();
+    //integer s_wsfe(cilist *), do_fio(integer *, char *, ftnlen), e_wsfe();
 
     /* Local variables */
     static logical ieee;
@@ -660,7 +661,7 @@ L10:
 	    first = TRUE_;
 /*
 	    s_wsfe(&io___58);
-	    do_fio(&c__1, (character *)&lemin, (ftnlen)sizeof(integer));
+	    do_fio(&c__1, (char *)&lemin, (ftnlen)sizeof(integer));
 	    e_wsfe();
 */
 	    printf( "%s", fmt_9999 );

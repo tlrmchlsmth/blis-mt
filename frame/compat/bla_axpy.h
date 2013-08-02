@@ -40,10 +40,10 @@
 #define GENTPROT( ftype, ch, blasname ) \
 \
 void PASTEF77(ch,blasname)( \
-                            f77_int* n, \
-                            ftype*   alpha, \
-                            ftype*   x, f77_int* incx, \
-                            ftype*   y, f77_int* incy \
+                            fint*   n, \
+                            ftype*  alpha, \
+                            ftype*  x, fint* incx, \
+                            ftype*  y, fint* incy \
                           );
 
 #ifdef BLIS_ENABLE_BLAS2BLIS

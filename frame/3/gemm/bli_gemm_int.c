@@ -70,16 +70,10 @@ void bli_gemm_int( obj_t*  alpha,
 	if ( bli_error_checking_is_enabled() )
 		bli_gemm_int_check( alpha, a, b, beta, c, cntl );
 
-	// If C has a zero dimension, return early.
+	// Return early if one of the matrix operands has a zero dimension.
+	if ( bli_obj_has_zero_dim( *a ) ) return;
+	if ( bli_obj_has_zero_dim( *b ) ) return;
 	if ( bli_obj_has_zero_dim( *c ) ) return;
-
-	// If A or B has a zero dimension, scale C by beta and return early.
-	if ( bli_obj_has_zero_dim( *a ) ||
-	     bli_obj_has_zero_dim( *b ) )
-	{
-		bli_scalm( beta, c );
-		return;
-	}
 
 	// Alias C in case we need to induce a transposition.
 	bli_obj_alias_to( *c, c_local );
@@ -107,7 +101,7 @@ void bli_gemm_int( obj_t*  alpha,
 	   a,
 	   b,
 	   beta,
-	   &c_local,
+	   c,
 	   cntl );
 }
 

@@ -46,22 +46,24 @@ typedef void (*FUNCPTR_T)( obj_t*   alpha,
                            obj_t*   c,
                            her2k_t* cntl );
 
-static FUNCPTR_T vars[2][4][3] =
+static FUNCPTR_T vars[2][5][3] =
 {
 	// lower
 	{
 		// unblocked          optimized unblocked    blocked
-		{ NULL,               NULL,                  bli_her2k_blk_var1f  },
-		{ NULL,               bli_her2k_l_ker_var2,  bli_her2k_blk_var2f  },
-		{ NULL,               NULL,                  bli_her2k_blk_var3f  },
+		{ NULL,               NULL,                  bli_her2k_l_blk_var1 },
+		{ NULL,               bli_her2k_l_ker_var2,  bli_her2k_l_blk_var2 },
+		{ NULL,               NULL,                  bli_her2k_blk_var3   },
+		{ NULL,               NULL,                  bli_her2k_l_blk_var4 },
 		{ NULL,               NULL,                  NULL                 },
 	},
 	// upper
 	{
 		// unblocked          optimized unblocked    blocked
-		{ NULL,               NULL,                  bli_her2k_blk_var1f  },
-		{ NULL,               bli_her2k_u_ker_var2,  bli_her2k_blk_var2f  },
-		{ NULL,               NULL,                  bli_her2k_blk_var3f  },
+		{ NULL,               NULL,                  bli_her2k_u_blk_var1 },
+		{ NULL,               bli_her2k_u_ker_var2,  bli_her2k_u_blk_var2 },
+		{ NULL,               NULL,                  bli_her2k_blk_var3   },
+		{ NULL,               NULL,                  bli_her2k_u_blk_var4 },
 		{ NULL,               NULL,                  NULL                 },
 	}
 };
@@ -86,18 +88,12 @@ void bli_her2k_int( obj_t*   alpha,
 	if ( bli_error_checking_is_enabled() )
 		bli_her2k_int_check( alpha, a, bh, alpha_conj, b, ah, beta, c, cntl );
 
-	// If C has a zero dimension, return early.
-	if ( bli_obj_has_zero_dim( *c ) ) return;
-
-	// If A or B has a zero dimension, scale C by beta and return early.
-	if ( bli_obj_has_zero_dim( *a  ) ||
-	     bli_obj_has_zero_dim( *ah ) ||
-	     bli_obj_has_zero_dim( *b  ) ||
-	     bli_obj_has_zero_dim( *bh ) )
-	{
-		bli_scalm( beta, c );
-		return;
-	}
+	// Return early if one of the matrix operands has a zero dimension.
+	if ( bli_obj_has_zero_dim( *a  ) ) return;
+	if ( bli_obj_has_zero_dim( *bh ) ) return;
+	if ( bli_obj_has_zero_dim( *b  ) ) return;
+	if ( bli_obj_has_zero_dim( *ah ) ) return;
+	if ( bli_obj_has_zero_dim( *c  ) ) return;
 
 	// Alias C in case we need to induce a transposition.
 	bli_obj_alias_to( *c, c_local );
@@ -110,7 +106,7 @@ void bli_her2k_int( obj_t*   alpha,
 	if ( cntl_is_leaf( cntl ) && bli_obj_has_trans( *c ) )
 	{
 		bli_obj_induce_trans( c_local );
-		bli_obj_set_onlytrans( BLIS_NO_TRANSPOSE, c_local );
+		bli_obj_set_trans( BLIS_NO_TRANSPOSE, c_local );
 	}
 
 	// Set a bool based on the uplo field of c.

@@ -43,6 +43,7 @@
 extern "C" {
 #endif
 
+#define restrict /* nothing */
 
 // -- BLIS configuration definition --
 
@@ -76,9 +77,11 @@ extern "C" {
 #include "bli_kernel.h"
 #include "bli_kernel_macro_defs.h"
 
+//threading stuff
+#include <omp.h>
+#include "bli_threading.h"
 
 // -- Base operation prototypes --
-
 #include "bli_init.h"
 #include "bli_malloc.h"
 #include "bli_obj.h"
@@ -124,6 +127,8 @@ extern "C" {
 #include "bli_addv.h"
 #include "bli_axpyv.h"
 #include "bli_copyv.h"
+//a;lskdfja;lskdfj
+#include "bli_copynzv.h"
 #include "bli_dotv.h"
 #include "bli_dotxv.h"
 #include "bli_fnormv.h"
@@ -166,6 +171,7 @@ extern "C" {
 #include "bli_addm.h"
 #include "bli_axpym.h"
 #include "bli_copym.h"
+//#include "bli_copynzm.h"
 #include "bli_fnormm.h"
 #include "bli_scal2m.h"
 #include "bli_subm.h"

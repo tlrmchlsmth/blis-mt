@@ -36,9 +36,13 @@
 #include "blis.h"
 
 //          m     n     alpha    x        incx  y        incy  a        lda
+<<<<<<< HEAD
 //void dger_( int*, int*, double*, double*, int*, double*, int*, double*, int* );
 
 //#define PRINT
+=======
+void dger_( int*, int*, double*, double*, int*, double*, int*, double*, int* );
+>>>>>>> 0c1c78278bbd9c281bcbe933cc2f3bdb3bd74ef1
 
 int main( int argc, char** argv )
 {
@@ -132,6 +136,7 @@ int main( int argc, char** argv )
 
 #else
 
+<<<<<<< HEAD
 			f77_int  mm     = bli_obj_length( a );
 			f77_int  nn     = bli_obj_width( a );
 			f77_int  incx   = bli_obj_vector_inc( x );
@@ -141,6 +146,17 @@ int main( int argc, char** argv )
 			double*  xp     = bli_obj_buffer( x );
 			double*  yp     = bli_obj_buffer( y );
 			double*  ap     = bli_obj_buffer( a );
+=======
+			int     mm     = bli_obj_length( a );
+			int     nn     = bli_obj_width( a );
+			int     incx   = bli_obj_vector_inc( x );
+			int     incy   = bli_obj_vector_inc( y );
+			int     lda    = bli_obj_col_stride( a );
+			double* alphap = bli_obj_buffer( alpha );
+			double* xp     = bli_obj_buffer( x );
+			double* yp     = bli_obj_buffer( y );
+			double* ap     = bli_obj_buffer( a );
+>>>>>>> 0c1c78278bbd9c281bcbe933cc2f3bdb3bd74ef1
 
 			dger_( &mm,
 			       &nn,

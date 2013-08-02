@@ -42,10 +42,10 @@
 #define GENTFUNC( ftype, ch, blasname, blisname ) \
 \
 void PASTEF77(ch,blasname)( \
-                            f77_int* n, \
-                            ftype*   alpha, \
-                            ftype*   x, f77_int* incx, \
-                            ftype*   y, f77_int* incy \
+                            fint*   n, \
+                            ftype*  alpha, \
+                            ftype*  x, fint* incx, \
+                            ftype*  y, fint* incy \
                           ) \
 { \
 	dim_t  n0; \

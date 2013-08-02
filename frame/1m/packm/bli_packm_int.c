@@ -38,7 +38,8 @@
 
 typedef void (*FUNCPTR_T)( obj_t*   beta,
                            obj_t*   a,
-                           obj_t*   p );
+                           obj_t*   p,
+                           packm_thread_info_t* info );
 
 static FUNCPTR_T vars[6][3] =
 {
@@ -123,6 +124,7 @@ void bli_packm_int( obj_t*   beta,
 	// Invoke the variant with beta_use.
 	f( beta_use,
 	   a,
-	   p );
+	   p,
+       cntl->thread_info );
 }
 

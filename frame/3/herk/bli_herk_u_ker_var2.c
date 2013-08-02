@@ -316,7 +316,7 @@ void PASTEMAC(ch,varname)( \
 				                      bp, \
 				                      zero, \
 				                      ct, rs_ct, cs_ct, \
-				                      a2, b2 ); \
+				                      a2, b2, 0 ); \
 \
 				/* Scale C and add the result to only the stored part. */ \
 				PASTEMAC(ch,xpbys_mxn_u)( diagoffc_ij, \

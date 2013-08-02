@@ -34,9 +34,12 @@
 
 #include "blis.h"
 
-extern gemm_t*  gemm_cntl;
 extern gemm_t*  gemm_cntl_packa;
 extern blksz_t* gemm_mc;
+
+extern gemm_t* gemm_cntl;
+extern gemm_t** gemm_cntl_mts;
+extern dim_t    gemm_num_threads_default;
 
 //
 // Define object-based interface.
@@ -120,14 +123,34 @@ void bli_gemm( obj_t*  alpha,
 
 	}
 #endif
+    dim_t M, N, K;
 
-	// Invoke the internal back-end.
-	bli_gemm_int( &alpha_local,
-	              &a_local,
-	              &b_local,
-	              &beta_local,
-	              &c_local,
-	              cntl );
+    N = bli_obj_width( *c );
+    K = bli_obj_width( *a );
+    M = bli_obj_length( *c );
+
+    // Invoke the internal back-end.
+    _Pragma( "omp parallel num_threads(gemm_num_threads_default)" )
+    {   
+        dim_t tid = omp_get_thread_num();
+        gemm_t* cntl_mt = gemm_cntl_mts[tid];
+    
+        if( N <= BLIS_DEFAULT_NC_D )
+        {   
+            cntl_mt = cntl_sub_gemm( cntl_mt );
+            if( K <= BLIS_DEFAULT_KC_D )
+            {   
+                cntl_mt = cntl_sub_gemm( cntl_mt );
+            }   
+        }   
+
+        bli_gemm_int( &alpha_local,
+                      a,  
+                      b,  
+                      &beta_local,
+                      c,  
+                      cntl_mt );
+    }   
 }
 
 //

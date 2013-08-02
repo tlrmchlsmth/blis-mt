@@ -49,7 +49,8 @@ typedef void (*FUNCPTR_T)(
                            void*   beta,
                            void*   c, inc_t rs_c, inc_t cs_c,
                            void*   p, inc_t rs_p, inc_t cs_p,
-                                      dim_t pd_p, inc_t ps_p
+                                      dim_t pd_p, inc_t ps_p,
+                           packm_thread_info_t* info
                          );
 
 static FUNCPTR_T GENARRAY(ftypes,packm_blk_var2);
@@ -57,7 +58,8 @@ static FUNCPTR_T GENARRAY(ftypes,packm_blk_var2);
 
 void bli_packm_blk_var2( obj_t*   beta,
                          obj_t*   c,
-                         obj_t*   p )
+                         obj_t*   p,
+                         packm_thread_info_t* info )
 {
 	num_t     dt_cp     = bli_obj_datatype( *c );
 
@@ -103,7 +105,8 @@ void bli_packm_blk_var2( obj_t*   beta,
 	   buf_beta,
 	   buf_c, rs_c, cs_c,
 	   buf_p, rs_p, cs_p,
-	          pd_p, ps_p );
+	          pd_p, ps_p,
+       info );
 }
 
 
@@ -123,7 +126,8 @@ void PASTEMAC(ch,varname )( \
                             void*   beta, \
                             void*   c, inc_t rs_c, inc_t cs_c, \
                             void*   p, inc_t rs_p, inc_t cs_p, \
-                                       dim_t pd_p, inc_t ps_p  \
+                                       dim_t pd_p, inc_t ps_p, \
+                            packm_thread_info_t* info \
                           ) \
 { \
 	ctype* restrict beta_cast = beta; \
@@ -175,18 +179,23 @@ void PASTEMAC(ch,varname )( \
 	inc_t           rs_p11, cs_p11; \
 \
 \
+    dim_t           t_id = bli_packm_tid( info ); \
+    dim_t           num_threads = bli_packm_num_threads( info ); \
+    thread_comm_t*  comm = bli_packm_communicator( info ); \
+\
 	/* Extract the conjugation bit from the transposition argument. */ \
 	conjc = bli_extract_conj( transc ); \
 \
 	/* If C needs a transposition, induce it so that we can more simply
 	   express the remaining parameters and code. */ \
-	if ( bli_does_trans( transc ) ) \
+	if ( t_id == 0 && bli_does_trans( transc ) ) \
 	{ \
 		bli_swap_incs( rs_c, cs_c ); \
 		bli_negate_diag_offset( diagoffc ); \
 		bli_toggle_uplo( uploc ); \
 		bli_toggle_trans( transc ); \
 	} \
+    bli_barrier( comm ); \
 \
 	/* If the strides of p indicate row storage, then we are packing to
 	   column panels; otherwise, if the strides indicate column storage,
@@ -240,14 +249,14 @@ void PASTEMAC(ch,varname )( \
 		ip_inc = 1; \
 	} \
 \
-	for ( ic  = ic0,    ip  = ip0,    it  = 0; it < num_iter; \
-	      ic += ic_inc, ip += ip_inc, it += 1 ) \
+	for ( ic  = ic0 + t_id * ic_inc, ip  = ip0 + t_id * ip_inc, it  = t_id; it < num_iter; \
+	      ic += num_threads * ic_inc, ip += num_threads * ip_inc, it += num_threads ) \
 	{ \
-		panel_dim_i    = bli_min( panel_dim, iter_dim - ic ); \
+		panel_dim_i = bli_min( panel_dim, iter_dim - ic ); \
 \
-		diagoffc_i     = diagoffc + (ip  )*diagoffc_inc; \
-		c_begin        = c_cast   + (ic  )*vs_c; \
-		p_begin        = p_cast   + (ip  )*ps_p; \
+		diagoffc_i  = diagoffc + (ip  )*diagoffc_inc; \
+		c_begin     = c_cast   + (ic  )*vs_c; \
+		p_begin     = p_cast   + (ip  )*ps_p; \
 \
 		/* If the current panel intersects the diagonal and C is either
 		   upper- or lower-stored, then we assume C is symmetric or

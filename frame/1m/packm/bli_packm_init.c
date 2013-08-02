@@ -316,9 +316,7 @@ void bli_packm_init_pack( bool_t    densify,
 		// distance between the (0,0) element of panel k and the (0,0)
 		// element of panel k+1. We use the padded width computed above to
 		// allow for zero-padding (if necessary/desired) along the far end
-		// of each panel (ie: the right edge of the matrix). Zero-padding
-		// can also occur along the long edge of the last panel if the m
-		// dimension of the matrix is not a whole multiple of MR.
+		// of each panel (ie: the right edge of the matrix).
 		ps_p = cs_p * n_p_pad;
 
 		// Align the panel dimension according to the contiguous memory

@@ -39,109 +39,101 @@
 
 // Notes:
 // - The first char encodes the type of a.
-// - The second char encodes the type of y.
-
+// - The second char encodes the type of x.
 
 #define bli_ssadds( a, y ) \
 { \
-	(y) += bli_sreal(a); \
+	(y)      += ( float  )(a); \
 }
-#define bli_dsadds( a, y ) \
-{ \
-	(y) += bli_dreal(a); \
-}
-#define bli_csadds( a, y ) \
-{ \
-	(y) += bli_creal(a); \
-}
-#define bli_zsadds( a, y ) \
-{ \
-	(y) += bli_zreal(a); \
-}
-
-
 #define bli_sdadds( a, y ) \
 { \
-	(y) += bli_sreal(a); \
+	(y)      += ( double )(a); \
+}
+#define bli_scadds( a, y ) \
+{ \
+	(y).real += ( float  )(a); \
+	/*(y).imag += 0.0F;*/ \
+}
+#define bli_szadds( a, y ) \
+{ \
+	(y).real += ( double )(a); \
+	/*(y).imag += 0.0F;*/ \
+}
+
+#define bli_dsadds( a, y ) \
+{ \
+	(y)      += ( float  )(a); \
 }
 #define bli_ddadds( a, y ) \
 { \
-	(y) += bli_dreal(a); \
-}
-#define bli_cdadds( a, y ) \
-{ \
-	(y) += bli_creal(a); \
-}
-#define bli_zdadds( a, y ) \
-{ \
-	(y) += bli_zreal(a); \
-}
-
-
-#ifndef BLIS_ENABLE_C99_COMPLEX
-
-
-#define bli_scadds( a, y ) \
-{ \
-	bli_creal(y) += bli_sreal(a); \
+	(y)      += ( double )(a); \
 }
 #define bli_dcadds( a, y ) \
 { \
-	bli_creal(y) += bli_dreal(a); \
-}
-#define bli_ccadds( a, y ) \
-{ \
-	bli_creal(y) += bli_creal(a); \
-	bli_cimag(y) += bli_cimag(a); \
-}
-#define bli_zcadds( a, y ) \
-{ \
-	bli_creal(y) += bli_zreal(a); \
-	bli_cimag(y) += bli_zimag(a); \
-}
-
-
-#define bli_szadds( a, y ) \
-{ \
-	bli_zreal(y) += bli_sreal(a); \
+	(y).real += ( float  )(a); \
+	/*(y).imag += 0.0F;*/ \
 }
 #define bli_dzadds( a, y ) \
 { \
-	bli_zreal(y) += bli_dreal(a); \
+	(y).real += ( double )(a); \
+	/*(y).imag += 0.0F;*/ \
+}
+
+#define bli_csadds( a, y ) \
+{ \
+	(y)      += ( float  )(a).real; \
+}
+#define bli_cdadds( a, y ) \
+{ \
+	(y)      += ( double )(a).real; \
+}
+#define bli_ccadds( a, y ) \
+{ \
+	(y).real += ( float  )(a).real; \
+	(y).imag += ( float  )(a).imag; \
 }
 #define bli_czadds( a, y ) \
 { \
-	bli_zreal(y) += bli_creal(a); \
-	bli_zimag(y) += bli_cimag(a); \
+	(y).real += ( double )(a).real; \
+	(y).imag += ( double )(a).imag; \
+}
+
+#define bli_zsadds( a, y ) \
+{ \
+	(y)      += ( float  )(a).real; \
+}
+#define bli_zdadds( a, y ) \
+{ \
+	(y)      += ( double )(a).real; \
+}
+#define bli_zcadds( a, y ) \
+{ \
+	(y).real += ( float  )(a).real; \
+	(y).imag += ( float  )(a).imag; \
 }
 #define bli_zzadds( a, y ) \
 { \
-	bli_zreal(y) += bli_zreal(a); \
-	bli_zimag(y) += bli_zimag(a); \
+	(y).real += ( double )(a).real; \
+	(y).imag += ( double )(a).imag; \
 }
 
 
-#else // ifdef BLIS_ENABLE_C99_COMPLEX
-
-
-#define bli_scadds( a, y )  { (y) += (a); }
-#define bli_dcadds( a, y )  { (y) += (a); }
-#define bli_ccadds( a, y )  { (y) += (a); }
-#define bli_zcadds( a, y )  { (y) += (a); }
-
-#define bli_szadds( a, y )  { (y) += (a); }
-#define bli_dzadds( a, y )  { (y) += (a); }
-#define bli_czadds( a, y )  { (y) += (a); }
-#define bli_zzadds( a, y )  { (y) += (a); }
-
-
-#endif // BLIS_ENABLE_C99_COMPLEX
-
-
-#define bli_sadds( a, y )  bli_ssadds( a, y )
-#define bli_dadds( a, y )  bli_ddadds( a, y )
-#define bli_cadds( a, y )  bli_ccadds( a, y )
-#define bli_zadds( a, y )  bli_zzadds( a, y )
+#define bli_sadds( a, y ) \
+{ \
+	bli_ssadds( a, y ); \
+}
+#define bli_dadds( a, y ) \
+{ \
+	bli_ddadds( a, y ); \
+}
+#define bli_cadds( a, y ) \
+{ \
+	bli_ccadds( a, y ); \
+}
+#define bli_zadds( a, y ) \
+{ \
+	bli_zzadds( a, y ); \
+}
 
 
 #endif

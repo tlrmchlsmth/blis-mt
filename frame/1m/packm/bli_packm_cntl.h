@@ -45,6 +45,7 @@ struct packm_s
 	bool_t         rev_iter_if_lower;
 	pack_t         pack_schema;
 	packbuf_t      pack_buf_type;
+    packm_thread_info_t* thread_info;
 };
 typedef struct packm_s packm_t;
 
@@ -69,10 +70,43 @@ typedef struct packm_s packm_t;
 
 void     bli_packm_cntl_init( void );
 void     bli_packm_cntl_finalize( void );
+packm_t* bli_packm_cntl_obj_create_mt( impl_t     impl_type,
+                                    varnum_t   var_num,
+                                    blksz_t*   mr_def,
+                                    blksz_t*   mr_ext,
+                                    blksz_t*   nr_def,
+                                    blksz_t*   nr_ext,
+                                    bool_t     does_scale,
+                                    bool_t     does_densify,
+                                    bool_t     does_invert_diag,
+                                    bool_t     rev_iter_if_upper,
+                                    bool_t     rev_iter_if_lower,
+                                    pack_t     pack_schema,
+                                    packbuf_t  pack_buf_type,
+                                    packm_thread_info_t* thread_info );
+
+void bli_packm_cntl_obj_init_mt( packm_t*   cntl,
+                              impl_t     impl_type,
+                              varnum_t   var_num,
+                              blksz_t*   mr_def,
+                              blksz_t*   mr_ext,
+                              blksz_t*   nr_def,
+                              blksz_t*   nr_ext,
+                              bool_t     does_scale,
+                              bool_t     does_densify,
+                              bool_t     does_invert_diag,
+                              bool_t     rev_iter_if_upper,
+                              bool_t     rev_iter_if_lower,
+                              pack_t     pack_schema,
+                              packbuf_t  pack_buf_type,
+                              packm_thread_info_t* thread_info );
+
 packm_t* bli_packm_cntl_obj_create( impl_t     impl_type,
                                     varnum_t   var_num,
                                     blksz_t*   mr_def,
+                                    blksz_t*   mr_ext,
                                     blksz_t*   nr_def,
+                                    blksz_t*   nr_ext,
                                     bool_t     does_scale,
                                     bool_t     does_densify,
                                     bool_t     does_invert_diag,

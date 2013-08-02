@@ -42,9 +42,9 @@
 #define GENTFUNCDOT( ftype, chxy, chc, blis_conjx, blasname, blisname ) \
 \
 ftype PASTEF772(chxy,blasname,chc)( \
-                                    f77_int* n, \
-                                    ftype*   x, f77_int* incx, \
-                                    ftype*   y, f77_int* incy \
+                                    fint*   n, \
+                                    ftype*  x, fint* incx, \
+                                    ftype*  y, fint* incy \
                                   ) \
 { \
 	dim_t  n0; \
@@ -81,9 +81,9 @@ INSERT_GENTFUNCDOT_BLAS( dot, DOTV_KERNEL )
 
 // Input vectors stored in single precision, computed in double precision,
 // with result returned in single precision.
-float PASTEF77(sd,sdot)( f77_int* n,
-                         float*   x, f77_int* incx,
-                         float*   y, f77_int* incy
+float PASTEF77(sd,sdot)( fint*  n,
+                         float* x, fint* incx,
+                         float* y, fint* incy
                        )
 {
 	bli_check_error_code( BLIS_NOT_YET_IMPLEMENTED );
@@ -93,9 +93,9 @@ float PASTEF77(sd,sdot)( f77_int* n,
 
 // Input vectors stored in single precision, computed in double precision,
 // with result returned in double precision.
-double PASTEF77(d,sdot)( f77_int* n,
-                         float*   x, f77_int* incx,
-                         float*   y, f77_int* incy
+double PASTEF77(d,sdot)( fint*  n,
+                         float* x, fint* incx,
+                         float* y, fint* incy
                        )
 {
 	bli_check_error_code( BLIS_NOT_YET_IMPLEMENTED );

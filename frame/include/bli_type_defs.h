@@ -35,7 +35,6 @@
 #ifndef BLIS_TYPE_DEFS_H
 #define BLIS_TYPE_DEFS_H
 
-
 //
 // -- BLIS basic types ---------------------------------------------------------
 //
@@ -167,7 +166,6 @@ typedef dcomplex  f77_dcomplex;
 //
 // -- BLIS enumerated type value definitions -----------------------------------
 //
-
 #define BLIS_BITVAL_REAL                   0x00
 #define BLIS_BITVAL_COMPLEX                0x01
 #define BLIS_BITVAL_SINGLE_PREC            0x00

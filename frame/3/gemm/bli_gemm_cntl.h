@@ -44,6 +44,8 @@ struct gemm_s
 	struct packm_s*    sub_packm_c;
 	struct gemm_s*     sub_gemm;
 	struct unpackm_s*  sub_unpackm_c;
+    dim_t              num_thread_groups;
+    void*              thread_info;
 };
 typedef struct gemm_s gemm_t;
 
@@ -62,3 +64,14 @@ gemm_t* bli_gemm_cntl_obj_create( impl_t       impl_type,
                                   gemm_t*      sub_gemm,
                                   unpackm_t*   sub_unpack_c );
 
+gemm_t* bli_gemm_cntl_obj_create_mt( impl_t       impl_type,
+                                  varnum_t     var_num,
+                                  blksz_t*     b,
+                                  blksz_t*     b_aux,
+                                  scalm_t*     sub_scalm,
+                                  packm_t*     sub_pack_a,
+                                  packm_t*     sub_pack_b,
+                                  packm_t*     sub_pack_c,
+                                  gemm_t*      sub_gemm,
+                                  unpackm_t*   sub_unpack_c,
+                                  void*        thread_info );

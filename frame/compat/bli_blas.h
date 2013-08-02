@@ -32,33 +32,7 @@
 
 */
 
-
-#ifdef BLIS_ENABLE_BLAS2BLIS
-
-
-// -- System headers needed by BLAS compatibility layer --
-
-#include <ctype.h>  // for toupper(), used in xerbla()
-
-
-// -- Constants --
-
-#define BLIS_MAX_BLAS_FUNC_STR_LENGTH (6+1)
-
-
-// -- Utility macros --
-
-#include "bla_r_cnjg.h"
-#include "bla_d_cnjg.h"
-#include "bla_r_imag.h"
-#include "bla_d_imag.h"
-#include "bla_c_div.h"
-#include "bla_z_div.h"
-#include "bla_lsame.h"
-#include "bla_xerbla.h"
-
-
-// -- Level-1 BLAS prototypes --
+// -- Level-1 BLAS --
 
 #include "bla_amax.h"
 #include "bla_asum.h"
@@ -74,7 +48,7 @@
 #include "bla_swap.h"
 
 
-// -- Level-2 BLAS prototypes --
+// -- Level-2 BLAS --
 
 // dense
 
@@ -89,38 +63,27 @@
 #include "bla_trmv.h"
 #include "bla_trsv.h"
 
-#include "bla_gemv_check.h"
-#include "bla_ger_check.h"
-#include "bla_hemv_check.h"
-#include "bla_her_check.h"
-#include "bla_her2_check.h"
-#include "bla_symv_check.h"
-#include "bla_syr_check.h"
-#include "bla_syr2_check.h"
-#include "bla_trmv_check.h"
-#include "bla_trsv_check.h"
-
 // packed
 
-#include "bla_hpmv.h"
-#include "bla_hpr.h"
-#include "bla_hpr2.h"
-#include "bla_spmv.h"
-#include "bla_spr.h"
-#include "bla_spr2.h"
-#include "bla_tpmv.h"
-#include "bla_tpsv.h"
+//#include "bla_hpmv.h"
+//#include "bla_hpr.h"
+//#include "bla_hpr2.h"
+//#include "bla_spmv.h"
+//#include "bla_spr.h"
+//#include "bla_spr2.h"
+//#include "bla_tpmv.h"
+//#include "bla_tpsv.h"
 
 // banded
 
-#include "bla_gbmv.h"
-#include "bla_hbmv.h"
-#include "bla_sbmv.h"
-#include "bla_tbmv.h"
-#include "bla_tbsv.h"
+//#include "bla_gbmv.h"
+//#include "bla_hbmv.h"
+//#include "bla_sbmv.h"
+//#include "bla_tbmv.h"
+//#include "bla_tbsv.h"
 
 
-// -- Level-3 BLAS prototypes --
+// -- Level-3 BLAS --
 
 #include "bla_gemm.h"
 #include "bla_hemm.h"
@@ -132,15 +95,4 @@
 #include "bla_trmm.h"
 #include "bla_trsm.h"
 
-#include "bla_gemm_check.h"
-#include "bla_hemm_check.h"
-#include "bla_herk_check.h"
-#include "bla_her2k_check.h"
-#include "bla_symm_check.h"
-#include "bla_syrk_check.h"
-#include "bla_syr2k_check.h"
-#include "bla_trmm_check.h"
-#include "bla_trsm_check.h"
 
-
-#endif // BLIS_ENABLE_BLAS2BLIS

@@ -99,8 +99,6 @@ void bli_gemm_check( obj_t*  alpha,
 	e_val = bli_check_general_object( a );
 	bli_check_error_code( e_val );
 
-	e_val = bli_check_general_object( b );
-	bli_check_error_code( e_val );
 }
 
 void bli_gemm_int_check( obj_t*  alpha,

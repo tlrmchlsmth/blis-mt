@@ -36,27 +36,31 @@
 
 #ifdef BLIS_ENABLE_BLAS2BLIS
 
+#include "bli_f2c.h"
+
 /* cgbmv.f -- translated by f2c (version 19991025).
    You must link the resulting object file with the libraries:
 	-lf2c -lm   (in that order)
 */
 
-/* Subroutine */ int PASTEF77(c,gbmv)(character *trans, integer *m, integer *n, integer *kl, integer *ku, singlecomplex *alpha, singlecomplex *a, integer *lda, singlecomplex *x, integer *incx, singlecomplex *beta, singlecomplex *y, integer *incy)
+/* Subroutine */ int PASTEF77(c,gbmv)(char *trans, integer *m, integer *n, integer *kl, 
+	integer *ku, complex *alpha, complex *a, integer *lda, complex *x, 
+	integer *incx, complex *beta, complex *y, integer *incy)
 {
     /* System generated locals */
     integer a_dim1, a_offset, i__1, i__2, i__3, i__4, i__5, i__6;
-    singlecomplex q__1, q__2, q__3;
+    complex q__1, q__2, q__3;
 
     /* Builtin functions */
-    void bla_r_cnjg(singlecomplex *, singlecomplex *);
+    void r_cnjg(complex *, complex *);
 
     /* Local variables */
     integer info;
-    singlecomplex temp;
+    complex temp;
     integer lenx, leny, i__, j, k;
-    extern logical PASTEF770(lsame)(character *, character *, ftnlen, ftnlen);
+    extern logical lsame_(char *, char *, ftnlen, ftnlen);
     integer ix, iy, jx, jy, kx, ky;
-    extern /* Subroutine */ int PASTEF770(xerbla)(character *, integer *, ftnlen);
+    extern /* Subroutine */ int xerbla_(char *, integer *, ftnlen);
     logical noconj;
     integer kup1;
 
@@ -203,8 +207,8 @@
 
     /* Function Body */
     info = 0;
-    if (! PASTEF770(lsame)(trans, "N", (ftnlen)1, (ftnlen)1) && ! PASTEF770(lsame)(trans, "T", (
-	    ftnlen)1, (ftnlen)1) && ! PASTEF770(lsame)(trans, "C", (ftnlen)1, (ftnlen)1)
+    if (! lsame_(trans, "N", (ftnlen)1, (ftnlen)1) && ! lsame_(trans, "T", (
+	    ftnlen)1, (ftnlen)1) && ! lsame_(trans, "C", (ftnlen)1, (ftnlen)1)
 	    ) {
 	info = 1;
     } else if (*m < 0) {
@@ -223,23 +227,23 @@
 	info = 13;
     }
     if (info != 0) {
-	PASTEF770(xerbla)("CGBMV ", &info, (ftnlen)6);
+	xerbla_("CGBMV ", &info, (ftnlen)6);
 	return 0;
     }
 
 /*     Quick return if possible. */
 
-    if (*m == 0 || *n == 0 || (alpha->real == 0.f && alpha->imag == 0.f && (beta->real 
-	    == 1.f && beta->imag == 0.f))) {
+    if (*m == 0 || *n == 0 || (alpha->r == 0.f && alpha->i == 0.f && (beta->r 
+	    == 1.f && beta->i == 0.f))) {
 	return 0;
     }
 
-    noconj = PASTEF770(lsame)(trans, "T", (ftnlen)1, (ftnlen)1);
+    noconj = lsame_(trans, "T", (ftnlen)1, (ftnlen)1);
 
 /*     Set  LENX  and  LENY, the lengths of the vectors x and y, and set */
 /*     up the start points in  X  and  Y. */
 
-    if (PASTEF770(lsame)(trans, "N", (ftnlen)1, (ftnlen)1)) {
+    if (lsame_(trans, "N", (ftnlen)1, (ftnlen)1)) {
 	lenx = *n;
 	leny = *m;
     } else {
@@ -262,13 +266,13 @@
 
 /*     First form  y := beta*y. */
 
-    if (beta->real != 1.f || beta->imag != 0.f) {
+    if (beta->r != 1.f || beta->i != 0.f) {
 	if (*incy == 1) {
-	    if (beta->real == 0.f && beta->imag == 0.f) {
+	    if (beta->r == 0.f && beta->i == 0.f) {
 		i__1 = leny;
 		for (i__ = 1; i__ <= i__1; ++i__) {
 		    i__2 = i__;
-		    y[i__2].real = 0.f, y[i__2].imag = 0.f;
+		    y[i__2].r = 0.f, y[i__2].i = 0.f;
 /* L10: */
 		}
 	    } else {
@@ -276,20 +280,20 @@
 		for (i__ = 1; i__ <= i__1; ++i__) {
 		    i__2 = i__;
 		    i__3 = i__;
-		    q__1.real = beta->real * y[i__3].real - beta->imag * y[i__3].imag, 
-			    q__1.imag = beta->real * y[i__3].imag + beta->imag * y[i__3]
-			    .real;
-		    y[i__2].real = q__1.real, y[i__2].imag = q__1.imag;
+		    q__1.r = beta->r * y[i__3].r - beta->i * y[i__3].i, 
+			    q__1.i = beta->r * y[i__3].i + beta->i * y[i__3]
+			    .r;
+		    y[i__2].r = q__1.r, y[i__2].i = q__1.i;
 /* L20: */
 		}
 	    }
 	} else {
 	    iy = ky;
-	    if (beta->real == 0.f && beta->imag == 0.f) {
+	    if (beta->r == 0.f && beta->i == 0.f) {
 		i__1 = leny;
 		for (i__ = 1; i__ <= i__1; ++i__) {
 		    i__2 = iy;
-		    y[i__2].real = 0.f, y[i__2].imag = 0.f;
+		    y[i__2].r = 0.f, y[i__2].i = 0.f;
 		    iy += *incy;
 /* L30: */
 		}
@@ -298,21 +302,21 @@
 		for (i__ = 1; i__ <= i__1; ++i__) {
 		    i__2 = iy;
 		    i__3 = iy;
-		    q__1.real = beta->real * y[i__3].real - beta->imag * y[i__3].imag, 
-			    q__1.imag = beta->real * y[i__3].imag + beta->imag * y[i__3]
-			    .real;
-		    y[i__2].real = q__1.real, y[i__2].imag = q__1.imag;
+		    q__1.r = beta->r * y[i__3].r - beta->i * y[i__3].i, 
+			    q__1.i = beta->r * y[i__3].i + beta->i * y[i__3]
+			    .r;
+		    y[i__2].r = q__1.r, y[i__2].i = q__1.i;
 		    iy += *incy;
 /* L40: */
 		}
 	    }
 	}
     }
-    if (alpha->real == 0.f && alpha->imag == 0.f) {
+    if (alpha->r == 0.f && alpha->i == 0.f) {
 	return 0;
     }
     kup1 = *ku + 1;
-    if (PASTEF770(lsame)(trans, "N", (ftnlen)1, (ftnlen)1)) {
+    if (lsame_(trans, "N", (ftnlen)1, (ftnlen)1)) {
 
 /*        Form  y := alpha*A*x + y. */
 
@@ -321,12 +325,12 @@
 	    i__1 = *n;
 	    for (j = 1; j <= i__1; ++j) {
 		i__2 = jx;
-		if (x[i__2].real != 0.f || x[i__2].imag != 0.f) {
+		if (x[i__2].r != 0.f || x[i__2].i != 0.f) {
 		    i__2 = jx;
-		    q__1.real = alpha->real * x[i__2].real - alpha->imag * x[i__2].imag, 
-			    q__1.imag = alpha->real * x[i__2].imag + alpha->imag * x[i__2]
-			    .real;
-		    temp.real = q__1.real, temp.imag = q__1.imag;
+		    q__1.r = alpha->r * x[i__2].r - alpha->i * x[i__2].i, 
+			    q__1.i = alpha->r * x[i__2].i + alpha->i * x[i__2]
+			    .r;
+		    temp.r = q__1.r, temp.i = q__1.i;
 		    k = kup1 - j;
 /* Computing MAX */
 		    i__2 = 1, i__3 = j - *ku;
@@ -337,12 +341,12 @@
 			i__2 = i__;
 			i__3 = i__;
 			i__5 = k + i__ + j * a_dim1;
-			q__2.real = temp.real * a[i__5].real - temp.imag * a[i__5].imag, 
-				q__2.imag = temp.real * a[i__5].imag + temp.imag * a[i__5]
-				.real;
-			q__1.real = y[i__3].real + q__2.real, q__1.imag = y[i__3].imag + 
-				q__2.imag;
-			y[i__2].real = q__1.real, y[i__2].imag = q__1.imag;
+			q__2.r = temp.r * a[i__5].r - temp.i * a[i__5].i, 
+				q__2.i = temp.r * a[i__5].i + temp.i * a[i__5]
+				.r;
+			q__1.r = y[i__3].r + q__2.r, q__1.i = y[i__3].i + 
+				q__2.i;
+			y[i__2].r = q__1.r, y[i__2].i = q__1.i;
 /* L50: */
 		    }
 		}
@@ -353,12 +357,12 @@
 	    i__1 = *n;
 	    for (j = 1; j <= i__1; ++j) {
 		i__4 = jx;
-		if (x[i__4].real != 0.f || x[i__4].imag != 0.f) {
+		if (x[i__4].r != 0.f || x[i__4].i != 0.f) {
 		    i__4 = jx;
-		    q__1.real = alpha->real * x[i__4].real - alpha->imag * x[i__4].imag, 
-			    q__1.imag = alpha->real * x[i__4].imag + alpha->imag * x[i__4]
-			    .real;
-		    temp.real = q__1.real, temp.imag = q__1.imag;
+		    q__1.r = alpha->r * x[i__4].r - alpha->i * x[i__4].i, 
+			    q__1.i = alpha->r * x[i__4].i + alpha->i * x[i__4]
+			    .r;
+		    temp.r = q__1.r, temp.i = q__1.i;
 		    iy = ky;
 		    k = kup1 - j;
 /* Computing MAX */
@@ -370,12 +374,12 @@
 			i__4 = iy;
 			i__2 = iy;
 			i__5 = k + i__ + j * a_dim1;
-			q__2.real = temp.real * a[i__5].real - temp.imag * a[i__5].imag, 
-				q__2.imag = temp.real * a[i__5].imag + temp.imag * a[i__5]
-				.real;
-			q__1.real = y[i__2].real + q__2.real, q__1.imag = y[i__2].imag + 
-				q__2.imag;
-			y[i__4].real = q__1.real, y[i__4].imag = q__1.imag;
+			q__2.r = temp.r * a[i__5].r - temp.i * a[i__5].i, 
+				q__2.i = temp.r * a[i__5].i + temp.i * a[i__5]
+				.r;
+			q__1.r = y[i__2].r + q__2.r, q__1.i = y[i__2].i + 
+				q__2.i;
+			y[i__4].r = q__1.r, y[i__4].i = q__1.i;
 			iy += *incy;
 /* L70: */
 		    }
@@ -395,7 +399,7 @@
 	if (*incx == 1) {
 	    i__1 = *n;
 	    for (j = 1; j <= i__1; ++j) {
-		temp.real = 0.f, temp.imag = 0.f;
+		temp.r = 0.f, temp.i = 0.f;
 		k = kup1 - j;
 		if (noconj) {
 /* Computing MAX */
@@ -406,11 +410,11 @@
 		    for (i__ = f2c_max(i__3,i__4); i__ <= i__2; ++i__) {
 			i__3 = k + i__ + j * a_dim1;
 			i__4 = i__;
-			q__2.real = a[i__3].real * x[i__4].real - a[i__3].imag * x[i__4]
-				.imag, q__2.imag = a[i__3].real * x[i__4].imag + a[i__3]
-				.imag * x[i__4].real;
-			q__1.real = temp.real + q__2.real, q__1.imag = temp.imag + q__2.imag;
-			temp.real = q__1.real, temp.imag = q__1.imag;
+			q__2.r = a[i__3].r * x[i__4].r - a[i__3].i * x[i__4]
+				.i, q__2.i = a[i__3].r * x[i__4].i + a[i__3]
+				.i * x[i__4].r;
+			q__1.r = temp.r + q__2.r, q__1.i = temp.i + q__2.i;
+			temp.r = q__1.r, temp.i = q__1.i;
 /* L90: */
 		    }
 		} else {
@@ -420,29 +424,29 @@
 		    i__5 = *m, i__6 = j + *kl;
 		    i__4 = f2c_min(i__5,i__6);
 		    for (i__ = f2c_max(i__2,i__3); i__ <= i__4; ++i__) {
-			bla_r_cnjg(&q__3, &a[k + i__ + j * a_dim1]);
+			r_cnjg(&q__3, &a[k + i__ + j * a_dim1]);
 			i__2 = i__;
-			q__2.real = q__3.real * x[i__2].real - q__3.imag * x[i__2].imag, 
-				q__2.imag = q__3.real * x[i__2].imag + q__3.imag * x[i__2]
-				.real;
-			q__1.real = temp.real + q__2.real, q__1.imag = temp.imag + q__2.imag;
-			temp.real = q__1.real, temp.imag = q__1.imag;
+			q__2.r = q__3.r * x[i__2].r - q__3.i * x[i__2].i, 
+				q__2.i = q__3.r * x[i__2].i + q__3.i * x[i__2]
+				.r;
+			q__1.r = temp.r + q__2.r, q__1.i = temp.i + q__2.i;
+			temp.r = q__1.r, temp.i = q__1.i;
 /* L100: */
 		    }
 		}
 		i__4 = jy;
 		i__2 = jy;
-		q__2.real = alpha->real * temp.real - alpha->imag * temp.imag, q__2.imag = 
-			alpha->real * temp.imag + alpha->imag * temp.real;
-		q__1.real = y[i__2].real + q__2.real, q__1.imag = y[i__2].imag + q__2.imag;
-		y[i__4].real = q__1.real, y[i__4].imag = q__1.imag;
+		q__2.r = alpha->r * temp.r - alpha->i * temp.i, q__2.i = 
+			alpha->r * temp.i + alpha->i * temp.r;
+		q__1.r = y[i__2].r + q__2.r, q__1.i = y[i__2].i + q__2.i;
+		y[i__4].r = q__1.r, y[i__4].i = q__1.i;
 		jy += *incy;
 /* L110: */
 	    }
 	} else {
 	    i__1 = *n;
 	    for (j = 1; j <= i__1; ++j) {
-		temp.real = 0.f, temp.imag = 0.f;
+		temp.r = 0.f, temp.i = 0.f;
 		ix = kx;
 		k = kup1 - j;
 		if (noconj) {
@@ -454,11 +458,11 @@
 		    for (i__ = f2c_max(i__4,i__2); i__ <= i__3; ++i__) {
 			i__4 = k + i__ + j * a_dim1;
 			i__2 = ix;
-			q__2.real = a[i__4].real * x[i__2].real - a[i__4].imag * x[i__2]
-				.imag, q__2.imag = a[i__4].real * x[i__2].imag + a[i__4]
-				.imag * x[i__2].real;
-			q__1.real = temp.real + q__2.real, q__1.imag = temp.imag + q__2.imag;
-			temp.real = q__1.real, temp.imag = q__1.imag;
+			q__2.r = a[i__4].r * x[i__2].r - a[i__4].i * x[i__2]
+				.i, q__2.i = a[i__4].r * x[i__2].i + a[i__4]
+				.i * x[i__2].r;
+			q__1.r = temp.r + q__2.r, q__1.i = temp.i + q__2.i;
+			temp.r = q__1.r, temp.i = q__1.i;
 			ix += *incx;
 /* L120: */
 		    }
@@ -469,23 +473,23 @@
 		    i__5 = *m, i__6 = j + *kl;
 		    i__2 = f2c_min(i__5,i__6);
 		    for (i__ = f2c_max(i__3,i__4); i__ <= i__2; ++i__) {
-			bla_r_cnjg(&q__3, &a[k + i__ + j * a_dim1]);
+			r_cnjg(&q__3, &a[k + i__ + j * a_dim1]);
 			i__3 = ix;
-			q__2.real = q__3.real * x[i__3].real - q__3.imag * x[i__3].imag, 
-				q__2.imag = q__3.real * x[i__3].imag + q__3.imag * x[i__3]
-				.real;
-			q__1.real = temp.real + q__2.real, q__1.imag = temp.imag + q__2.imag;
-			temp.real = q__1.real, temp.imag = q__1.imag;
+			q__2.r = q__3.r * x[i__3].r - q__3.i * x[i__3].i, 
+				q__2.i = q__3.r * x[i__3].i + q__3.i * x[i__3]
+				.r;
+			q__1.r = temp.r + q__2.r, q__1.i = temp.i + q__2.i;
+			temp.r = q__1.r, temp.i = q__1.i;
 			ix += *incx;
 /* L130: */
 		    }
 		}
 		i__2 = jy;
 		i__3 = jy;
-		q__2.real = alpha->real * temp.real - alpha->imag * temp.imag, q__2.imag = 
-			alpha->real * temp.imag + alpha->imag * temp.real;
-		q__1.real = y[i__3].real + q__2.real, q__1.imag = y[i__3].imag + q__2.imag;
-		y[i__2].real = q__1.real, y[i__2].imag = q__1.imag;
+		q__2.r = alpha->r * temp.r - alpha->i * temp.i, q__2.i = 
+			alpha->r * temp.i + alpha->i * temp.r;
+		q__1.r = y[i__3].r + q__2.r, q__1.i = y[i__3].i + q__2.i;
+		y[i__2].r = q__1.r, y[i__2].i = q__1.i;
 		jy += *incy;
 		if (j > *ku) {
 		    kx += *incx;
@@ -506,7 +510,10 @@
 	-lf2c -lm   (in that order)
 */
 
-/* Subroutine */ int PASTEF77(d,gbmv)(character *trans, integer *m, integer *n, integer *kl, integer *ku, doublereal *alpha, doublereal *a, integer *lda, doublereal *x, integer *incx, doublereal *beta, doublereal *y, integer *incy)
+/* Subroutine */ int PASTEF77(d,gbmv)(char *trans, integer *m, integer *n, integer *kl, 
+	integer *ku, doublereal *alpha, doublereal *a, integer *lda, 
+	doublereal *x, integer *incx, doublereal *beta, doublereal *y, 
+	integer *incy)
 {
     /* System generated locals */
     integer a_dim1, a_offset, i__1, i__2, i__3, i__4, i__5, i__6;
@@ -515,9 +522,9 @@
     integer info;
     doublereal temp;
     integer lenx, leny, i__, j, k;
-    extern logical PASTEF770(lsame)(character *, character *, ftnlen, ftnlen);
+    extern logical lsame_(char *, char *, ftnlen, ftnlen);
     integer ix, iy, jx, jy, kx, ky;
-    extern /* Subroutine */ int PASTEF770(xerbla)(character *, integer *, ftnlen);
+    extern /* Subroutine */ int xerbla_(char *, integer *, ftnlen);
     integer kup1;
 
 /*     .. Scalar Arguments .. */
@@ -659,8 +666,8 @@
 
     /* Function Body */
     info = 0;
-    if (! PASTEF770(lsame)(trans, "N", (ftnlen)1, (ftnlen)1) && ! PASTEF770(lsame)(trans, "T", (
-	    ftnlen)1, (ftnlen)1) && ! PASTEF770(lsame)(trans, "C", (ftnlen)1, (ftnlen)1)
+    if (! lsame_(trans, "N", (ftnlen)1, (ftnlen)1) && ! lsame_(trans, "T", (
+	    ftnlen)1, (ftnlen)1) && ! lsame_(trans, "C", (ftnlen)1, (ftnlen)1)
 	    ) {
 	info = 1;
     } else if (*m < 0) {
@@ -679,7 +686,7 @@
 	info = 13;
     }
     if (info != 0) {
-	PASTEF770(xerbla)("DGBMV ", &info, (ftnlen)6);
+	xerbla_("DGBMV ", &info, (ftnlen)6);
 	return 0;
     }
 
@@ -692,7 +699,7 @@
 /*     Set  LENX  and  LENY, the lengths of the vectors x and y, and set */
 /*     up the start points in  X  and  Y. */
 
-    if (PASTEF770(lsame)(trans, "N", (ftnlen)1, (ftnlen)1)) {
+    if (lsame_(trans, "N", (ftnlen)1, (ftnlen)1)) {
 	lenx = *n;
 	leny = *m;
     } else {
@@ -753,7 +760,7 @@
 	return 0;
     }
     kup1 = *ku + 1;
-    if (PASTEF770(lsame)(trans, "N", (ftnlen)1, (ftnlen)1)) {
+    if (lsame_(trans, "N", (ftnlen)1, (ftnlen)1)) {
 
 /*        Form  y := alpha*A*x + y. */
 
@@ -862,7 +869,9 @@
 	-lf2c -lm   (in that order)
 */
 
-/* Subroutine */ int PASTEF77(s,gbmv)(character *trans, integer *m, integer *n, integer *kl, integer *ku, real *alpha, real *a, integer *lda, real *x, integer * incx, real *beta, real *y, integer *incy)
+/* Subroutine */ int PASTEF77(s,gbmv)(char *trans, integer *m, integer *n, integer *kl, 
+	integer *ku, real *alpha, real *a, integer *lda, real *x, integer *
+	incx, real *beta, real *y, integer *incy)
 {
     /* System generated locals */
     integer a_dim1, a_offset, i__1, i__2, i__3, i__4, i__5, i__6;
@@ -871,9 +880,9 @@
     integer info;
     real temp;
     integer lenx, leny, i__, j, k;
-    extern logical PASTEF770(lsame)(character *, character *, ftnlen, ftnlen);
+    extern logical lsame_(char *, char *, ftnlen, ftnlen);
     integer ix, iy, jx, jy, kx, ky;
-    extern /* Subroutine */ int PASTEF770(xerbla)(character *, integer *, ftnlen);
+    extern /* Subroutine */ int xerbla_(char *, integer *, ftnlen);
     integer kup1;
 
 /*     .. Scalar Arguments .. */
@@ -1015,8 +1024,8 @@
 
     /* Function Body */
     info = 0;
-    if (! PASTEF770(lsame)(trans, "N", (ftnlen)1, (ftnlen)1) && ! PASTEF770(lsame)(trans, "T", (
-	    ftnlen)1, (ftnlen)1) && ! PASTEF770(lsame)(trans, "C", (ftnlen)1, (ftnlen)1)
+    if (! lsame_(trans, "N", (ftnlen)1, (ftnlen)1) && ! lsame_(trans, "T", (
+	    ftnlen)1, (ftnlen)1) && ! lsame_(trans, "C", (ftnlen)1, (ftnlen)1)
 	    ) {
 	info = 1;
     } else if (*m < 0) {
@@ -1035,7 +1044,7 @@
 	info = 13;
     }
     if (info != 0) {
-	PASTEF770(xerbla)("SGBMV ", &info, (ftnlen)6);
+	xerbla_("SGBMV ", &info, (ftnlen)6);
 	return 0;
     }
 
@@ -1048,7 +1057,7 @@
 /*     Set  LENX  and  LENY, the lengths of the vectors x and y, and set */
 /*     up the start points in  X  and  Y. */
 
-    if (PASTEF770(lsame)(trans, "N", (ftnlen)1, (ftnlen)1)) {
+    if (lsame_(trans, "N", (ftnlen)1, (ftnlen)1)) {
 	lenx = *n;
 	leny = *m;
     } else {
@@ -1109,7 +1118,7 @@
 	return 0;
     }
     kup1 = *ku + 1;
-    if (PASTEF770(lsame)(trans, "N", (ftnlen)1, (ftnlen)1)) {
+    if (lsame_(trans, "N", (ftnlen)1, (ftnlen)1)) {
 
 /*        Form  y := alpha*A*x + y. */
 
@@ -1218,22 +1227,25 @@
 	-lf2c -lm   (in that order)
 */
 
-/* Subroutine */ int PASTEF77(z,gbmv)(character *trans, integer *m, integer *n, integer *kl, integer *ku, doublecomplex *alpha, doublecomplex *a, integer *lda, doublecomplex *x, integer *incx, doublecomplex *beta, doublecomplex * y, integer *incy)
+/* Subroutine */ int PASTEF77(z,gbmv)(char *trans, integer *m, integer *n, integer *kl, 
+	integer *ku, doublecomplex *alpha, doublecomplex *a, integer *lda, 
+	doublecomplex *x, integer *incx, doublecomplex *beta, doublecomplex *
+	y, integer *incy)
 {
     /* System generated locals */
     integer a_dim1, a_offset, i__1, i__2, i__3, i__4, i__5, i__6;
     doublecomplex z__1, z__2, z__3;
 
     /* Builtin functions */
-    void bla_d_cnjg(doublecomplex *, doublecomplex *);
+    void d_cnjg(doublecomplex *, doublecomplex *);
 
     /* Local variables */
     integer info;
     doublecomplex temp;
     integer lenx, leny, i__, j, k;
-    extern logical PASTEF770(lsame)(character *, character *, ftnlen, ftnlen);
+    extern logical lsame_(char *, char *, ftnlen, ftnlen);
     integer ix, iy, jx, jy, kx, ky;
-    extern /* Subroutine */ int PASTEF770(xerbla)(character *, integer *, ftnlen);
+    extern /* Subroutine */ int xerbla_(char *, integer *, ftnlen);
     logical noconj;
     integer kup1;
 
@@ -1380,8 +1392,8 @@
 
     /* Function Body */
     info = 0;
-    if (! PASTEF770(lsame)(trans, "N", (ftnlen)1, (ftnlen)1) && ! PASTEF770(lsame)(trans, "T", (
-	    ftnlen)1, (ftnlen)1) && ! PASTEF770(lsame)(trans, "C", (ftnlen)1, (ftnlen)1)
+    if (! lsame_(trans, "N", (ftnlen)1, (ftnlen)1) && ! lsame_(trans, "T", (
+	    ftnlen)1, (ftnlen)1) && ! lsame_(trans, "C", (ftnlen)1, (ftnlen)1)
 	    ) {
 	info = 1;
     } else if (*m < 0) {
@@ -1400,23 +1412,23 @@
 	info = 13;
     }
     if (info != 0) {
-	PASTEF770(xerbla)("ZGBMV ", &info, (ftnlen)6);
+	xerbla_("ZGBMV ", &info, (ftnlen)6);
 	return 0;
     }
 
 /*     Quick return if possible. */
 
-    if (*m == 0 || *n == 0 || (alpha->real == 0. && alpha->imag == 0. && (beta->real == 
-	    1. && beta->imag == 0.))) {
+    if (*m == 0 || *n == 0 || (alpha->r == 0. && alpha->i == 0. && (beta->r == 
+	    1. && beta->i == 0.))) {
 	return 0;
     }
 
-    noconj = PASTEF770(lsame)(trans, "T", (ftnlen)1, (ftnlen)1);
+    noconj = lsame_(trans, "T", (ftnlen)1, (ftnlen)1);
 
 /*     Set  LENX  and  LENY, the lengths of the vectors x and y, and set */
 /*     up the start points in  X  and  Y. */
 
-    if (PASTEF770(lsame)(trans, "N", (ftnlen)1, (ftnlen)1)) {
+    if (lsame_(trans, "N", (ftnlen)1, (ftnlen)1)) {
 	lenx = *n;
 	leny = *m;
     } else {
@@ -1439,13 +1451,13 @@
 
 /*     First form  y := beta*y. */
 
-    if (beta->real != 1. || beta->imag != 0.) {
+    if (beta->r != 1. || beta->i != 0.) {
 	if (*incy == 1) {
-	    if (beta->real == 0. && beta->imag == 0.) {
+	    if (beta->r == 0. && beta->i == 0.) {
 		i__1 = leny;
 		for (i__ = 1; i__ <= i__1; ++i__) {
 		    i__2 = i__;
-		    y[i__2].real = 0., y[i__2].imag = 0.;
+		    y[i__2].r = 0., y[i__2].i = 0.;
 /* L10: */
 		}
 	    } else {
@@ -1453,20 +1465,20 @@
 		for (i__ = 1; i__ <= i__1; ++i__) {
 		    i__2 = i__;
 		    i__3 = i__;
-		    z__1.real = beta->real * y[i__3].real - beta->imag * y[i__3].imag, 
-			    z__1.imag = beta->real * y[i__3].imag + beta->imag * y[i__3]
-			    .real;
-		    y[i__2].real = z__1.real, y[i__2].imag = z__1.imag;
+		    z__1.r = beta->r * y[i__3].r - beta->i * y[i__3].i, 
+			    z__1.i = beta->r * y[i__3].i + beta->i * y[i__3]
+			    .r;
+		    y[i__2].r = z__1.r, y[i__2].i = z__1.i;
 /* L20: */
 		}
 	    }
 	} else {
 	    iy = ky;
-	    if (beta->real == 0. && beta->imag == 0.) {
+	    if (beta->r == 0. && beta->i == 0.) {
 		i__1 = leny;
 		for (i__ = 1; i__ <= i__1; ++i__) {
 		    i__2 = iy;
-		    y[i__2].real = 0., y[i__2].imag = 0.;
+		    y[i__2].r = 0., y[i__2].i = 0.;
 		    iy += *incy;
 /* L30: */
 		}
@@ -1475,21 +1487,21 @@
 		for (i__ = 1; i__ <= i__1; ++i__) {
 		    i__2 = iy;
 		    i__3 = iy;
-		    z__1.real = beta->real * y[i__3].real - beta->imag * y[i__3].imag, 
-			    z__1.imag = beta->real * y[i__3].imag + beta->imag * y[i__3]
-			    .real;
-		    y[i__2].real = z__1.real, y[i__2].imag = z__1.imag;
+		    z__1.r = beta->r * y[i__3].r - beta->i * y[i__3].i, 
+			    z__1.i = beta->r * y[i__3].i + beta->i * y[i__3]
+			    .r;
+		    y[i__2].r = z__1.r, y[i__2].i = z__1.i;
 		    iy += *incy;
 /* L40: */
 		}
 	    }
 	}
     }
-    if (alpha->real == 0. && alpha->imag == 0.) {
+    if (alpha->r == 0. && alpha->i == 0.) {
 	return 0;
     }
     kup1 = *ku + 1;
-    if (PASTEF770(lsame)(trans, "N", (ftnlen)1, (ftnlen)1)) {
+    if (lsame_(trans, "N", (ftnlen)1, (ftnlen)1)) {
 
 /*        Form  y := alpha*A*x + y. */
 
@@ -1498,12 +1510,12 @@
 	    i__1 = *n;
 	    for (j = 1; j <= i__1; ++j) {
 		i__2 = jx;
-		if (x[i__2].real != 0. || x[i__2].imag != 0.) {
+		if (x[i__2].r != 0. || x[i__2].i != 0.) {
 		    i__2 = jx;
-		    z__1.real = alpha->real * x[i__2].real - alpha->imag * x[i__2].imag, 
-			    z__1.imag = alpha->real * x[i__2].imag + alpha->imag * x[i__2]
-			    .real;
-		    temp.real = z__1.real, temp.imag = z__1.imag;
+		    z__1.r = alpha->r * x[i__2].r - alpha->i * x[i__2].i, 
+			    z__1.i = alpha->r * x[i__2].i + alpha->i * x[i__2]
+			    .r;
+		    temp.r = z__1.r, temp.i = z__1.i;
 		    k = kup1 - j;
 /* Computing MAX */
 		    i__2 = 1, i__3 = j - *ku;
@@ -1514,12 +1526,12 @@
 			i__2 = i__;
 			i__3 = i__;
 			i__5 = k + i__ + j * a_dim1;
-			z__2.real = temp.real * a[i__5].real - temp.imag * a[i__5].imag, 
-				z__2.imag = temp.real * a[i__5].imag + temp.imag * a[i__5]
-				.real;
-			z__1.real = y[i__3].real + z__2.real, z__1.imag = y[i__3].imag + 
-				z__2.imag;
-			y[i__2].real = z__1.real, y[i__2].imag = z__1.imag;
+			z__2.r = temp.r * a[i__5].r - temp.i * a[i__5].i, 
+				z__2.i = temp.r * a[i__5].i + temp.i * a[i__5]
+				.r;
+			z__1.r = y[i__3].r + z__2.r, z__1.i = y[i__3].i + 
+				z__2.i;
+			y[i__2].r = z__1.r, y[i__2].i = z__1.i;
 /* L50: */
 		    }
 		}
@@ -1530,12 +1542,12 @@
 	    i__1 = *n;
 	    for (j = 1; j <= i__1; ++j) {
 		i__4 = jx;
-		if (x[i__4].real != 0. || x[i__4].imag != 0.) {
+		if (x[i__4].r != 0. || x[i__4].i != 0.) {
 		    i__4 = jx;
-		    z__1.real = alpha->real * x[i__4].real - alpha->imag * x[i__4].imag, 
-			    z__1.imag = alpha->real * x[i__4].imag + alpha->imag * x[i__4]
-			    .real;
-		    temp.real = z__1.real, temp.imag = z__1.imag;
+		    z__1.r = alpha->r * x[i__4].r - alpha->i * x[i__4].i, 
+			    z__1.i = alpha->r * x[i__4].i + alpha->i * x[i__4]
+			    .r;
+		    temp.r = z__1.r, temp.i = z__1.i;
 		    iy = ky;
 		    k = kup1 - j;
 /* Computing MAX */
@@ -1547,12 +1559,12 @@
 			i__4 = iy;
 			i__2 = iy;
 			i__5 = k + i__ + j * a_dim1;
-			z__2.real = temp.real * a[i__5].real - temp.imag * a[i__5].imag, 
-				z__2.imag = temp.real * a[i__5].imag + temp.imag * a[i__5]
-				.real;
-			z__1.real = y[i__2].real + z__2.real, z__1.imag = y[i__2].imag + 
-				z__2.imag;
-			y[i__4].real = z__1.real, y[i__4].imag = z__1.imag;
+			z__2.r = temp.r * a[i__5].r - temp.i * a[i__5].i, 
+				z__2.i = temp.r * a[i__5].i + temp.i * a[i__5]
+				.r;
+			z__1.r = y[i__2].r + z__2.r, z__1.i = y[i__2].i + 
+				z__2.i;
+			y[i__4].r = z__1.r, y[i__4].i = z__1.i;
 			iy += *incy;
 /* L70: */
 		    }
@@ -1572,7 +1584,7 @@
 	if (*incx == 1) {
 	    i__1 = *n;
 	    for (j = 1; j <= i__1; ++j) {
-		temp.real = 0., temp.imag = 0.;
+		temp.r = 0., temp.i = 0.;
 		k = kup1 - j;
 		if (noconj) {
 /* Computing MAX */
@@ -1583,11 +1595,11 @@
 		    for (i__ = f2c_max(i__3,i__4); i__ <= i__2; ++i__) {
 			i__3 = k + i__ + j * a_dim1;
 			i__4 = i__;
-			z__2.real = a[i__3].real * x[i__4].real - a[i__3].imag * x[i__4]
-				.imag, z__2.imag = a[i__3].real * x[i__4].imag + a[i__3]
-				.imag * x[i__4].real;
-			z__1.real = temp.real + z__2.real, z__1.imag = temp.imag + z__2.imag;
-			temp.real = z__1.real, temp.imag = z__1.imag;
+			z__2.r = a[i__3].r * x[i__4].r - a[i__3].i * x[i__4]
+				.i, z__2.i = a[i__3].r * x[i__4].i + a[i__3]
+				.i * x[i__4].r;
+			z__1.r = temp.r + z__2.r, z__1.i = temp.i + z__2.i;
+			temp.r = z__1.r, temp.i = z__1.i;
 /* L90: */
 		    }
 		} else {
@@ -1597,29 +1609,29 @@
 		    i__5 = *m, i__6 = j + *kl;
 		    i__4 = f2c_min(i__5,i__6);
 		    for (i__ = f2c_max(i__2,i__3); i__ <= i__4; ++i__) {
-			bla_d_cnjg(&z__3, &a[k + i__ + j * a_dim1]);
+			d_cnjg(&z__3, &a[k + i__ + j * a_dim1]);
 			i__2 = i__;
-			z__2.real = z__3.real * x[i__2].real - z__3.imag * x[i__2].imag, 
-				z__2.imag = z__3.real * x[i__2].imag + z__3.imag * x[i__2]
-				.real;
-			z__1.real = temp.real + z__2.real, z__1.imag = temp.imag + z__2.imag;
-			temp.real = z__1.real, temp.imag = z__1.imag;
+			z__2.r = z__3.r * x[i__2].r - z__3.i * x[i__2].i, 
+				z__2.i = z__3.r * x[i__2].i + z__3.i * x[i__2]
+				.r;
+			z__1.r = temp.r + z__2.r, z__1.i = temp.i + z__2.i;
+			temp.r = z__1.r, temp.i = z__1.i;
 /* L100: */
 		    }
 		}
 		i__4 = jy;
 		i__2 = jy;
-		z__2.real = alpha->real * temp.real - alpha->imag * temp.imag, z__2.imag = 
-			alpha->real * temp.imag + alpha->imag * temp.real;
-		z__1.real = y[i__2].real + z__2.real, z__1.imag = y[i__2].imag + z__2.imag;
-		y[i__4].real = z__1.real, y[i__4].imag = z__1.imag;
+		z__2.r = alpha->r * temp.r - alpha->i * temp.i, z__2.i = 
+			alpha->r * temp.i + alpha->i * temp.r;
+		z__1.r = y[i__2].r + z__2.r, z__1.i = y[i__2].i + z__2.i;
+		y[i__4].r = z__1.r, y[i__4].i = z__1.i;
 		jy += *incy;
 /* L110: */
 	    }
 	} else {
 	    i__1 = *n;
 	    for (j = 1; j <= i__1; ++j) {
-		temp.real = 0., temp.imag = 0.;
+		temp.r = 0., temp.i = 0.;
 		ix = kx;
 		k = kup1 - j;
 		if (noconj) {
@@ -1631,11 +1643,11 @@
 		    for (i__ = f2c_max(i__4,i__2); i__ <= i__3; ++i__) {
 			i__4 = k + i__ + j * a_dim1;
 			i__2 = ix;
-			z__2.real = a[i__4].real * x[i__2].real - a[i__4].imag * x[i__2]
-				.imag, z__2.imag = a[i__4].real * x[i__2].imag + a[i__4]
-				.imag * x[i__2].real;
-			z__1.real = temp.real + z__2.real, z__1.imag = temp.imag + z__2.imag;
-			temp.real = z__1.real, temp.imag = z__1.imag;
+			z__2.r = a[i__4].r * x[i__2].r - a[i__4].i * x[i__2]
+				.i, z__2.i = a[i__4].r * x[i__2].i + a[i__4]
+				.i * x[i__2].r;
+			z__1.r = temp.r + z__2.r, z__1.i = temp.i + z__2.i;
+			temp.r = z__1.r, temp.i = z__1.i;
 			ix += *incx;
 /* L120: */
 		    }
@@ -1646,23 +1658,23 @@
 		    i__5 = *m, i__6 = j + *kl;
 		    i__2 = f2c_min(i__5,i__6);
 		    for (i__ = f2c_max(i__3,i__4); i__ <= i__2; ++i__) {
-			bla_d_cnjg(&z__3, &a[k + i__ + j * a_dim1]);
+			d_cnjg(&z__3, &a[k + i__ + j * a_dim1]);
 			i__3 = ix;
-			z__2.real = z__3.real * x[i__3].real - z__3.imag * x[i__3].imag, 
-				z__2.imag = z__3.real * x[i__3].imag + z__3.imag * x[i__3]
-				.real;
-			z__1.real = temp.real + z__2.real, z__1.imag = temp.imag + z__2.imag;
-			temp.real = z__1.real, temp.imag = z__1.imag;
+			z__2.r = z__3.r * x[i__3].r - z__3.i * x[i__3].i, 
+				z__2.i = z__3.r * x[i__3].i + z__3.i * x[i__3]
+				.r;
+			z__1.r = temp.r + z__2.r, z__1.i = temp.i + z__2.i;
+			temp.r = z__1.r, temp.i = z__1.i;
 			ix += *incx;
 /* L130: */
 		    }
 		}
 		i__2 = jy;
 		i__3 = jy;
-		z__2.real = alpha->real * temp.real - alpha->imag * temp.imag, z__2.imag = 
-			alpha->real * temp.imag + alpha->imag * temp.real;
-		z__1.real = y[i__3].real + z__2.real, z__1.imag = y[i__3].imag + z__2.imag;
-		y[i__2].real = z__1.real, y[i__2].imag = z__1.imag;
+		z__2.r = alpha->r * temp.r - alpha->i * temp.i, z__2.i = 
+			alpha->r * temp.i + alpha->i * temp.r;
+		z__1.r = y[i__3].r + z__2.r, z__1.i = y[i__3].i + z__2.i;
+		y[i__2].r = z__1.r, y[i__2].i = z__1.i;
 		jy += *incy;
 		if (j > *ku) {
 		    kx += *incx;

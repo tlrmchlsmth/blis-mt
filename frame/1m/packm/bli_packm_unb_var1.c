@@ -57,7 +57,8 @@ static FUNCPTR_T GENARRAY(ftypes,packm_unb_var1);
 
 void bli_packm_unb_var1( obj_t*   beta,
                          obj_t*   c,
-                         obj_t*   p )
+                         obj_t*   p,
+                         packm_thread_info_t* info )
 {
 	num_t     dt_cp     = bli_obj_datatype( *c );
 
