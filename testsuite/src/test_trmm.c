@@ -161,11 +161,11 @@ void libblis_test_trmm_experiment( test_params_t* params,
 	// Create test operands (vectors and/or matrices).
 	bli_set_dim_with_side( side, m, n, mn_side );
 	libblis_test_mobj_create( params, datatype, transa,
-		                      sc_str[0], mn_side, mn_side, &a );
+	                          sc_str[0], mn_side, mn_side, &a );
 	libblis_test_mobj_create( params, datatype, BLIS_NO_TRANSPOSE,
-		                      sc_str[1], m,       n,       &b );
+	                          sc_str[1], m,       n,       &b );
 	libblis_test_mobj_create( params, datatype, BLIS_NO_TRANSPOSE,
-		                      sc_str[1], m,       n,       &b_save );
+	                          sc_str[1], m,       n,       &b_save );
 
 	// Set alpha and beta.
 	if ( bli_obj_is_real( b ) )
@@ -217,6 +217,9 @@ void libblis_test_trmm_experiment( test_params_t* params,
 
 	// Perform checks.
 	libblis_test_trmm_check( side, &alpha, &a, &b, &b_save, resid );
+
+	// Zero out performance and residual if output matrix is empty.
+	libblis_test_check_empty_problem( &b, perf, resid );
 
 	// Free the test objects.
 	bli_obj_free( &a );

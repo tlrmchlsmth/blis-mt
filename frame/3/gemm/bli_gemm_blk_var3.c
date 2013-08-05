@@ -34,7 +34,6 @@
 
 #include "blis.h"
 
-
 void reduce( obj_t* c, obj_t* others, int n_to_reduce, int n_threads, int t_id )
 {
     if(n_to_reduce <= 1)

@@ -148,13 +148,13 @@ void libblis_test_ger_experiment( test_params_t* params,
 
 	// Create test operands (vectors and/or matrices).
 	libblis_test_vobj_create( params, datatype,
-		                      sc_str[0], m,    &x );
+	                          sc_str[0], m,    &x );
 	libblis_test_vobj_create( params, datatype,
-		                      sc_str[1], n,    &y );
+	                          sc_str[1], n,    &y );
 	libblis_test_mobj_create( params, datatype, BLIS_NO_TRANSPOSE,
-		                      sc_str[2], m, n, &a );
+	                          sc_str[2], m, n, &a );
 	libblis_test_mobj_create( params, datatype, BLIS_NO_TRANSPOSE,
-		                      sc_str[2], m, n, &a_save );
+	                          sc_str[2], m, n, &a_save );
 
 	// Set alpha.
 	if ( bli_obj_is_real( a ) )
@@ -193,6 +193,9 @@ void libblis_test_ger_experiment( test_params_t* params,
 
 	// Perform checks.
 	libblis_test_ger_check( &alpha, &x, &y, &a, &a_save, resid );
+
+	// Zero out performance and residual if output matrix is empty.
+	libblis_test_check_empty_problem( &a, perf, resid );
 
 	// Free the test objects.
 	bli_obj_free( &x );

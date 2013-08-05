@@ -186,7 +186,7 @@ void PASTEMAC(ch,varname)( \
 	dim_t           n_iter, n_left; \
 	dim_t           m_cur; \
 	dim_t           n_cur; \
-	dim_t           i, j; \
+	dim_t           i, j, jp; \
 	inc_t           rstep_a; \
 	inc_t           cstep_b; \
 	inc_t           rstep_c, cstep_c; \
@@ -205,6 +205,31 @@ void PASTEMAC(ch,varname)( \
 \
 	/* If any dimension is zero, return immediately. */ \
 	if ( bli_zero_dim3( m, n, k ) ) return; \
+\
+	/* Safeguard: If the current panel of C is entirely below the diagonal,
+	   it is not stored. So we do nothing. */ \
+	if ( bli_is_strictly_below_diag_n( diagoffc, m, n ) ) return; \
+\
+	/* If there is a zero region to the left of where the diagonal of C
+	   intersects the top edge of the panel, adjust the pointer to C and B
+	   and treat this case as if the diagonal offset were zero. */ \
+	if ( diagoffc > 0 ) \
+	{ \
+		jp       = diagoffc / NR; \
+		j        = jp * NR; \
+		n        = n - j; \
+		diagoffc = diagoffc % NR; \
+		c_cast   = c_cast + (j  )*cs_c; \
+		b_cast   = b_cast + (jp )*ps_b; \
+	} \
+\
+	/* If there is a zero region below where the diagonal of C intersects
+	   the right edge of the panel, shrink it to prevent "no-op" iterations
+	   from executing. */ \
+    if ( -diagoffc + n < m ) \
+    { \
+        m = -diagoffc + n; \
+    } \
 \
 	/* Clear the temporary C buffer in case it has any infs or NaNs. */ \
 	PASTEMAC(ch,set0s_mxn)( MR, NR, \
@@ -312,7 +337,7 @@ void PASTEMAC(ch,varname)( \
 					                      bp, \
 					                      beta_cast, \
 					                      c11, rs_c, cs_c, \
-					                      a2, b2, 0 ); \
+					                      a2, b2 ); \
 				} \
 				else \
 				{ \
@@ -323,7 +348,7 @@ void PASTEMAC(ch,varname)( \
 					                      bp, \
 					                      zero, \
 					                      ct, rs_ct, cs_ct, \
-					                      a2, b2, 0 ); \
+					                      a2, b2 ); \
 \
 					/* Scale the edge of C and add the result. */ \
 					PASTEMAC(ch,xpbys_mxn)( m_cur, n_cur, \

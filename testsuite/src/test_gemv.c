@@ -154,13 +154,13 @@ void libblis_test_gemv_experiment( test_params_t* params,
 
 	// Create test operands (vectors and/or matrices).
 	libblis_test_mobj_create( params, datatype, transa,
-		                      sc_str[0], m, n, &a );
+	                          sc_str[0], m, n, &a );
 	libblis_test_vobj_create( params, datatype,
-		                      sc_str[1], n,    &x );
+	                          sc_str[1], n,    &x );
 	libblis_test_vobj_create( params, datatype,
-		                      sc_str[2], m,    &y );
+	                          sc_str[2], m,    &y );
 	libblis_test_vobj_create( params, datatype,
-		                      sc_str[2], m,    &y_save );
+	                          sc_str[2], m,    &y_save );
 
 	// Set alpha and beta.
 	if ( bli_obj_is_real( y ) )
@@ -206,6 +206,9 @@ void libblis_test_gemv_experiment( test_params_t* params,
 
 	// Perform checks.
 	libblis_test_gemv_check( &kappa, &alpha, &a, &x, &beta, &y, &y_save, resid );
+
+	// Zero out performance and residual if output vector is empty.
+	libblis_test_check_empty_problem( &y, perf, resid );
 
 	// Free the test objects.
 	bli_obj_free( &a );

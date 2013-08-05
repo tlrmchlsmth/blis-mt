@@ -140,7 +140,7 @@ ESSL_LIB		:= $(ESSL_LIB_PATH)/libesslsmpbg.a   \
 				-L$(IBM_MAIN_DIR)/xlf/bg/14.1/bglib64/ \
 				-lxlsmp -lxlf90_r -lxlfmath -lxl \
 				
-#MKL_LIB        := -L/opt/intel/mkl/10.2.2.025/lib/em64t/ \
+MKL_LIB        := -L/opt/intel/mkl/10.2.2.025/lib/em64t/ \
                   -lmkl_sequential -lmkl_core -lmkl_intel_lp64
 
 
@@ -261,7 +261,6 @@ test_%_blis.o: test_%.c
 test_%_essl.o: test_%.c
 	$(CC) $(CFLAGS) -DBLAS=\"essl\" -c $< -o $@
 
-
 # -- Executable file rules --
 
 # NOTE: For the BLAS test drivers, we place the BLAS libraries before BLIS
@@ -283,7 +282,6 @@ test_%_blis.x: test_%_blis.o $(BLIS_LIB)
 
 test_%_essl.x: test_%_essl.o $(BLIS_LIB)
 	$(LINKER) $<             $(ESSL_LIB)     $(BLIS_LIB) $(LDFLAGS) -o $@
-
 
 # -- Clean rules --
 

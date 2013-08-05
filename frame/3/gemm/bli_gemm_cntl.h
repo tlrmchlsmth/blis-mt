@@ -75,4 +75,3 @@ gemm_t* bli_gemm_cntl_obj_create_mt( impl_t       impl_type,
                                   gemm_t*      sub_gemm,
                                   unpackm_t*   sub_unpack_c,
                                   void*        thread_info );
-

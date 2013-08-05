@@ -34,10 +34,9 @@
 
 #include <unistd.h>
 #include "blis.h"
-#include <omp.h>
 
 //           transa transb m     n     k     alpha    a        lda   b        ldb   beta     c        ldc
-void dgemm_( char*, char*, int*, int*, int*, double*, double*, int*, double*, int*, double*, double*, int* );
+//void dgemm_( char*, char*, int*, int*, int*, double*, double*, int*, double*, int*, double*, double*, int* );
 
 //#define PRINT
 
@@ -54,18 +53,25 @@ int main( int argc, char** argv )
 	num_t dt_alpha, dt_beta;
 	int   r, n_repeats;
 
-#if 1
+#if 0
 	obj_t a_pack, b_pack;
 
-    dim_t l1_n_threads = 1;
-    dim_t l2_n_threads = 2;
-    dim_t l3_n_threads = 1;
-    dim_t l4_n_threads = 1;
-    dim_t l5_n_threads = 1;
-    dim_t pack_b_n_threads = l3_n_threads * l2_n_threads * l1_n_threads;
-    dim_t pack_a_n_threads = l2_n_threads * l1_n_threads;
-    dim_t total_threads = l1_n_threads * l2_n_threads;
+	blksz_t* mr;
+	blksz_t* nr;
+	blksz_t* kr;
+	blksz_t* mc;
+	blksz_t* nc;
+	blksz_t* kc;
+	blksz_t* ni;
 
+	scalm_t* scalm_cntl;
+	packm_t* packm_cntl_a;
+	packm_t* packm_cntl_b;
+
+	gemm_t*  gemm_cntl_bp_ke;
+	gemm_t*  gemm_cntl_op_bp;
+	gemm_t*  gemm_cntl_mm_op;
+	gemm_t*  gemm_cntl_vl_mm;
 #endif
 
 	double dtime;
@@ -77,23 +83,22 @@ int main( int argc, char** argv )
 	n_repeats = 3;
 
 #ifndef PRINT
-	p_begin = 40;
+	p_begin = 100;
 	p_end   = 2000;
-	p_inc   = 40;
+	p_inc   = 100;
 
 	m_input = -1;
-	//m_input = 384;
-	n_input = -1;
-	//k_input = -1;
+	n_input = 384;
 	k_input = -1;
+	//k_input = 200;
 #else
-	p_begin = 24;
-	p_end   = 24;
+	p_begin = 16;
+	p_end   = 16;
 	p_inc   = 1;
 
-	m_input = -1;
-	k_input = -1;
-	n_input = -1;
+	m_input = 8;
+	k_input = 16;
+	n_input = 16;
 #endif
 
 	dt_a = BLIS_DOUBLE;
@@ -126,8 +131,94 @@ int main( int argc, char** argv )
 		bli_randm( &c );
 
 
-		bli_setsc(  (1.0/1.0), 0.0, &alpha );
-		bli_setsc(  (1.0/1.0), 0.0, &beta );
+		bli_setsc(  (2.0/1.0), 0.0, &alpha );
+		bli_setsc( -(1.0/1.0), 0.0, &beta );
+
+#if 0
+		mr = bli_blksz_obj_create( 2, 4, 2, 2 );
+		kr = bli_blksz_obj_create( 1, 1, 1, 1 );
+		nr = bli_blksz_obj_create( 1, 4, 1, 1 );
+		mc = bli_blksz_obj_create( 128, 368, 128, 128 );
+		kc = bli_blksz_obj_create( 256, 256, 256, 256 );
+		nc = bli_blksz_obj_create( 512,3000, 512, 512 );
+		ni = bli_blksz_obj_create(  16,  16,  16,  16 );
+
+		scalm_cntl =
+		bli_scalm_cntl_obj_create( BLIS_UNBLOCKED,
+		                           BLIS_VARIANT1 );
+
+		packm_cntl_a =
+		bli_packm_cntl_obj_create( BLIS_BLOCKED,
+		                           BLIS_VARIANT2,
+		                           mr,
+		                           kr, 
+		                           FALSE, // scale?
+		                           FALSE, // densify?
+		                           FALSE, // invert diagonal?
+		                           FALSE, // reverse iteration if upper?
+		                           FALSE, // reverse iteration if lower?
+		                           BLIS_PACKED_ROW_PANELS,
+		                           BLIS_BUFFER_FOR_A_BLOCK );
+
+		packm_cntl_b =
+		bli_packm_cntl_obj_create( BLIS_BLOCKED,
+		                           BLIS_VARIANT2,
+		                           kr,
+		                           nr, 
+		                           FALSE, // scale?
+		                           FALSE, // densify?
+		                           FALSE, // invert diagonal?
+		                           FALSE, // reverse iteration if upper?
+		                           FALSE, // reverse iteration if lower?
+		                           BLIS_PACKED_COL_PANELS,
+		                           BLIS_BUFFER_FOR_B_PANEL );
+
+		gemm_cntl_bp_ke =
+		bli_gemm_cntl_obj_create( BLIS_UNB_OPT,
+		                          BLIS_VARIANT2,
+		                          NULL, NULL, NULL, NULL,
+		                          NULL, NULL, NULL, NULL );
+
+		gemm_cntl_op_bp =
+		bli_gemm_cntl_obj_create( BLIS_BLOCKED,
+		                          //BLIS_VARIANT4,
+		                          BLIS_VARIANT1,
+		                          mc,
+		                          ni,
+		                          NULL,
+		                          packm_cntl_a,
+		                          packm_cntl_b,
+		                          NULL,
+		                          gemm_cntl_bp_ke,
+		                          NULL );
+
+		gemm_cntl_mm_op =
+		bli_gemm_cntl_obj_create( BLIS_BLOCKED,
+		                          BLIS_VARIANT3,
+		                          kc,
+		                          NULL,
+		                          NULL, //scalm_cntl,
+		                          NULL,
+		                          NULL,
+		                          NULL,
+		                          gemm_cntl_op_bp,
+		                          NULL );
+
+		gemm_cntl_vl_mm =
+		bli_gemm_cntl_obj_create( BLIS_BLOCKED,
+		                          BLIS_VARIANT2,
+		                          nc,
+		                          NULL,
+		                          NULL,
+		                          NULL,
+		                          NULL,
+		                          NULL,
+		                          gemm_cntl_mm_op,
+		                          NULL );
+
+		bli_obj_init_pack( &a_pack );
+		bli_obj_init_pack( &b_pack );
+#endif
 
 		bli_copym( &c, &c_save );
 	
@@ -149,29 +240,28 @@ int main( int argc, char** argv )
 
 #ifdef BLIS
 			//bli_error_checking_level_set( BLIS_NO_ERROR_CHECKING );
-            {
-                bli_gemm( &alpha,
-                          &a,
-                          &b,
-                          &beta,
-                          &c );
-            }
+
+			bli_gemm( &alpha,
+			          &a,
+			          &b,
+			          &beta,
+			          &c );
 
 #else
 
-			char    transa = 'N';
-			char    transb = 'N';
-			int     mm     = bli_obj_length( c );
-			int     kk     = bli_obj_width_after_trans( a );
-			int     nn     = bli_obj_width( c );
-			int     lda    = bli_obj_col_stride( a );
-			int     ldb    = bli_obj_col_stride( b );
-			int     ldc    = bli_obj_col_stride( c );
-			double* alphap = bli_obj_buffer( alpha );
-			double* ap     = bli_obj_buffer( a );
-			double* bp     = bli_obj_buffer( b );
-			double* betap  = bli_obj_buffer( beta );
-			double* cp     = bli_obj_buffer( c );
+			f77_char transa = 'N';
+			f77_char transb = 'N';
+			f77_int  mm     = bli_obj_length( c );
+			f77_int  kk     = bli_obj_width_after_trans( a );
+			f77_int  nn     = bli_obj_width( c );
+			f77_int  lda    = bli_obj_col_stride( a );
+			f77_int  ldb    = bli_obj_col_stride( b );
+			f77_int  ldc    = bli_obj_col_stride( c );
+			double*  alphap = bli_obj_buffer( alpha );
+			double*  ap     = bli_obj_buffer( a );
+			double*  bp     = bli_obj_buffer( b );
+			double*  betap  = bli_obj_buffer( beta );
+			double*  cp     = bli_obj_buffer( c );
 
 			dgemm_( &transa,
 			        &transb,
@@ -203,6 +293,27 @@ int main( int argc, char** argv )
 #endif
 		printf( "( %2ld, 1:5 ) = [ %4lu %4lu %4lu  %10.3e  %6.3f ];\n",
 		        (p - p_begin + 1)/p_inc + 1, m, k, n, dtime_save, gflops );
+
+#if 0
+		bli_obj_release_pack( &a_pack );
+		bli_obj_release_pack( &b_pack );
+
+		bli_blksz_obj_free( mr );
+		bli_blksz_obj_free( nr );
+		bli_blksz_obj_free( kr );
+		bli_blksz_obj_free( mc );
+		bli_blksz_obj_free( nc );
+		bli_blksz_obj_free( kc );
+		bli_blksz_obj_free( ni );
+
+		bli_cntl_obj_free( scalm_cntl );
+		bli_cntl_obj_free( packm_cntl_a );
+		bli_cntl_obj_free( packm_cntl_b );
+		bli_cntl_obj_free( gemm_cntl_bp_ke );
+		bli_cntl_obj_free( gemm_cntl_op_bp );
+		bli_cntl_obj_free( gemm_cntl_mm_op );
+		bli_cntl_obj_free( gemm_cntl_vl_mm );
+#endif
 
 		bli_obj_free( &alpha );
 		bli_obj_free( &beta );

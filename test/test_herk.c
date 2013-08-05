@@ -36,7 +36,11 @@
 #include "blis.h"
 
 //           uploa  transa m     k     alpha    a        lda   beta     c        ldc
+<<<<<<< HEAD
+//void dsyrk_( char*, char*, int*, int*, double*, double*, int*, double*, double*, int* );
+=======
 void dsyrk_( char*, char*, int*, int*, double*, double*, int*, double*, double*, int* );
+>>>>>>> 0c1c78278bbd9c281bcbe933cc2f3bdb3bd74ef1
 
 //#define PRINT
 
@@ -53,6 +57,10 @@ int main( int argc, char** argv )
 	num_t dt_alpha, dt_beta;
 	int   r, n_repeats;
 
+<<<<<<< HEAD
+#if 0
+=======
+>>>>>>> 0c1c78278bbd9c281bcbe933cc2f3bdb3bd74ef1
 	blksz_t* mr;
 	blksz_t* nr;
 	blksz_t* kr;
@@ -69,6 +77,10 @@ int main( int argc, char** argv )
 	herk_t*  herk_cntl_op_bp;
 	herk_t*  herk_cntl_mm_op;
 	herk_t*  herk_cntl_vl_mm;
+<<<<<<< HEAD
+#endif
+=======
+>>>>>>> 0c1c78278bbd9c281bcbe933cc2f3bdb3bd74ef1
 
 	double dtime;
 	double dtime_save;
@@ -84,7 +96,12 @@ int main( int argc, char** argv )
 	p_inc   = 40;
 
 	m_input = -1;
+<<<<<<< HEAD
+	k_input = -1;
+	//k_input = 200;
+=======
 	k_input = 200;
+>>>>>>> 0c1c78278bbd9c281bcbe933cc2f3bdb3bd74ef1
 #else
 	p_begin = 16;
 	p_end   = 16;
@@ -127,6 +144,10 @@ int main( int argc, char** argv )
 		bli_setsc(  (2.0/1.0), 0.0, &alpha );
 		bli_setsc( -(1.0/1.0), 0.0, &beta );
 
+<<<<<<< HEAD
+#if 0
+=======
+>>>>>>> 0c1c78278bbd9c281bcbe933cc2f3bdb3bd74ef1
 		mr = bli_blksz_obj_create( 2, 4, 2, 2 );
 		kr = bli_blksz_obj_create( 1, 1, 1, 1 );
 		nr = bli_blksz_obj_create( 1, 4, 1, 1 );
@@ -142,8 +163,13 @@ int main( int argc, char** argv )
 		packm_cntl_a =
 		bli_packm_cntl_obj_create( BLIS_BLOCKED,
 		                           BLIS_VARIANT2,
+<<<<<<< HEAD
+		                           mr,
+		                           kr,
+=======
 		                           mr, NULL,
 		                           kr, NULL,
+>>>>>>> 0c1c78278bbd9c281bcbe933cc2f3bdb3bd74ef1
 		                           FALSE, // scale?
 		                           FALSE, // densify?
 		                           FALSE, // invert diagonal?
@@ -155,8 +181,13 @@ int main( int argc, char** argv )
 		packm_cntl_b =
 		bli_packm_cntl_obj_create( BLIS_BLOCKED,
 		                           BLIS_VARIANT2,
+<<<<<<< HEAD
+		                           kr,
+		                           nr,
+=======
 		                           kr, NULL,
 		                           nr, NULL,
+>>>>>>> 0c1c78278bbd9c281bcbe933cc2f3bdb3bd74ef1
 		                           FALSE, // scale?
 		                           FALSE, // densify?
 		                           FALSE, // invert diagonal?
@@ -207,6 +238,10 @@ int main( int argc, char** argv )
 		                          NULL,
 		                          herk_cntl_mm_op,
 		                          NULL );
+<<<<<<< HEAD
+#endif
+=======
+>>>>>>> 0c1c78278bbd9c281bcbe933cc2f3bdb3bd74ef1
 
 
 		bli_copym( &c, &c_save );
@@ -236,6 +271,18 @@ int main( int argc, char** argv )
 
 #else
 
+<<<<<<< HEAD
+			f77_char uploa  = 'L';
+			f77_char transa = 'N';
+			f77_int  mm     = bli_obj_length( c );
+			f77_int  kk     = bli_obj_width_after_trans( a );
+			f77_int  lda    = bli_obj_col_stride( a );
+			f77_int  ldc    = bli_obj_col_stride( c );
+			double*  alphap = bli_obj_buffer( alpha );
+			double*  ap     = bli_obj_buffer( a );
+			double*  betap  = bli_obj_buffer( beta );
+			double*  cp     = bli_obj_buffer( c );
+=======
 			char    uploa  = 'L';
 			char    transa = 'N';
 			int     mm     = bli_obj_length( c );
@@ -246,6 +293,7 @@ int main( int argc, char** argv )
 			double* ap     = bli_obj_buffer( a );
 			double* betap  = bli_obj_buffer( beta );
 			double* cp     = bli_obj_buffer( c );
+>>>>>>> 0c1c78278bbd9c281bcbe933cc2f3bdb3bd74ef1
 
 			dsyrk_( &uploa,
 			        &transa,
@@ -276,6 +324,10 @@ int main( int argc, char** argv )
 		printf( "( %2ld, 1:4 ) = [ %4lu %4lu  %10.3e  %6.3f ];\n",
 		        (p - p_begin + 1)/p_inc + 1, m, k, dtime_save, gflops );
 
+<<<<<<< HEAD
+#if 0
+=======
+>>>>>>> 0c1c78278bbd9c281bcbe933cc2f3bdb3bd74ef1
 		bli_blksz_obj_free( mr );
 		bli_blksz_obj_free( nr );
 		bli_blksz_obj_free( kr );
@@ -291,6 +343,10 @@ int main( int argc, char** argv )
 		bli_cntl_obj_free( herk_cntl_op_bp );
 		bli_cntl_obj_free( herk_cntl_mm_op );
 		bli_cntl_obj_free( herk_cntl_vl_mm );
+<<<<<<< HEAD
+#endif
+=======
+>>>>>>> 0c1c78278bbd9c281bcbe933cc2f3bdb3bd74ef1
 
 		bli_obj_free( &alpha );
 		bli_obj_free( &beta );

@@ -293,7 +293,7 @@ void libblis_test_read_params_file( char* input_filename, test_params_t* params 
 
 	// Read the general stride "spacing".
 	libblis_test_read_next_line( buffer, input_stream );
-	sscanf( buffer, "%d ", &(params->gs_spacing) );
+	sscanf( buffer, "%u ", &(params->gs_spacing) );
 
 	// Overwrite the existing storage character arrays with the sets provided.
 	strcpy( libblis_test_store_chars[BLIS_TEST_MATRIX_OPERAND],
@@ -534,6 +534,15 @@ void libblis_test_output_params_struct( FILE* os, test_params_t* params )
 	                        BLIS_EXTEND_NR_D,
 	                        BLIS_EXTEND_NR_C,
 	                        BLIS_EXTEND_NR_Z );
+/*
+	libblis_test_fprintf_c( os, "\n" );
+	libblis_test_fprintf_c( os, "level-3 incremental packing blocksizes          \n" );
+	libblis_test_fprintf_c( os, "  n dimension            %5u %5u %5u %5u\n",
+	                        BLIS_DEFAULT_NI_S,
+	                        BLIS_DEFAULT_NI_D,
+	                        BLIS_DEFAULT_NI_C,
+	                        BLIS_DEFAULT_NI_Z );
+*/
 	libblis_test_fprintf_c( os, "\n" );
 	libblis_test_fprintf_c( os, "level-3 packing duplication                     \n" );
 	libblis_test_fprintf_c( os, "  dupl. factors for B    %5u %5u %5u %5u\n",
@@ -577,7 +586,7 @@ void libblis_test_output_params_struct( FILE* os, test_params_t* params )
 	libblis_test_fprintf_c( os, "num vector storage schemes   %u\n", params->n_vstorage );
 	libblis_test_fprintf_c( os, "storage[ vector ]            %s\n", params->storage[ BLIS_TEST_VECTOR_OPERAND ] );
 	libblis_test_fprintf_c( os, "mix all storage schemes?     %u\n", params->mix_all_storage );
-	libblis_test_fprintf_c( os, "general stride spacing       %d\n", params->gs_spacing );
+	libblis_test_fprintf_c( os, "general stride spacing       %u\n", params->gs_spacing );
 	libblis_test_fprintf_c( os, "num datatypes                %u\n", params->n_datatypes );
 	libblis_test_fprintf_c( os, "datatype[0]                  %d (%c)\n", params->datatype[0],
 	                                                                params->datatype_char[0] );
@@ -978,7 +987,34 @@ void libblis_test_op_driver( test_params_t* params,
 		// Only run combinations where all operands of either type (matrices
 		// or vectors) are stored in one storage scheme or another (no mixing
 		// of schemes within the same operand type).
-		n_store_combos = n_mstorage * n_vstorage;
+		unsigned int n_mat_operands = 0;
+		unsigned int n_vec_operands = 0;
+
+		for ( o = 0; o < n_operands; ++o )
+		{
+			operand_t operand_type
+			          = libblis_test_get_operand_type_for_char( o_types[o] );
+			if      ( operand_type == BLIS_TEST_MATRIX_OPERAND ) ++n_mat_operands;
+			else if ( operand_type == BLIS_TEST_VECTOR_OPERAND ) ++n_vec_operands;
+		}
+
+		// We compute the total number of storage combinations based on whether
+		// the current operation has only matrix operands, only vector operands,
+		// or both.
+		if      ( n_vec_operands == 0 )
+		{
+			n_store_combos = n_mstorage;
+			n_vstorage = 1;
+		}
+		else if ( n_mat_operands == 0 )
+		{
+			n_store_combos = n_vstorage;
+			n_mstorage = 1;
+		}
+		else
+		{
+			n_store_combos = n_mstorage * n_vstorage;
+		}
 
 		sc_str = ( char** ) malloc( n_store_combos * sizeof( char* ) );
 
@@ -1613,4 +1649,13 @@ void libblis_test_parse_command_line( int argc, char** argv )
 }
 
 
+
+void libblis_test_check_empty_problem( obj_t* c, double* perf, double* resid )
+{
+	if ( bli_obj_has_zero_dim( *c ) )
+	{
+		*perf  = 0.0;
+		*resid = 0.0;
+	}
+}
 

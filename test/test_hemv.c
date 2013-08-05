@@ -36,7 +36,13 @@
 #include "blis.h"
 
 //           uploa  m     alpha    a        lda   x        incx  beta     y        incy
+<<<<<<< HEAD
+//void dsymv_( char*, int*, double*, double*, int*, double*, int*, double*, double*, int* );
+
+//#define PRINT
+=======
 void dsymv_( char*, int*, double*, double*, int*, double*, int*, double*, double*, int* );
+>>>>>>> 0c1c78278bbd9c281bcbe933cc2f3bdb3bd74ef1
 
 int main( int argc, char** argv )
 {
@@ -134,6 +140,13 @@ int main( int argc, char** argv )
 #endif
 
 #ifdef BLIS
+<<<<<<< HEAD
+			//bli_obj_toggle_conj( a );
+			//bli_obj_toggle_conj( x );
+
+			//bli_symv( &alpha,
+			bli_hemv( &alpha,
+=======
 
 
 			//bli_obj_toggle_conj( a );
@@ -145,11 +158,26 @@ int main( int argc, char** argv )
 #else
 			bli_symv( &alpha,
 #endif
+>>>>>>> 0c1c78278bbd9c281bcbe933cc2f3bdb3bd74ef1
 			          &a,
 			          &x,
 			          &beta,
 			          &y );
 
+<<<<<<< HEAD
+#else
+
+			f77_char uploa  = 'L';
+			f77_int  mm     = bli_obj_length( a );
+			f77_int  lda    = bli_obj_col_stride( a );
+			f77_int  incx   = bli_obj_vector_inc( x );
+			f77_int  incy   = bli_obj_vector_inc( y );
+			double*  alphap = bli_obj_buffer( alpha );
+			double*  ap     = bli_obj_buffer( a );
+			double*  xp     = bli_obj_buffer( x );
+			double*  betap  = bli_obj_buffer( beta );
+			double*  yp     = bli_obj_buffer( y );
+=======
 /*
 			bli_hemv_unf_var3( BLIS_CONJUGATE,
 			                   &alpha,
@@ -171,6 +199,7 @@ int main( int argc, char** argv )
 			double* xp     = bli_obj_buffer( x );
 			double* betap  = bli_obj_buffer( beta );
 			double* yp     = bli_obj_buffer( y );
+>>>>>>> 0c1c78278bbd9c281bcbe933cc2f3bdb3bd74ef1
 
 			dsymv_( &uploa,
 			        &mm,

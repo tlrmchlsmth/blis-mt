@@ -36,7 +36,13 @@
 #include "blis.h"
 
 //           uploa  trans, diag,  m     a        lda   x        incx
+<<<<<<< HEAD
+//void dtrmv_( char*, char*, char*, int*, double*, int*, double*, int* );
+
+//#define PRINT
+=======
 void dtrmv_( char*, char*, char*, int*, double*, int*, double*, int* );
+>>>>>>> 0c1c78278bbd9c281bcbe933cc2f3bdb3bd74ef1
 
 int main( int argc, char** argv )
 {
@@ -96,10 +102,17 @@ int main( int argc, char** argv )
 
 		bli_obj_set_struc( BLIS_TRIANGULAR, a );
 		bli_obj_set_uplo( BLIS_LOWER, a );
+<<<<<<< HEAD
+		bli_obj_set_onlytrans( BLIS_NO_TRANSPOSE, a );
+		bli_obj_set_diag( BLIS_NONUNIT_DIAG, a );
+
+		bli_setsc(  (1.0/1.0), 0.0, &alpha );
+=======
 		bli_obj_set_trans( BLIS_NO_TRANSPOSE, a );
 		bli_obj_set_diag( BLIS_NONUNIT_DIAG, a );
 
 		bli_setsc(  (2.0/1.0), 0.0, &alpha );
+>>>>>>> 0c1c78278bbd9c281bcbe933cc2f3bdb3bd74ef1
 
 
 		bli_copym( &x, &x_save );
@@ -126,6 +139,16 @@ int main( int argc, char** argv )
 
 #else
 
+<<<<<<< HEAD
+			f77_char uploa  = 'L';
+			f77_char transa = 'N';
+			f77_char diaga  = 'N';
+			f77_int  mm     = bli_obj_length( a );
+			f77_int  lda    = bli_obj_col_stride( a );
+			f77_int  incx   = bli_obj_vector_inc( x );
+			double*  ap     = bli_obj_buffer( a );
+			double*  xp     = bli_obj_buffer( x );
+=======
 			char    uploa  = 'L';
 			char    transa = 'N';
 			char    diaga  = 'N';
@@ -134,6 +157,7 @@ int main( int argc, char** argv )
 			int     incx   = bli_obj_vector_inc( x );
 			double* ap     = bli_obj_buffer( a );
 			double* xp     = bli_obj_buffer( x );
+>>>>>>> 0c1c78278bbd9c281bcbe933cc2f3bdb3bd74ef1
 
 			dtrmv_( &uploa,
 			        &transa,

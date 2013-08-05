@@ -34,12 +34,37 @@
 
 #include "blis.h"
 
+// Determine which of PACKDIM_MR/DEFAULT_MR and PACKDIM_NR/DEFAULT_NR is
+// greater so that the pair of values can be used to scale MAXIMUM_MC and
+// MAXIMUM_NC below. This is needed because the amount of space allocated
+// for a block of A and a panel of B needs to be such that MR and NR are
+// swapped (ie: A is packed with NR and B is packed with MR). This
+// transformation/optimization is needed for right-side trsm when inducing
+// an algorithm that (a) has favorable access patterns for column-stored
+// C and (b) allows the macro-kernel to reuse the existing left-side
+// fused gemmtrsm micro-kernels.
+// NOTE: We cross-multiply so that the comparison can stay in integer
+// arithmetic.
+#if ( BLIS_PACKDIM_MR_D * BLIS_DEFAULT_NR_D ) >= \
+    ( BLIS_PACKDIM_NR_D * BLIS_DEFAULT_MR_D )
+  #define BLIS_PACKDIM_MAXR_D BLIS_PACKDIM_MR_D
+  #define BLIS_DEFAULT_MAXR_D BLIS_DEFAULT_MR_D
+#else
+  #define BLIS_PACKDIM_MAXR_D BLIS_PACKDIM_NR_D
+  #define BLIS_DEFAULT_MAXR_D BLIS_DEFAULT_NR_D
+#endif
 
-// Define the size of pool blocks. These may be adjusted so that they can
-// handle inflated blocksizes at edge cases.
-#define BLIS_POOL_MC_D     ( ( BLIS_MAXIMUM_MC_D * BLIS_PACKDIM_MR_D ) / BLIS_DEFAULT_MR_D )
-#define BLIS_POOL_KC_D     ( ( BLIS_MAXIMUM_KC_D * BLIS_PACKDIM_KR_D ) / BLIS_DEFAULT_KR_D )
-#define BLIS_POOL_NC_D     ( ( BLIS_MAXIMUM_NC_D * BLIS_PACKDIM_NR_D ) / BLIS_DEFAULT_NR_D )
+// Define the size of pool blocks.
+// NOTE: for cases where the register blocksize extensions are non-zero,
+// we scale the maximum cache blocksize value so that enough space will
+// be allocated to accommodate the leading dimension for the packed
+// micro-panels of A and B.
+#define BLIS_POOL_MC_D     ( ( BLIS_MAXIMUM_MC_D * BLIS_PACKDIM_MAXR_D ) \
+                                                 / BLIS_DEFAULT_MAXR_D )
+#define BLIS_POOL_NC_D     ( ( BLIS_MAXIMUM_NC_D * BLIS_PACKDIM_MAXR_D ) \
+                                                 / BLIS_DEFAULT_MAXR_D )
+#define BLIS_POOL_KC_D     ( ( BLIS_MAXIMUM_KC_D * BLIS_PACKDIM_KR_D   ) \
+                                                 / BLIS_DEFAULT_KR_D   )
 
 // Define each pool's block size.
 // NOTE: Here we assume the "worst" case of the register blocking
@@ -121,7 +146,7 @@ void bli_mem_acquire_m( siz_t     req_size,
 	pool_t* pool;
 	void**  block_ptrs;
 	void*   block;
-	int     i;
+	gint_t  i;
 
 
 	if ( buf_type == BLIS_BUFFER_FOR_GEN_USE )
@@ -216,7 +241,7 @@ void bli_mem_release( mem_t* mem )
 	pool_t*   pool;
 	void**    block_ptrs;
 	void*     block;
-	int       i;
+	gint_t    i;
 
 	// Extract the address of the memory block we are trying to
 	// release.
@@ -329,11 +354,11 @@ void bli_mem_init_pool( char*   pool_mem,
 
 	// If the pool starting address is not already aligned, advance it
 	// accordingly.
-	if ( bli_is_unaligned_to( pool_mem, align_size ) )
+	if ( bli_is_unaligned_to( ( uintptr_t )pool_mem, ( uintptr_t )align_size ) )
 	{
 		// Notice that this works even if the alignment is not a power of two.
-		pool_mem += ( align_size - 
-		              ( ( siz_t )pool_mem % align_size ) );
+		pool_mem += (   ( uintptr_t )align_size - 
+		              ( ( uintptr_t )pool_mem % align_size ) );
 	}
 
 	// Step through the memory pool, beginning with the aligned address
@@ -349,10 +374,10 @@ void bli_mem_init_pool( char*   pool_mem,
 
 		// Advance pool a bit further if needed in order to get to the
 		// beginning of an alignment boundary.
-		if ( bli_is_unaligned_to( pool_mem, align_size ) )
+		if ( bli_is_unaligned_to( ( uintptr_t )pool_mem, ( uintptr_t )align_size ) )
 		{
-			pool_mem += ( align_size -
-			              ( ( siz_t )pool_mem % align_size ) );
+			pool_mem += (   ( uintptr_t )align_size -
+			              ( ( uintptr_t )pool_mem % align_size ) );
 		}
 	}
 
