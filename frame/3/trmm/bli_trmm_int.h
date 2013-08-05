@@ -32,12 +32,7 @@
 
 */
 
-<<<<<<< HEAD
 void bli_trmm_int( obj_t*  alpha,
-=======
-void bli_trmm_int( side_t  side,
-                   obj_t*  alpha,
->>>>>>> 0c1c78278bbd9c281bcbe933cc2f3bdb3bd74ef1
                    obj_t*  a,
                    obj_t*  b,
                    obj_t*  beta,

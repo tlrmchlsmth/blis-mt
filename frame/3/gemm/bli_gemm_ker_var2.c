@@ -44,7 +44,6 @@ typedef void (*FUNCPTR_T)(
                            void*   a, inc_t rs_a, inc_t cs_a, inc_t ps_a,
                            void*   b, inc_t rs_b, inc_t cs_b, inc_t ps_b,
                            void*   beta,
-                           void*   c, inc_t rs_c, inc_t cs_c
                            void*   c, inc_t rs_c, inc_t cs_c,
                            dim_t   l2_num_threads,
                            dim_t   l2_thread_id,

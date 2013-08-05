@@ -36,11 +36,9 @@
 
 #ifdef BLIS_ENABLE_BLAS2BLIS
 
-#include "bli_f2c.h"
-
 double d_imag(doublecomplex *z)
 {
-    return(z->i);
+	return bli_zimag( *z );
 }
 
 #endif

@@ -80,7 +80,7 @@ CPPROCFLAGS  :=
 CMISCFLAGS   := -std=c99 -fopenmp #-pg
 CDBGFLAGS    := -g
 CWARNFLAGS   := -Wall
-COPTFLAGS    := -O0 -malign-double -funroll-all-loops 
+COPTFLAGS    := -O3 -malign-double -funroll-all-loops 
 CVECFLAGS    := -mavx -mfma -march=bdver2 -mfpmath=sse 
 
 # Aggregate all of the flags into two groups: one for optimizable code, and
@@ -94,7 +94,7 @@ ARFLAGS      := cru
 
 # --- Determine the linker and related flags ---
 LINKER       := $(CC)
-LDFLAGS      := 
+LDFLAGS      := -fopenmp -lm
 
 
 

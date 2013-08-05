@@ -42,12 +42,12 @@
 #define GENTFUNC( ftype, ch, blasname, blisname ) \
 \
 void PASTEF77(ch,blasname)( \
-                            fchar*  uploa, \
-                            fchar*  transa, \
-                            fchar*  diaga, \
-                            fint*   m, \
-                            ftype*  a, fint* lda, \
-                            ftype*  x, fint* incx  \
+                            f77_char* uploa, \
+                            f77_char* transa, \
+                            f77_char* diaga, \
+                            f77_int*  m, \
+                            ftype*    a, f77_int* lda, \
+                            ftype*    x, f77_int* incx  \
                           ) \
 { \
 	uplo_t  blis_uploa; \
@@ -58,6 +58,16 @@ void PASTEF77(ch,blasname)( \
 	inc_t   incx0; \
 	inc_t   rs_a, cs_a; \
 	ftype   one; \
+\
+	/* Perform BLAS parameter checking. */ \
+	PASTEBLACHK(blasname)( MKSTR(ch), \
+	                       MKSTR(blasname), \
+	                       uploa, \
+	                       transa, \
+	                       diaga, \
+	                       m, \
+	                       lda, \
+	                       incx ); \
 \
 	/* Initialize a local scalar since we don't assume that the global
 	   scalar constants have been initialized yet. */ \

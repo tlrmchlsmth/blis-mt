@@ -53,6 +53,10 @@
     static real rgamsq = 5.96046e-8f;
 
     /* Format strings */
+    static char fmt_120[] = "";
+    static char fmt_150[] = "";
+    static char fmt_180[] = "";
+    static char fmt_210[] = "";
 
     /* System generated locals */
     real r__1;
@@ -63,6 +67,7 @@
     integer igo;
 
     /* Assigned format variables */
+    static char *igo_fmt;
 
 
 /*     CONSTRUCT THE MODIFIED GIVENS TRANSFORMATION MATRIX H WHICH ZEROS */
@@ -191,6 +196,7 @@ L110:
 	goto L160;
     }
     igo = 0;
+    igo_fmt = fmt_120;
 /*              FIX-H.. */
     goto L70;
 L120:
@@ -207,6 +213,7 @@ L140:
 	goto L160;
     }
     igo = 1;
+    igo_fmt = fmt_150;
 /*              FIX-H.. */
     goto L70;
 L150:
@@ -226,6 +233,7 @@ L170:
 	goto L220;
     }
     igo = 2;
+    igo_fmt = fmt_180;
 /*              FIX-H.. */
     goto L70;
 L180:
@@ -241,6 +249,7 @@ L200:
 	goto L220;
     }
     igo = 3;
+    igo_fmt = fmt_210;
 /*              FIX-H.. */
     goto L70;
 L210:
@@ -293,6 +302,10 @@ L260:
     static doublereal rgamsq = 5.9604645e-8;
 
     /* Format strings */
+    static char fmt_120[] = "";
+    static char fmt_150[] = "";
+    static char fmt_180[] = "";
+    static char fmt_210[] = "";
 
     /* System generated locals */
     doublereal d__1;
@@ -303,6 +316,7 @@ L260:
     integer igo;
 
     /* Assigned format variables */
+    static char *igo_fmt;
 
 
 /*     CONSTRUCT THE MODIFIED GIVENS TRANSFORMATION MATRIX H WHICH ZEROS */
@@ -431,6 +445,7 @@ L110:
 	goto L160;
     }
     igo = 0;
+    igo_fmt = fmt_120;
 /*              FIX-H.. */
     goto L70;
 L120:
@@ -447,6 +462,7 @@ L140:
 	goto L160;
     }
     igo = 1;
+    igo_fmt = fmt_150;
 /*              FIX-H.. */
     goto L70;
 L150:
@@ -466,6 +482,7 @@ L170:
 	goto L220;
     }
     igo = 2;
+    igo_fmt = fmt_180;
 /*              FIX-H.. */
     goto L70;
 L180:
@@ -481,6 +498,7 @@ L200:
 	goto L220;
     }
     igo = 3;
+    igo_fmt = fmt_210;
 /*              FIX-H.. */
     goto L70;
 L210:

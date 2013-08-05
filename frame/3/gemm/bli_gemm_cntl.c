@@ -339,13 +339,13 @@ void bli_gemm_grid_cntl_create()
                         //Next two lines don't work in the general case.
 
                         packm_thread_info_t* pack_a_info = bli_create_packm_thread_info( l3_a_comm, l3_a_comm_id, max_pack_with );
-                        gemm_packa_cntl_mt = bli_packm_cntl_obj_create_mt( BLIS_BLOCKED, BLIS_VARIANT2, gemm_mr, gemm_extmr,
-                                       gemm_kr, gemm_extkr, FALSE, FALSE, FALSE, FALSE, FALSE,
+                        gemm_packa_cntl_mt = bli_packm_cntl_obj_create_mt( BLIS_BLOCKED, BLIS_VARIANT2, gemm_mr,
+                                       gemm_kr, FALSE, FALSE, FALSE, FALSE, FALSE,
                                        BLIS_PACKED_ROW_PANELS, BLIS_BUFFER_FOR_A_BLOCK, pack_a_info );
 
                         packm_thread_info_t* pack_b_info = bli_create_packm_thread_info( l4_comm, l4_comm_id, max_pack_with );
                         gemm_packb_cntl_mt = bli_packm_cntl_obj_create_mt( BLIS_BLOCKED, BLIS_VARIANT2,
-                                       gemm_kr, gemm_extkr, gemm_nr, gemm_extnr,
+                                       gemm_kr,  gemm_nr, 
                                        FALSE, FALSE, FALSE, FALSE, FALSE, 
                                        BLIS_PACKED_COL_PANELS, BLIS_BUFFER_FOR_B_PANEL, pack_b_info );
 
@@ -428,14 +428,14 @@ void bli_gemm_hier_cntl_create()
                         //printf("%d\t%d\t%d\t%d\t%d\n", l3_comm_id, l4_comm_id, global_comm_id, m, k);
 
                         packm_thread_info_t* pack_a_info = bli_create_packm_thread_info( l3_comm, l3_comm_id, max_pack_with );
-                        gemm_packa_cntl_mt = bli_packm_cntl_obj_create_mt( BLIS_BLOCKED, BLIS_VARIANT2, gemm_mr, gemm_extmr,
-                                       gemm_kr, gemm_extkr, FALSE, FALSE, FALSE, FALSE, FALSE,
+                        gemm_packa_cntl_mt = bli_packm_cntl_obj_create_mt( BLIS_BLOCKED, BLIS_VARIANT2, gemm_mr, 
+                                       gemm_kr,  FALSE, FALSE, FALSE, FALSE, FALSE,
                                        BLIS_PACKED_ROW_PANELS, BLIS_BUFFER_FOR_A_BLOCK, pack_a_info );
 
 
                         packm_thread_info_t* pack_b_info = bli_create_packm_thread_info(  l4_comm, l4_comm_id, max_pack_with );
                         gemm_packb_cntl_mt = bli_packm_cntl_obj_create_mt( BLIS_BLOCKED, BLIS_VARIANT2,
-                                       gemm_kr, gemm_extkr, gemm_nr, gemm_extnr,
+                                       gemm_kr,  gemm_nr, 
                                        FALSE, FALSE, FALSE, FALSE, FALSE, 
                                        BLIS_PACKED_COL_PANELS, BLIS_BUFFER_FOR_B_PANEL, pack_b_info );
 

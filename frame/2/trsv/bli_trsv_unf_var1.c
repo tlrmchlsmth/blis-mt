@@ -175,13 +175,13 @@ void PASTEMAC2(cha,chx,varname)( \
 	{ \
 		for ( iter = 0; iter < m; iter += f ) \
 		{ \
-			f        = bli_min( m - iter, b_fuse ); \
-			i        = m - iter; \
+			f        = bli_determine_blocksize_dim_b( iter, m, b_fuse ); \
+			i        = m - iter - f; \
 			n_behind = iter; \
-			A11      = a_cast + (i-f)*rs_at + (i-f)*cs_at; \
-			A12      = a_cast + (i-f)*rs_at + (i  )*cs_at; \
-			x1       = x_cast + (i-f)*incx; \
-			x2       = x_cast + (i  )*incx; \
+			A11      = a_cast + (i  )*rs_at + (i  )*cs_at; \
+			A12      = a_cast + (i  )*rs_at + (i+f)*cs_at; \
+			x1       = x_cast + (i  )*incx; \
+			x2       = x_cast + (i+f)*incx; \
 \
 			/* x1 = x1 - A12 * x2; */ \
 			PASTEMAC3(cha,chx,chx,kername)( conja, \
@@ -216,7 +216,7 @@ void PASTEMAC2(cha,chx,varname)( \
 					for ( j = 0; j < f_behind; ++j ) \
 						PASTEMAC3(cha,chx,chax,dots)( *(a12t + j*cs_at), *(x21 + j*incx), rho1 ); \
 				} \
-				PASTEMAC3(chax,chax,chx,axpys)( *minus_one, rho1, *chi11 ); \
+				PASTEMAC2(chax,chx,subs)( rho1, *chi11 ); \
 \
 				/* chi11 = chi11 / alpha11; */ \
 				if ( bli_is_nonunit_diag( diag ) ) \
@@ -231,7 +231,7 @@ void PASTEMAC2(cha,chx,varname)( \
 	{ \
 		for ( iter = 0; iter < m; iter += f ) \
 		{ \
-			f        = bli_min( m - iter, b_fuse ); \
+			f        = bli_determine_blocksize_dim_f( iter, m, b_fuse ); \
 			i        = iter; \
 			n_behind = i; \
 			A11      = a_cast + (i  )*rs_at + (i  )*cs_at; \
@@ -272,7 +272,7 @@ void PASTEMAC2(cha,chx,varname)( \
 					for ( j = 0; j < f_behind; ++j ) \
 						PASTEMAC3(cha,chx,chax,dots)( *(a10t + j*cs_at), *(x01 + j*incx), rho1 ); \
 				} \
-				PASTEMAC3(chax,chax,chx,axpys)( *minus_one, rho1, *chi11 ); \
+				PASTEMAC2(chax,chx,subs)( rho1, *chi11 ); \
 \
 				/* chi11 = chi11 / alpha11; */ \
 				if ( bli_is_nonunit_diag( diag ) ) \

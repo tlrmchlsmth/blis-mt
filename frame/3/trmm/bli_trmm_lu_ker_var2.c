@@ -319,7 +319,7 @@ void PASTEMAC(ch,varname)( \
 					                      bp_i, \
 					                      beta_cast, \
 					                      c11, rs_c, cs_c, \
-					                      a2, b2 ); \
+					                      a2, b2, 0 ); \
 				} \
 				else \
 				{ \
@@ -335,7 +335,7 @@ void PASTEMAC(ch,varname)( \
 					                      bp_i, \
 					                      beta_cast, \
 					                      ct, rs_ct, cs_ct, \
-					                      a2, b2 ); \
+					                      a2, b2, 0 ); \
 \
 					/* Copy the result to the edge of C. */ \
 					PASTEMAC(ch,copys_mxn)( m_cur, n_cur, \
@@ -367,7 +367,7 @@ void PASTEMAC(ch,varname)( \
 					                      bp, \
 					                      one, \
 					                      c11, rs_c, cs_c, \
-					                      a2, b2 ); \
+					                      a2, b2, 0 ); \
 				} \
 				else \
 				{ \
@@ -378,7 +378,7 @@ void PASTEMAC(ch,varname)( \
 					                      bp, \
 					                      zero, \
 					                      ct, rs_ct, cs_ct, \
-					                      a2, b2 ); \
+					                      a2, b2, 0 ); \
 \
 					/* Add the result to the edge of C. */ \
 					PASTEMAC(ch,adds_mxn)( m_cur, n_cur, \

@@ -36,12 +36,9 @@
 
 #ifdef BLIS_ENABLE_BLAS2BLIS
 
-#include "bli_f2c.h"
-
-void d_cnjg(doublecomplex *dest, doublecomplex *src)
+void bla_d_cnjg(doublecomplex *dest, doublecomplex *src)
 {
-	dest->r =   src->r ;
-	dest->i = -(src->i);
+	bli_zcopyjs( *src, *dest );
 }
 
 #endif

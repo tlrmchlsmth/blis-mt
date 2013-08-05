@@ -162,7 +162,7 @@ void bli_packm_cntl_finalize()
 	bli_blksz_obj_free( packm_mult_nvec );
 }
 
-packm_t* bli_packm_cntl_obj_create( impl_t     impl_type,
+packm_t* bli_packm_cntl_obj_create_mt( impl_t     impl_type,
                                     varnum_t   var_num,
                                     blksz_t*   mr,
                                     blksz_t*   nr,
@@ -198,10 +198,8 @@ packm_t* bli_packm_cntl_obj_create( impl_t     impl_type,
 void bli_packm_cntl_obj_init_mt( packm_t*   cntl,
                               impl_t     impl_type,
                               varnum_t   var_num,
-                              blksz_t*   mr_def,
-                              blksz_t*   mr_ext,
-                              blksz_t*   nr_def,
-                              blksz_t*   nr_ext,
+                              blksz_t*   mr,
+                              blksz_t*   nr,
                               bool_t     does_scale,
                               bool_t     does_densify,
                               bool_t     does_invert_diag,
@@ -213,10 +211,8 @@ void bli_packm_cntl_obj_init_mt( packm_t*   cntl,
 {
 	cntl->impl_type         = impl_type;
 	cntl->var_num           = var_num;
-	cntl->mr_def            = mr_def;
-	cntl->mr_ext            = mr_ext;
-	cntl->nr_def            = nr_def;
-	cntl->nr_ext            = nr_ext;
+	cntl->mr            = mr;
+	cntl->nr            = nr;
 	cntl->does_scale        = does_scale;
 	cntl->does_densify      = does_densify;
 	cntl->does_invert_diag  = does_invert_diag;
@@ -229,10 +225,8 @@ void bli_packm_cntl_obj_init_mt( packm_t*   cntl,
 
 packm_t* bli_packm_cntl_obj_create( impl_t     impl_type,
                                     varnum_t   var_num,
-                                    blksz_t*   mr_def,
-                                    blksz_t*   mr_ext,
-                                    blksz_t*   nr_def,
-                                    blksz_t*   nr_ext,
+                                    blksz_t*   mr,
+                                    blksz_t*   nr,
                                     bool_t     does_scale,
                                     bool_t     does_densify,
                                     bool_t     does_invert_diag,
@@ -241,7 +235,7 @@ packm_t* bli_packm_cntl_obj_create( impl_t     impl_type,
                                     pack_t     pack_schema,
                                     packbuf_t  pack_buf_type )
 {
-    return bli_packm_cntl_obj_create_mt( impl_type, var_num, mr_def, mr_ext, nr_def, nr_ext,
+    return bli_packm_cntl_obj_create_mt( impl_type, var_num, mr, nr,
         does_scale, does_densify, does_invert_diag, rev_iter_if_upper, rev_iter_if_lower,
         pack_schema, pack_buf_type, NULL);
 }
@@ -249,10 +243,8 @@ packm_t* bli_packm_cntl_obj_create( impl_t     impl_type,
 void bli_packm_cntl_obj_init( packm_t*   cntl,
                               impl_t     impl_type,
                               varnum_t   var_num,
-                              blksz_t*   mr_def,
-                              blksz_t*   mr_ext,
-                              blksz_t*   nr_def,
-                              blksz_t*   nr_ext,
+                              blksz_t*   mr,
+                              blksz_t*   nr,
                               bool_t     does_scale,
                               bool_t     does_densify,
                               bool_t     does_invert_diag,
@@ -261,7 +253,7 @@ void bli_packm_cntl_obj_init( packm_t*   cntl,
                               pack_t     pack_schema,
                               packbuf_t  pack_buf_type )
 {
-    bli_packm_cntl_obj_init_mt( cntl, impl_type, var_num, mr_def, mr_ext, nr_def, nr_ext,
+    bli_packm_cntl_obj_init_mt( cntl, impl_type, var_num, mr, nr,
         does_scale, does_densify, does_invert_diag, rev_iter_if_upper, rev_iter_if_lower,
         pack_schema, pack_buf_type, NULL);
 }

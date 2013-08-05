@@ -368,7 +368,7 @@ void PASTEMAC(ch,varname)( \
 					                      a1, \
 					                      alpha_cast, \
 					                      c11, cs_c, rs_c, \
-					                      b2, a2 ); \
+					                      b2, a2, 0 ); \
 				} \
 				else \
 				{ \
@@ -379,7 +379,7 @@ void PASTEMAC(ch,varname)( \
 					                      a1, \
 					                      zero, \
 					                      ct, cs_ct, rs_ct, \
-					                      b2, a2 ); \
+					                      b2, a2, 0 ); \
 \
 					/* Add the result to the edge of C. */ \
 					PASTEMAC(ch,xpbys_mxn)( m_cur, n_cur, \

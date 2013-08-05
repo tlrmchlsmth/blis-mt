@@ -128,6 +128,7 @@ void bli_unpackv_int( obj_t*     p,
 	// Now, if necessary, we cast the contents of c to vector a. If casting
 	// was not necessary, then we are done because the call to the unpackv
 	// implementation would have unpacked directly to vector a.
+    /*
 	if ( bli_obj_datatype( *p ) != bli_obj_datatype( *a ) )
 	{
 		// Copy/typecast vector c to vector a.
@@ -145,6 +146,7 @@ void bli_unpackv_int( obj_t*     p,
 		bli_copynzv( &c,
 		             a );
 	}
+    */
 }
 
 /*

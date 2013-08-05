@@ -337,7 +337,7 @@ void PASTEMAC(ch,varname)( \
 					                      bp, \
 					                      beta_cast, \
 					                      c11, rs_c, cs_c, \
-					                      a2, b2 ); \
+					                      a2, b2, 0 ); \
 				} \
 				else \
 				{ \
@@ -348,7 +348,7 @@ void PASTEMAC(ch,varname)( \
 					                      bp, \
 					                      zero, \
 					                      ct, rs_ct, cs_ct, \
-					                      a2, b2 ); \
+					                      a2, b2, 0 ); \
 \
 					/* Scale the edge of C and add the result. */ \
 					PASTEMAC(ch,xpbys_mxn)( m_cur, n_cur, \

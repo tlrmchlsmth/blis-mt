@@ -48,6 +48,10 @@
 \
 	( ( siz_t )(p) % (size) != 0 )
 
+#define bli_offset_from_alignment( p, size ) \
+\
+	( ( siz_t )(p) % (size) )
+
 
 // datatype
 
@@ -71,21 +75,29 @@
 \
 	( dt == BLIS_CONSTANT )
 
+#define bli_is_int( dt ) \
+\
+	( dt == BLIS_INT )
+
 #define bli_is_real( dt ) \
 \
-    ( ( dt & BLIS_DOMAIN_BIT ) == BLIS_BITVAL_REAL )
+    ( bli_is_float( dt ) || \
+	  bli_is_double( dt ) )
 
 #define bli_is_complex( dt ) \
 \
-    ( ( dt & BLIS_DOMAIN_BIT ) == BLIS_BITVAL_COMPLEX )
+    ( bli_is_scomplex( dt ) || \
+	  bli_is_dcomplex( dt ) )
 
 #define bli_is_single_prec( dt ) \
 \
-    ( ( dt & BLIS_PRECISION_BIT ) == BLIS_BITVAL_SINGLE_PREC )
+    ( bli_is_float( dt ) || \
+	  bli_is_scomplex( dt ) )
 
 #define bli_is_double_prec( dt ) \
 \
-    ( ( dt & BLIS_PRECISION_BIT ) == BLIS_BITVAL_DOUBLE_PREC )
+    ( bli_is_double( dt ) || \
+	  bli_is_dcomplex( dt ) )
 
 #define bli_datatype_proj_to_real( dt ) \
 \
@@ -94,6 +106,10 @@
 #define bli_datatype_proj_to_complex( dt ) \
 \
 	( dt &  BLIS_BITVAL_COMPLEX )
+
+#define bli_domain_of_dt( dt ) \
+\
+	( dt & BLIS_DOMAIN_BIT )
 
 
 // side
@@ -314,6 +330,19 @@
 	else                             { mt = n; nt = m; rst = cs; cst = rs; } \
 }
 
+
+// blocksize-related
+
+#define bli_determine_blocksize_dim_f( i, dim, b_alg ) \
+\
+	( bli_min( b_alg, dim - i ) )
+
+#define bli_determine_blocksize_dim_b( i, dim, b_alg ) \
+\
+	( i == 0 && dim % b_alg != 0 ? dim % b_alg \
+	                             : b_alg )
+
+
 // stride-related
 
 #define bli_vector_inc( trans, m, n, rs, cs ) \
@@ -483,20 +512,6 @@
 #define bli_iformatspec() "%6d"
 
 
-// project dt to real if imaginary component is zero
-
-#define bli_proj_dt_to_real_if_imag_eq0( buf, dt ) \
-{ \
-	if ( bli_is_scomplex( dt ) ) \
-	{ \
-		if ( bli_cimageq0( buf ) ) dt = BLIS_FLOAT; \
-	} \
-	else if ( bli_is_dcomplex( dt ) ) \
-	{ \
-		if ( bli_zimageq0( buf ) ) dt = BLIS_DOUBLE; \
-	} \
-}
-
 // set scalar datatype and buffer
 
 #define bli_set_scalar_dt_buffer( obj_scalar, dt_aux, dt_scalar, buf_scalar ) \
@@ -511,12 +526,6 @@
 		dt_scalar  = bli_obj_datatype( *(obj_scalar) ); \
 		buf_scalar = bli_obj_buffer_at_off( *(obj_scalar) ); \
 	} \
-\
-	/* Projecting the scalar datatype to the real domain when the imaginary
-	   part of is zero doesn't work when only basic datatype support is
-	   enabled, because it can result in trying to use mixed datatype
-	   functionality.
-	bli_proj_dt_to_real_if_imag_eq0( buf_scalar, dt_scalar ); */ \
 }
 
 // set constant datatype and buffer
@@ -527,12 +536,6 @@
 		dt_scalar  = dt_aux; \
 		buf_scalar = bli_obj_scalar_buffer( dt_scalar, *(obj_scalar) ); \
 	} \
-\
-	/* Projecting the scalar datatype to the real domain when the imaginary
-	   part of is zero doesn't work when only basic datatype support is
-	   enabled, because it can result in trying to use mixed datatype
-	   functionality.
-	bli_proj_dt_to_real_if_imag_eq0( buf_scalar, dt_scalar ); */ \
 }
 
 

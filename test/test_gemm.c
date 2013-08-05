@@ -88,7 +88,7 @@ int main( int argc, char** argv )
 	p_inc   = 100;
 
 	m_input = -1;
-	n_input = 384;
+	n_input = -1;
 	k_input = -1;
 	//k_input = 200;
 #else

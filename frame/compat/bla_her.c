@@ -42,11 +42,11 @@
 #define GENTFUNCCO( ftype, ftype_r, ch, chr, blasname, blisname ) \
 \
 void PASTEF77(ch,blasname)( \
-                            fchar*    uploa, \
-                            fint*     m, \
+                            f77_char* uploa, \
+                            f77_int*  m, \
                             ftype_r*  alpha, \
-                            ftype*    x, fint* incx, \
-                            ftype*    a, fint* lda   \
+                            ftype*    x, f77_int* incx, \
+                            ftype*    a, f77_int* lda   \
                           ) \
 { \
 	uplo_t  blis_uploa; \
@@ -54,6 +54,14 @@ void PASTEF77(ch,blasname)( \
 	ftype*  x0; \
 	inc_t   incx0; \
 	inc_t   rs_a, cs_a; \
+\
+	/* Perform BLAS parameter checking. */ \
+	PASTEBLACHK(blasname)( MKSTR(ch), \
+	                       MKSTR(blasname), \
+	                       uploa, \
+	                       m, \
+	                       incx, \
+	                       lda ); \
 \
 	/* Map BLAS chars to their corresponding BLIS enumerated type value. */ \
 	bli_param_map_netlib_to_blis_uplo( *uploa, &blis_uploa ); \

@@ -42,14 +42,14 @@
 #define GENTFUNC( ftype, ch, blasname, blisname ) \
 \
 void PASTEF77(ch,blasname)( \
-                            fchar*  transa, \
-                            fint*   m, \
-                            fint*   n, \
-                            ftype*  alpha, \
-                            ftype*  a, fint* lda, \
-                            ftype*  x, fint* incx, \
-                            ftype*  beta, \
-                            ftype*  y, fint* incy  \
+                            f77_char* transa, \
+                            f77_int*  m, \
+                            f77_int*  n, \
+                            ftype*    alpha, \
+                            ftype*    a, f77_int* lda, \
+                            ftype*    x, f77_int* incx, \
+                            ftype*    beta, \
+                            ftype*    y, f77_int* incy  \
                           ) \
 { \
 	trans_t blis_transa; \
@@ -60,6 +60,16 @@ void PASTEF77(ch,blasname)( \
 	inc_t   incx0; \
 	inc_t   incy0; \
 	inc_t   rs_a, cs_a; \
+\
+	/* Perform BLAS parameter checking. */ \
+	PASTEBLACHK(blasname)( MKSTR(ch), \
+	                       MKSTR(blasname), \
+	                       transa, \
+	                       m, \
+	                       n, \
+	                       lda, \
+	                       incx, \
+	                       incy ); \
 \
 	/* Map BLAS chars to their corresponding BLIS enumerated type value. */ \
 	bli_param_map_netlib_to_blis_trans( *transa, &blis_transa ); \

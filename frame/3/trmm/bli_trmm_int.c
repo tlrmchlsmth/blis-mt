@@ -43,7 +43,6 @@ typedef void (*FUNCPTR_T)( obj_t*  alpha,
                            obj_t*  c,
                            trmm_t* cntl );
 
-<<<<<<< HEAD
 static FUNCPTR_T vars[2][2][4][3] =
 {
 	// left
@@ -87,32 +86,6 @@ static FUNCPTR_T vars[2][2][4][3] =
 };
 
 void bli_trmm_int( obj_t*  alpha,
-=======
-static FUNCPTR_T vars[2][5][3] =
-{
-	// lower
-	{
-	    // unblocked            optimized unblocked    blocked
-	    { NULL,                 NULL,                  bli_trmm_l_blk_var1 },
-	    { NULL,                 bli_trmm_l_ker_var2,   bli_trmm_l_blk_var2 },
-	    { NULL,                 NULL,                  bli_trmm_l_blk_var3 },
-	    { NULL,                 NULL,                  bli_trmm_l_blk_var4 },
-	    { NULL,                 NULL,                  NULL                },
-	},
-	// upper
-	{
-	    // unblocked            optimized unblocked    blocked
-	    { NULL,                 NULL,                  bli_trmm_u_blk_var1 },
-	    { NULL,                 bli_trmm_u_ker_var2,   bli_trmm_u_blk_var2 },
-	    { NULL,                 NULL,                  bli_trmm_u_blk_var3 },
-	    { NULL,                 NULL,                  bli_trmm_u_blk_var4 },
-	    { NULL,                 NULL,                  NULL                },
-	}
-};
-
-void bli_trmm_int( side_t  side,
-                   obj_t*  alpha,
->>>>>>> 0c1c78278bbd9c281bcbe933cc2f3bdb3bd74ef1
                    obj_t*  a,
                    obj_t*  b,
                    obj_t*  beta,
@@ -120,18 +93,13 @@ void bli_trmm_int( side_t  side,
                    trmm_t* cntl )
 {
 	obj_t     c_local;
-<<<<<<< HEAD
 	bool_t    side, uplo;
-=======
-	bool_t    uplo;
->>>>>>> 0c1c78278bbd9c281bcbe933cc2f3bdb3bd74ef1
 	varnum_t  n;
 	impl_t    i;
 	FUNCPTR_T f;
 
 	// Check parameters.
 	if ( bli_error_checking_is_enabled() )
-<<<<<<< HEAD
 		bli_trmm_int_check( alpha, a, b, beta, c, cntl );
 
 	// If C has a zero dimension, return early.
@@ -145,15 +113,6 @@ void bli_trmm_int( side_t  side,
 		return;
 	}
 
-=======
-		bli_trmm_int_check( side, alpha, a, b, beta, c, cntl );
-
-	// Return early if one of the matrix operands has a zero dimension.
-	if ( bli_obj_has_zero_dim( *a ) ) return;
-	if ( bli_obj_has_zero_dim( *b ) ) return;
-	if ( bli_obj_has_zero_dim( *c ) ) return;
-
->>>>>>> 0c1c78278bbd9c281bcbe933cc2f3bdb3bd74ef1
 	// Alias C in case we need to induce a transposition.
 	bli_obj_alias_to( *c, c_local );
 
@@ -165,7 +124,6 @@ void bli_trmm_int( side_t  side,
 	if ( cntl_is_leaf( cntl ) && bli_obj_has_trans( *c ) )
 	{
 		bli_obj_induce_trans( c_local );
-<<<<<<< HEAD
 		bli_obj_set_onlytrans( BLIS_NO_TRANSPOSE, c_local );
 	}
 
@@ -185,25 +143,13 @@ void bli_trmm_int( side_t  side,
 		if ( bli_obj_root_is_lower( *b ) ) uplo = 0;
 		else                               uplo = 1;
 	}
-=======
-		bli_obj_set_trans( BLIS_NO_TRANSPOSE, c_local );
-	}
-
-	// Set a bool based on the uplo field of A's root object.
-	if ( bli_obj_root_is_lower( *a ) ) uplo = 0;
-	else                               uplo = 1;
->>>>>>> 0c1c78278bbd9c281bcbe933cc2f3bdb3bd74ef1
 
 	// Extract the variant number and implementation type.
 	n = cntl_var_num( cntl );
 	i = cntl_impl_type( cntl );
 
 	// Index into the variant array to extract the correct function pointer.
-<<<<<<< HEAD
 	f = vars[side][uplo][n][i];
-=======
-	f = vars[uplo][n][i];
->>>>>>> 0c1c78278bbd9c281bcbe933cc2f3bdb3bd74ef1
 
 	// Invoke the variant.
 	f( alpha,
