@@ -46,21 +46,14 @@
 //
 // (1) MC must be a multiple of:
 //     (a) MR (for zero-padding purposes)
+//     (b) NR (for zero-padding purposes when MR and NR are "swapped")
 // (2) NC must be a multiple of
 //     (a) NR (for zero-padding purposes)
+//     (b) MR (for zero-padding purposes when MR and NR are "swapped")
 // (3) KC must be a multiple of
 //     (a) MR and
-//     (b) NR
-//     for triangular operations such as trmm and trsm.
+//     (b) NR (for triangular operations such as trmm and trsm).
 // 
-// NOTE: For BLIS libraries built on block-panel macro-kernels, constraint (3b)
-// is relaxed. In this case, (3a) is needed for operations where matrix A is
-// triangular (trmm, trsm), because we want the diagonal offset of any packed
-// panel of matrix A to be a multiple of MR. If, instead, the library were to
-// be built on block-panel macro-kernels, the matrix with structure would be
-// on the right, rather than the left, and thus it would be constraint (3b)
-// that would be needed instead of (3a).
-//
 
 #define BLIS_DEFAULT_MC_S              256
 #define BLIS_DEFAULT_KC_S              256
@@ -81,9 +74,11 @@
 // -- Cache blocksize extensions (for optimizing edge cases) --
 
 // NOTE: These cache blocksize "extensions" have the same constraints as
-// the corresponding default blocksizes above.
+// the corresponding default blocksizes above. When these values are
+// non-zero, blocksizes used at edge cases are extended (enlarged) if
+// such an extension would encompass the remaining portion of the
+// matrix dimension.
 
-// NOTE: These values are not yet used.
 #define BLIS_EXTEND_MC_S               0 //(BLIS_DEFAULT_MC_S/4)
 #define BLIS_EXTEND_KC_S               0 //(BLIS_DEFAULT_KC_S/4)
 #define BLIS_EXTEND_NC_S               0 //(BLIS_DEFAULT_NC_S/4)
@@ -327,10 +322,6 @@
 // -- axpyv --
 
 #define AXPYV_KERNEL         axpyv_unb_var1
-
-// -- copynzv --
-
-#define COPYNZV_KERNEL       copynzv_unb_var1
 
 // -- copyv --
 

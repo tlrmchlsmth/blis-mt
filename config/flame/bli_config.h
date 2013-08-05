@@ -45,6 +45,10 @@
 #define BLIS_NUM_FP_TYPES                4
 #define BLIS_MAX_TYPE_SIZE               sizeof(dcomplex)
 
+// Enable use of built-in C99 "float complex" and "double complex" types and
+// associated overloaded operations and functions? Disabling results in
+// scomplex and dcomplex being defined in terms of simple structs.
+//#define BLIS_ENABLE_C99_COMPLEX
 
 
 // -- MULTITHREADING -----------------------------------------------------------
@@ -126,7 +130,12 @@
 // Enable the BLAS compatibility layer?
 #define BLIS_ENABLE_BLAS2BLIS
 
+// Enable 64-bit integers in the BLAS compatibility layer? If disabled,
+// these integers will be defined as 32-bit.
+#define BLIS_ENABLE_BLAS2BLIS_INT64
+
 // Fortran-77 name-mangling macros.
+#define PASTEF770(name)                        name ## _
 #define PASTEF77(ch1,name)       ch1        ## name ## _
 #define PASTEF772(ch1,ch2,name)  ch1 ## ch2 ## name ## _
 

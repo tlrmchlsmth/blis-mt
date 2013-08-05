@@ -36,10 +36,8 @@ struct packm_s
 {
 	impl_t         impl_type;
 	varnum_t       var_num;
-	blksz_t*       mr_def;
-	blksz_t*       mr_ext;
-	blksz_t*       nr_def;
-	blksz_t*       nr_ext;
+	blksz_t*       mr;
+	blksz_t*       nr;
 	bool_t         does_scale;
 	bool_t         does_densify;
 	bool_t         does_invert_diag;
@@ -51,10 +49,8 @@ struct packm_s
 };
 typedef struct packm_s packm_t;
 
-#define cntl_mr_def( cntl )            cntl->mr_def
-#define cntl_mr_ext( cntl )            cntl->mr_ext
-#define cntl_nr_def( cntl )            cntl->nr_def
-#define cntl_nr_ext( cntl )            cntl->nr_ext
+#define cntl_mr( cntl )                cntl->mr
+#define cntl_nr( cntl )                cntl->nr
 
 #define cntl_does_scale( cntl )        cntl->does_scale
 #define cntl_does_densify( cntl )      cntl->does_densify
@@ -118,14 +114,11 @@ packm_t* bli_packm_cntl_obj_create( impl_t     impl_type,
                                     bool_t     rev_iter_if_lower,
                                     pack_t     pack_schema,
                                     packbuf_t  pack_buf_type );
-
 void bli_packm_cntl_obj_init( packm_t*   cntl,
                               impl_t     impl_type,
                               varnum_t   var_num,
                               blksz_t*   mr_def,
-                              blksz_t*   mr_ext,
                               blksz_t*   nr_def,
-                              blksz_t*   nr_ext,
                               bool_t     does_scale,
                               bool_t     does_densify,
                               bool_t     does_invert_diag,

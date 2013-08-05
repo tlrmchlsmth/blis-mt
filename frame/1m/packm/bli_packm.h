@@ -47,5 +47,3 @@
 #include "bli_packm_blk_var3.h"
 
 #include "bli_packm_cxk.h"
-
-

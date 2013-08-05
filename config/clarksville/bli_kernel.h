@@ -46,27 +46,20 @@
 //
 // (1) MC must be a multiple of:
 //     (a) MR (for zero-padding purposes)
+//     (b) NR (for zero-padding purposes when MR and NR are "swapped")
 // (2) NC must be a multiple of
 //     (a) NR (for zero-padding purposes)
+//     (b) MR (for zero-padding purposes when MR and NR are "swapped")
 // (3) KC must be a multiple of
 //     (a) MR and
-//     (b) NR
-//     for triangular operations such as trmm and trsm.
+//     (b) NR (for triangular operations such as trmm and trsm).
 // 
-// NOTE: For BLIS libraries built on block-panel macro-kernels, constraint (3b)
-// is relaxed. In this case, (3a) is needed for operations where matrix A is
-// triangular (trmm, trsm), because we want the diagonal offset of any packed
-// panel of matrix A to be a multiple of MR. If, instead, the library were to
-// be built on block-panel macro-kernels, the matrix with structure would be
-// on the right, rather than the left, and thus it would be constraint (3b)
-// that would be needed instead of (3a).
-//
 
 #define BLIS_DEFAULT_MC_S              256
 #define BLIS_DEFAULT_KC_S              256
 #define BLIS_DEFAULT_NC_S              8192
 
-#define BLIS_DEFAULT_MC_D              368
+#define BLIS_DEFAULT_MC_D              384
 #define BLIS_DEFAULT_KC_D              256
 #define BLIS_DEFAULT_NC_D              4096
 
@@ -81,15 +74,17 @@
 // -- Cache blocksize extensions (for optimizing edge cases) --
 
 // NOTE: These cache blocksize "extensions" have the same constraints as
-// the corresponding default blocksizes above.
+// the corresponding default blocksizes above. When these values are
+// non-zero, blocksizes used at edge cases are extended (enlarged) if
+// such an extension would encompass the remaining portion of the
+// matrix dimension.
 
-// NOTE: These values are not yet used.
 #define BLIS_EXTEND_MC_S               0 //(BLIS_DEFAULT_MC_S/4)
 #define BLIS_EXTEND_KC_S               0 //(BLIS_DEFAULT_KC_S/4)
 #define BLIS_EXTEND_NC_S               0 //(BLIS_DEFAULT_NC_S/4)
 
-#define BLIS_EXTEND_MC_D               0 //(BLIS_DEFAULT_MC_D/4)
-#define BLIS_EXTEND_KC_D               0 //(BLIS_DEFAULT_KC_D/4)
+#define BLIS_EXTEND_MC_D               (BLIS_DEFAULT_MC_D/2)
+#define BLIS_EXTEND_KC_D               (BLIS_DEFAULT_KC_D/2)
 #define BLIS_EXTEND_NC_D               0 //(BLIS_DEFAULT_NC_D/4)
 
 #define BLIS_EXTEND_MC_C               0 //(BLIS_DEFAULT_MC_C/4)
@@ -182,7 +177,7 @@
 // used by certain blocked variants. But when the *are* used, they MUST be
 // be an integer multiple of NR!
 
-#define BLIS_DEFAULT_NI_FAC            16
+#define BLIS_DEFAULT_NI_FAC            1
 #define BLIS_DEFAULT_NI_S              (BLIS_DEFAULT_NI_FAC * BLIS_DEFAULT_NR_S)
 #define BLIS_DEFAULT_NI_D              (BLIS_DEFAULT_NI_FAC * BLIS_DEFAULT_NR_D)
 #define BLIS_DEFAULT_NI_C              (BLIS_DEFAULT_NI_FAC * BLIS_DEFAULT_NR_C)
@@ -248,6 +243,10 @@
 // -- LEVEL-3 KERNEL DEFINITIONS -----------------------------------------------
 
 #include "bli_gemm_opt_d4x4.h"
+#include "bli_gemmtrsm_l_opt_d4x4.h"
+#include "bli_gemmtrsm_u_opt_d4x4.h"
+//#include "bli_trsm_l_ref_4x4.h"
+//#include "bli_trsm_u_ref_4x4.h"
 
 // -- dupl --
 
@@ -259,8 +258,8 @@
 
 // -- trsm-related --
 
-#define GEMMTRSM_L_UKERNEL   gemmtrsm_l_ref_mxn
-#define GEMMTRSM_U_UKERNEL   gemmtrsm_u_ref_mxn
+#define GEMMTRSM_L_UKERNEL   gemmtrsm_l_opt_d4x4
+#define GEMMTRSM_U_UKERNEL   gemmtrsm_u_opt_d4x4
 
 #define TRSM_L_UKERNEL       trsm_l_ref_mxn
 #define TRSM_U_UKERNEL       trsm_u_ref_mxn
@@ -295,30 +294,38 @@
 
 // -- LEVEL-1F KERNEL DEFINITIONS ----------------------------------------------
 
+#include "bli_axpy2v_opt_var1.h"
+#include "bli_dotaxpyv_opt_var1.h"
+#include "bli_axpyf_opt_var1.h"
+#include "bli_dotxf_opt_var1.h"
+#include "bli_dotxaxpyf_opt_var1.h"
+
 // -- axpy2v --
 
-#define AXPY2V_KERNEL        axpy2v_unb_var1
+#define AXPY2V_KERNEL        axpy2v_opt_var1
 
 // -- dotaxpyv --
 
-#define DOTAXPYV_KERNEL      dotaxpyv_unb_var1
+#define DOTAXPYV_KERNEL      dotaxpyv_opt_var1
 
 // -- axpyf --
 
-#define AXPYF_KERNEL         axpyf_unb_var1
+#define AXPYF_KERNEL         axpyf_opt_var1
 
 // -- dotxf --
 
-#define DOTXF_KERNEL         dotxf_unb_var1
+#define DOTXF_KERNEL         dotxf_opt_var1
 
 // -- dotxaxpyf --
 
-#define DOTXAXPYF_KERNEL     dotxaxpyf_unb_var1
+#define DOTXAXPYF_KERNEL     dotxaxpyf_opt_var1
 
 
 
 // -- LEVEL-1V KERNEL DEFINITIONS ----------------------------------------------
 
+#include "bli_axpyv_opt_var1.h"
+#include "bli_dotv_opt_var1.h"
 
 // -- addv --
 
@@ -326,11 +333,7 @@
 
 // -- axpyv --
 
-#define AXPYV_KERNEL         axpyv_unb_var1
-
-// -- copynzv --
-
-#define COPYNZV_KERNEL       copynzv_unb_var1
+#define AXPYV_KERNEL         axpyv_opt_var1
 
 // -- copyv --
 
@@ -338,7 +341,7 @@
 
 // -- dotv --
 
-#define DOTV_KERNEL          dotv_unb_var1
+#define DOTV_KERNEL          dotv_opt_var1
 
 // -- dotxv --
 

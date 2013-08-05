@@ -34,8 +34,7 @@
 
 void bli_packm_blk_var3( obj_t*   beta,
                          obj_t*   c,
-                         obj_t*   p,
-                         packm_thread_info_t* info );
+                         obj_t*   p );
 
 
 #undef  GENTPROT
