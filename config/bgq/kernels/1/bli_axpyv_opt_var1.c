@@ -179,7 +179,6 @@ void bli_dddaxpyv_opt_var1(
 	}
 	// Call the reference implementation if needed.
 	if ( use_ref == TRUE ) {
-        printf("Defaulting to reference!");
 		bli_dddaxpyv_unb_var1( conjx, n, alpha, x, incx, y, incy );
 		return;
 	}
