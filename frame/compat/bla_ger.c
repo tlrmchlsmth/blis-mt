@@ -62,9 +62,9 @@ void PASTEF772(chxy,blasname,chc)( \
 	                       MKSTR(blasname), \
 	                       m, \
 	                       n, \
+                           lda, \
 	                       incx, \
-	                       incy, \
-	                       lda ); \
+	                       incy ); \
 \
 	/* Convert negative values of m and n to zero. */ \
 	bli_convert_blas_dim1( *m, m0 ); \
