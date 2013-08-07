@@ -606,10 +606,10 @@ err_t bli_check_valid_3x1_subpart( subpart_t part )
 {
 	err_t e_val = BLIS_SUCCESS;
 
-	if ( part != BLIS_SUBPART0 &&
+/*	if ( part != BLIS_SUBPART0 &&
 	     part != BLIS_SUBPART1 &&
 	     part != BLIS_SUBPART2 )
-		e_val = BLIS_INVALID_3x1_SUBPART;
+		e_val = BLIS_INVALID_3x1_SUBPART; */
 
 	return e_val;
 }
@@ -618,10 +618,10 @@ err_t bli_check_valid_1x3_subpart( subpart_t part )
 {
 	err_t e_val = BLIS_SUCCESS;
 
-	if ( part != BLIS_SUBPART0 &&
+/*	if ( part != BLIS_SUBPART0 &&
 	     part != BLIS_SUBPART1 &&
 	     part != BLIS_SUBPART2 )
-		e_val = BLIS_INVALID_1x3_SUBPART;
+		e_val = BLIS_INVALID_1x3_SUBPART; */
 
 	return e_val;
 }
