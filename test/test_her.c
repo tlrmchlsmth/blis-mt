@@ -36,17 +36,10 @@
 #include "blis.h"
 
 //          uplo   m     alpha    x        incx  a        lda
-<<<<<<< HEAD
 //void dsyr_( char*, int*, double*, double*, int*, double*, int* );
 //void zher_( char*, int*, double*, dcomplex*, int*, dcomplex*, int* );
 
 //#define PRINT
-=======
-void dsyr_( char*, int*, double*, double*, int*, double*, int* );
-void zher_( char*, int*, double*, dcomplex*, int*, dcomplex*, int* );
-
-#define PRINT 1
->>>>>>> 0c1c78278bbd9c281bcbe933cc2f3bdb3bd74ef1
 
 int main( int argc, char** argv )
 {
@@ -83,11 +76,7 @@ int main( int argc, char** argv )
 	m_input = 6;
 #endif
 
-<<<<<<< HEAD
 #if 1
-=======
-#if 0
->>>>>>> 0c1c78278bbd9c281bcbe933cc2f3bdb3bd74ef1
 	dt_alpha = BLIS_DOUBLE;
 	dt_x = BLIS_DOUBLE;
 	dt_a = BLIS_DOUBLE;
@@ -139,7 +128,6 @@ int main( int argc, char** argv )
 #endif
 
 #ifdef BLIS
-<<<<<<< HEAD
 			//bli_obj_toggle_conj( x );
 
 			//bli_syr( &alpha,
@@ -163,41 +151,6 @@ int main( int argc, char** argv )
 
 			dsyr_( &uplo,
 			//zher_( &uplo,
-=======
-
-			//bli_obj_toggle_conj( x );
-
-#if 1
-			bli_her( &alpha,
-#else
-			bli_syr( &alpha,
-#endif
-			         &x,
-			         &a );
-/*
-			bli_her_unb_var2( BLIS_CONJUGATE,
-			                  &BLIS_TWO,
-			                  &x,
-			                  &a, NULL );
-*/
-
-#else
-
-			char    uplo   = 'L';
-			int     mm     = bli_obj_length( a );
-			int     incx   = bli_obj_vector_inc( x );
-			int     lda    = bli_obj_col_stride( a );
-			double* alphap = bli_obj_buffer( alpha );
-/*
-			double* xp     = bli_obj_buffer( x );
-			double* ap     = bli_obj_buffer( a );
-*/
-			dcomplex* xp   = bli_obj_buffer( x );
-			dcomplex* ap   = bli_obj_buffer( a );
-
-			//dsyr_( &uplo,
-			zher_( &uplo,
->>>>>>> 0c1c78278bbd9c281bcbe933cc2f3bdb3bd74ef1
 			       &mm,
 			       alphap,
 			       xp, &incx,

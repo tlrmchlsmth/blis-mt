@@ -36,13 +36,9 @@
 #include "blis.h"
 
 //           transa m     n     alpha    a        lda   x        incx  beta     y        incy
-<<<<<<< HEAD
 //void dgemv_( char*, int*, int*, double*, double*, int*, double*, int*, double*, double*, int* );
 
 //#define PRINT
-=======
-void dgemv_( char*, int*, int*, double*, double*, int*, double*, int*, double*, double*, int* );
->>>>>>> 0c1c78278bbd9c281bcbe933cc2f3bdb3bd74ef1
 
 int main( int argc, char** argv )
 {
@@ -68,15 +64,9 @@ int main( int argc, char** argv )
 	n_repeats = 3;
 
 #ifndef PRINT
-<<<<<<< HEAD
 	p_begin = 40;
 	p_end   = 2000;
 	p_inc   = 40;
-=======
-	p_begin = 64;
-	p_end   = 4096;
-	p_inc   = 64;
->>>>>>> 0c1c78278bbd9c281bcbe933cc2f3bdb3bd74ef1
 
 	m_input = -1;
 	n_input = -1;
@@ -118,11 +108,7 @@ int main( int argc, char** argv )
 
 
 		bli_setsc(  (2.0/1.0), 0.0, &alpha );
-<<<<<<< HEAD
 		bli_setsc( -(1.0/1.0), 0.0, &beta );
-=======
-		bli_setsc(  (1.0/1.0), 0.0, &beta );
->>>>>>> 0c1c78278bbd9c281bcbe933cc2f3bdb3bd74ef1
 
 #if 0
 		m_tl = 200;
@@ -162,11 +148,7 @@ int main( int argc, char** argv )
 #endif
 
 #ifdef BLIS
-<<<<<<< HEAD
 			//bli_obj_set_onlytrans( BLIS_TRANSPOSE, a_tl );
-=======
-			//bli_obj_set_trans( BLIS_TRANSPOSE, a_tl );
->>>>>>> 0c1c78278bbd9c281bcbe933cc2f3bdb3bd74ef1
 
 			bli_gemv( &alpha,
 			          &a_tl,
@@ -176,7 +158,6 @@ int main( int argc, char** argv )
 
 #else
 
-<<<<<<< HEAD
 			f77_char transa = 'N';
 			f77_int  mm     = bli_obj_length( a_tl );
 			f77_int  nn     = bli_obj_width( a_tl );
@@ -188,19 +169,6 @@ int main( int argc, char** argv )
 			double*  xp     = bli_obj_buffer( x_t );
 			double*  betap  = bli_obj_buffer( beta );
 			double*  yp     = bli_obj_buffer( y_t );
-=======
-			char    transa = 'N';
-			int     mm     = bli_obj_length( a_tl );
-			int     nn     = bli_obj_width( a_tl );
-			int     lda    = bli_obj_col_stride( a_tl );
-			int     incx   = bli_obj_vector_inc( x_t );
-			int     incy   = bli_obj_vector_inc( y_t );
-			double* alphap = bli_obj_buffer( alpha );
-			double* ap     = bli_obj_buffer( a_tl );
-			double* xp     = bli_obj_buffer( x_t );
-			double* betap  = bli_obj_buffer( beta );
-			double* yp     = bli_obj_buffer( y_t );
->>>>>>> 0c1c78278bbd9c281bcbe933cc2f3bdb3bd74ef1
 
 			dgemv_( &transa,
 			        &mm,
