@@ -125,9 +125,91 @@ void bli_gemm( obj_t*  alpha,
 #endif
     dim_t M, N, K;
 
-    N = bli_obj_width( *c );
-    K = bli_obj_width( *a );
-    M = bli_obj_length( *c );
+    N = bli_obj_width( c_local );
+    K = bli_obj_width( a_local );
+    M = bli_obj_length( c_local );
+
+    //Fast Path M,N,K 
+    if( M == 1 )
+    {
+        if( N == 1 )
+        {
+            if( K == 1 )
+            {
+                //Scalar product
+                // A, B, C are scalars
+                bli_dotxv( &alpha, &a_local, &b_local, &beta, &c_local );
+                return;
+            }
+            else // if K != 1
+            {
+                //Dot Product
+                //C is a scalar, A is a row-vector,  B is a column-vector
+                bli_dotxv( &alpha, &a_local, &b_local, &beta, &c_local );
+                return;
+            }
+        }
+        else // if N != 1
+        {
+            if( K == 1 )
+            {
+                //Axpy
+                //C is a row-vector, A is a scalar and B is a row-vector
+                obj_t tmp;
+                bli_obj_create( dt_alpha, 1, 1, 0, 0, &tmp);
+                bli_copyv( &a_local, &tmp );
+                bli_scalv( &alpha_local, &tmp );
+                bli_scalv( &beta_local, &c_local );
+                bli_axpyv( &tmp, &b_local, &c_local ); 
+                bli_obj_free( &tmp );
+                return;
+            }
+            else // if K != 1
+            {
+                //Right Gemv
+                //C is a row-vector, A is a row-vector, B is a matrix
+                bli_obj_induce_trans( a_local );
+                bli_obj_induce_trans( b_local );
+                bli_obj_induce_trans( c_local );
+                bli_gemv( &alpha_local, &b_local, &a_local, &beta_local, &c_local );
+                bli_obj_induce_trans( a_local );
+                bli_obj_induce_trans( b_local );
+                bli_obj_induce_trans( c_local );
+            }
+        }
+    }
+    else // if M != 1
+    {
+        if( N == 1 )
+        {
+           if( K == 1 )
+           {
+               //axpy 
+               // C is a vector, A is a vector, B is a scalar
+                obj_t tmp;
+                bli_obj_create( dt_alpha, 1, 1, 0, 0, &tmp);
+                bli_copyv( &b_local, &tmp );
+                bli_scalv( &alpha_local, &tmp );
+                bli_scalv( &beta_local, &c_local );
+                bli_axpyv( &tmp, &a_local, &c_local ); 
+                bli_obj_free( &tmp );
+           }
+           else // if K != 1
+           {
+               // Gemv
+               // C is a vector, A is a matrix, B is a vector
+                bli_gemv( &alpha_local, &a_local, &b_local, &beta_local, &c_local );
+           }
+        }
+        else if ( K == 1 )
+        {
+            // Rank-1 update
+            // C is a matrix, A is a vector, B is a row-vector
+            bli_scalm( &c_local, &beta_local );
+            bli_ger( &alpha_local, &a_local, &b_local, &c_local );
+        }
+        //Otherwise we do GEMM
+    }
     
     // Invoke the internal back-end.
     _Pragma( "omp parallel num_threads(gemm_num_threads_default)" )
