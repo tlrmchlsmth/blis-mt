@@ -303,7 +303,7 @@ void PASTEMAC(ch,varname)( \
 				                      bp, \
 				                      beta_cast, \
 				                      c11, rs_c, cs_c, \
-				                      a2, b2 ); \
+				                      a2, b2, l0_thread_id  ); \
 			} \
 			else \
 			{ \
@@ -314,7 +314,7 @@ void PASTEMAC(ch,varname)( \
 				                      bp, \
 				                      zero, \
 				                      ct, rs_ct, cs_ct, \
-				                      a2, b2 ); \
+				                      a2, b2, l0_thread_id ); \
 \
 				/* Scale the bottom edge of C and add the result from above. */ \
 				PASTEMAC(ch,xpbys_mxn)( m_cur, n_cur, \

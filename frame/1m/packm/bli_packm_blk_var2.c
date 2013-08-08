@@ -188,14 +188,13 @@ void PASTEMAC(ch,varname )( \
 \
 	/* If C needs a transposition, induce it so that we can more simply
 	   express the remaining parameters and code. */ \
-	if ( t_id == 0 && bli_does_trans( transc ) ) \
+	if ( bli_does_trans( transc ) ) \
 	{ \
 		bli_swap_incs( rs_c, cs_c ); \
 		bli_negate_diag_offset( diagoffc ); \
 		bli_toggle_uplo( uploc ); \
 		bli_toggle_trans( transc ); \
 	} \
-    bli_barrier( comm ); \
 \
 	/* If the strides of p indicate row storage, then we are packing to
 	   column panels; otherwise, if the strides indicate column storage,

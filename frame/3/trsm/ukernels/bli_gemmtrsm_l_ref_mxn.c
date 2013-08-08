@@ -64,7 +64,7 @@ void PASTEMAC(ch,varname)( \
 	                      alpha, \
 	                      b, rs_b, cs_b, \
 	                      a_next, \
-	                      b_next ); \
+	                      b_next, 0 ); \
 \
 	/* b = inv(a) * b;
 	   bd = b; (if gemm ukernel needs duplicated B)

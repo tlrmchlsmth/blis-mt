@@ -232,7 +232,7 @@
 #define DUPL_KERNEL          dupl_unb_var1
 
 // -- gemm --
-//#include "bli_gemm_4x6.h"
+#include "bli_gemm_4x6.h"
 #define GEMM_UKERNEL         gemm_4x6
 
 // -- trsm-related --
