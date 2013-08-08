@@ -179,9 +179,9 @@ void PASTEMAC(ch,varname )( \
 	inc_t           rs_p11, cs_p11; \
 \
 \
-    dim_t           t_id = bli_packm_tid( info ); \
-    dim_t           num_threads = bli_packm_num_threads( info ); \
-    thread_comm_t*  comm = bli_packm_communicator( info ); \
+    dim_t t_id = bli_packm_tid( info ); \
+    dim_t num_threads = bli_packm_num_threads( info ); \
+    thread_comm_t* comm = bli_packm_communicator( info ); \
 \
 	/* Extract the conjugation bit from the transposition argument. */ \
 	conjc = bli_extract_conj( transc ); \
@@ -249,14 +249,14 @@ void PASTEMAC(ch,varname )( \
 		ip_inc = 1; \
 	} \
 \
-	for ( ic  = ic0 + t_id * ic_inc, ip  = ip0 + t_id * ip_inc, it  = t_id; it < num_iter; \
+	for ( ic  = ic0 + t_id * ic_inc,  ip  = ip0 + t_id * ip_inc,  it  = t_id; it < num_iter; \
 	      ic += num_threads * ic_inc, ip += num_threads * ip_inc, it += num_threads ) \
 	{ \
-		panel_dim_i = bli_min( panel_dim, iter_dim - ic ); \
+		panel_dim_i    = bli_min( panel_dim, iter_dim - ic ); \
 \
-		diagoffc_i  = diagoffc + (ip  )*diagoffc_inc; \
-		c_begin     = c_cast   + (ic  )*vs_c; \
-		p_begin     = p_cast   + (ip  )*ps_p; \
+		diagoffc_i     = diagoffc + (ip  )*diagoffc_inc; \
+		c_begin        = c_cast   + (ic  )*vs_c; \
+		p_begin        = p_cast   + (ip  )*ps_p; \
 \
 		/* If the current panel intersects the diagonal and C is either
 		   upper- or lower-stored, then we assume C is symmetric or

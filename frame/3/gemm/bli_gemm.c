@@ -145,10 +145,10 @@ void bli_gemm( obj_t*  alpha,
         }   
 
         bli_gemm_int( &alpha_local,
-                      a,  
-                      b,  
+                      &a_local,  
+                      &b_local,  
                       &beta_local,
-                      c,  
+                      &c_local,  
                       cntl_mt );
     }   
 }
