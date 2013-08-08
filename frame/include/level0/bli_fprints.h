@@ -47,16 +47,16 @@
 }
 #define bli_cfprints( file, spec, x ) \
 { \
-	fprintf( file, spec, (x).real ); \
+	fprintf( file, spec, bli_creal(x) ); \
 	fprintf( file, " + " ); \
-	fprintf( file, spec, (x).imag ); \
+	fprintf( file, spec, bli_cimag(x) ); \
 	fprintf( file, " " ); \
 }
 #define bli_zfprints( file, spec, x ) \
 { \
-	fprintf( file, spec, (x).real ); \
+	fprintf( file, spec, bli_zreal(x) ); \
 	fprintf( file, " + " ); \
-	fprintf( file, spec, (x).imag ); \
+	fprintf( file, spec, bli_zimag(x) ); \
 	fprintf( file, " " ); \
 }
 #define bli_ifprints( file, spec, x ) \
