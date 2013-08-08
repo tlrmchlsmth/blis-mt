@@ -91,10 +91,13 @@ void bli_her2k( obj_t*  alpha,
 	// because those operands are always packed to contiguous memory.)
 	if ( bli_obj_is_row_stored( c_local ) )
 	{
-		bli_obj_toggle_conj( a_local );
-		bli_obj_toggle_conj( bh_local );
-		bli_obj_toggle_conj( b_local );
-		bli_obj_toggle_conj( ah_local );
+		bli_obj_swap( a_local, bh_local );
+		bli_obj_swap( b_local, ah_local );
+
+		bli_obj_induce_trans( a_local );
+		bli_obj_induce_trans( bh_local );
+		bli_obj_induce_trans( b_local );
+		bli_obj_induce_trans( ah_local );
 
 		bli_obj_induce_trans( c_local );
 	}
@@ -133,6 +136,7 @@ void bli_her2k( obj_t*  alpha,
 	// Choose the control tree.
 	cntl = her2k_cntl;
 
+/*
 	// Invoke the internal back-end.
 	bli_her2k_int( &alpha_local,
 	               &a_local,
@@ -143,21 +147,21 @@ void bli_her2k( obj_t*  alpha,
 	               &beta_local,
 	               &c_local,
 	               cntl );
+*/
 
-/*
 	bli_herk_int( &alpha_local,
-	              a,
-	              &bh,
+	              &a_local,
+	              &bh_local,
 	              &beta_local,
 	              &c_local,
 	              herk_cntl );
 	bli_herk_int( &alpha_conj_local,
-	              b,
-	              &ah,
+	              &b_local,
+	              &ah_local,
 	              &BLIS_ONE,
 	              &c_local,
 	              herk_cntl );
-*/
+
 }
 
 //
@@ -186,9 +190,6 @@ void PASTEMAC(ch,opname)( \
 \
 	dim_t       m_a, n_a; \
 	dim_t       m_b, n_b; \
-	err_t       init_result; \
-\
-	bli_init_safe( &init_result ); \
 \
 	bli_set_dims_with_trans( transa, m, k, m_a, n_a ); \
 	bli_set_dims_with_trans( transb, m, k, m_b, n_b ); \
@@ -211,8 +212,6 @@ void PASTEMAC(ch,opname)( \
 	                   &bo, \
 	                   &betao, \
 	                   &co ); \
-\
-	bli_finalize_safe( init_result ); \
 }
 
 INSERT_GENTFUNCR_BASIC( her2k, her2k )
