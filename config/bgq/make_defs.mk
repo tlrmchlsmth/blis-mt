@@ -81,9 +81,9 @@ CC           := mpixlc_r
 CPPROCFLAGS  := -D_POSIX_C_SOURCE=200112L
 CINCFLAGS    := -I/bgsys/drivers/ppcfloor -I/bgsys/drivers/ppcfloor/spi/include/kernel/cnk
 CMISCFLAGS   := -qthreaded -qsmp=omp -qasm=gcc -qkeyword=asm # -qreport -qsource -qlistopt -qlist
-CDBGFLAGS    := -g
+CDBGFLAGS    := 
 CWARNFLAGS   := -w
-COPTFLAGS    := -O0
+COPTFLAGS    := -O3
 CVECFLAGS    := -qarch=qp -qtune=qp -qsimd=auto -qhot=level=1 -qprefetch -qunroll=yes -qnoipa
 
 # Aggregate all of the flags into two groups: one for optimizable code, and

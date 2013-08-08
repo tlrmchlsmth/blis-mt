@@ -233,7 +233,7 @@
 
 #define BLIS_DEFAULT_FUSING_FACTOR_S   8
 #define BLIS_DEFAULT_FUSING_FACTOR_D   8 
-#define BLIS_DEFAULT_FUSING_FACTOR_C   4
+#define BLIS_DEFAULT_FUSING_FACTOR_C   8
 #define BLIS_DEFAULT_FUSING_FACTOR_Z   2
 
 
@@ -313,6 +313,7 @@
 // -- axpyf --
 
 #define AXPYF_KERNEL         axpyf_opt_var1
+//#define AXPYF_KERNEL         axpyf_unb_var1
 
 // -- dotxf --
 
@@ -333,6 +334,7 @@
 // -- axpyv --
 #include "bli_axpyv_opt_var1.h"
 #define AXPYV_KERNEL         axpyv_opt_var1
+//#define AXPYV_KERNEL         axpyv_unb_var1
 
 // -- copynzv --
 

@@ -94,7 +94,8 @@ void bli_gemm_ker_var2( obj_t*  alpha,
     dim_t l1_num_threads = bli_gemm_l1_num_threads( cntl->thread_info ); 
     dim_t l1_thread_id   = bli_gemm_l1_tid( cntl->thread_info );
     dim_t l0_thread_id   = bli_gemm_l0_tid( cntl->thread_info );
-    void* other          = ((gemm_ker_thread_info_t*)cntl->thread_info)->other;
+    void * other = NULL;
+    //void* other          = ((gemm_ker_thread_info_t*)cntl->thread_info)->other;
 
 	FUNCPTR_T f;
 
@@ -129,7 +130,7 @@ void bli_gemm_ker_var2( obj_t*  alpha,
 	// Index into the type combination array to extract the correct
 	// function pointer.
 	f = ftypes[dt_exec];
-	
+
     // Invoke the function.
 	f( m,
 	   n,

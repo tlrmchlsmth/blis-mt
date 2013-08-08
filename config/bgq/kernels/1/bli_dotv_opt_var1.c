@@ -219,7 +219,8 @@ void bli_ddddotv_opt_var1(
         rhos += vec_extract( rhov, 2 );
         rhos += vec_extract( rhov, 3 );
     }
-    for ( dim_t i = n_left; i < n_left; i++ )
+
+    for ( dim_t i = 0; i < n_left; i++ )
     {
         rhos += x[4*n_run + i] * y[4*n_run + i];
     }

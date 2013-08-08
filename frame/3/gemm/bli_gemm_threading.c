@@ -24,7 +24,7 @@ dim_t bli_gemm_l2_tid( void* info )
 }
 dim_t bli_gemm_l2_num_threads( void* info )
 {
-    if( info == NULL ) return 0;
+    if( info == NULL ) return 1;
     else return ((gemm_ker_thread_info_t*)info)->l2_num_threads;
 }
 dim_t bli_gemm_l1_tid( void* info )
@@ -34,7 +34,7 @@ dim_t bli_gemm_l1_tid( void* info )
 }
 dim_t bli_gemm_l1_num_threads( void* info )
 {
-    if( info == NULL ) return 0;
+    if( info == NULL ) return 1;
     else return ((gemm_ker_thread_info_t*)info)->l1_num_threads;
 }
 dim_t bli_gemm_l0_tid( void* info )

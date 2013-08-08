@@ -128,7 +128,7 @@ void bli_gemm( obj_t*  alpha,
     N = bli_obj_width( *c );
     K = bli_obj_width( *a );
     M = bli_obj_length( *c );
-
+    
     // Invoke the internal back-end.
     _Pragma( "omp parallel num_threads(gemm_num_threads_default)" )
     {   

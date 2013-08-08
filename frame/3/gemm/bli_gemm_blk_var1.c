@@ -128,7 +128,7 @@ void bli_gemm_blk_var1( obj_t*  alpha,
         bli_gemm_a_barrier( cntl->thread_info );
         bli_gemm_c_barrier( cntl->thread_info );
 
-        //printf("%d\t%d\t%d\t%d\t%d\t%d\t%d\n", omp_get_thread_num(), cntl->thread_info->a_comm->num_threads, a1, a1_pack, c1, c1_pack, b_pack);
+        //printf("%d\t%d\t%d\t%d\t%d\t%d\t%d\n", omp_get_thread_num(), 1, a1, a1_pack, c1, c1_pack, b_pack);
 
         // Pack A1 and scale by alpha (if instructed).
 		bli_packm_int( alpha,

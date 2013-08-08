@@ -95,8 +95,8 @@ void bli_gemm_int( obj_t*  alpha,
 
 	// Index into the variant array to extract the correct function pointer.
 	f = vars[n][i];
-
-	// Invoke the variant.
+	
+    // Invoke the variant.
 	f( alpha,
 	   a,
 	   b,

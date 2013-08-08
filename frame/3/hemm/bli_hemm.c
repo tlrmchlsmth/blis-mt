@@ -115,7 +115,6 @@ void bli_hemm( side_t  side,
 
 	// Choose the control tree.
 	cntl = hemm_cntl;
-
 	// Invoke the internal back-end.
 	bli_gemm_int( &alpha_local,
 	              &a_local,

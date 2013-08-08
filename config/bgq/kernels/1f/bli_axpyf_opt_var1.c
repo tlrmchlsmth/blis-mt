@@ -177,7 +177,7 @@ void bli_dddaxpyf_opt_var1(
 //    printf("%d\t%d\t%d\t%d\t%d\t%d\t%d\n", b_n, PASTEMAC(d, axpyf_fuse_fac), inca, incx, incy, bli_is_unaligned_to(a, 32), bli_is_unaligned_to( y, 32));
 	// If there is anything that would interfere with our use of aligned
 	// vector loads/stores, call the reference implementation.
-	if ( b_n < PASTEMAC(d,axpyf_fuse_fac) || inca != 1 || incx != 1 || incy != 1 || bli_is_unaligned_to( a, 32 ) || bli_is_unaligned_to( y, 32 ) )
+	if ( b_n < PASTEMAC(d,axpyf_fuse_fac) || inca != 1 || incx != 1 || incy != 1 || bli_is_unaligned_to( a, 32 ) || bli_is_unaligned_to( y, 32 ) || (lda * 8) % 32 != 0)
 		use_ref = TRUE;
 	// Call the reference implementation if needed.
 	if ( use_ref == TRUE )
@@ -230,7 +230,7 @@ void bli_dddaxpyf_opt_var1(
 	chi5v = vec_splats( chi5 );
 	chi6v = vec_splats( chi6 );
 	chi7v = vec_splats( chi7 );
-
+    
     for ( dim_t i = 0; i < m_run; i += 1 )
 	{
 		yv  = vec_lda( 0 * sizeof(double), &y0[i*4]);
