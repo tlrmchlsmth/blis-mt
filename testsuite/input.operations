@@ -103,7 +103,7 @@ nn          parameters: conjx conjy                     (? = test all values)
 
 # --- Level-2 ------------------------------------------------------------------
 
-0         gemv                                          (0 = disable all; 1 = specify)
+1         gemv                                          (0 = disable all; 1 = specify)
 1           test sequential front-end                   (0 = disable; 1 = enable)
 -1 -1       dimensions: m n                             (-1 = bind to problem size)
 nn          parameters: transa conjx                    (? = test all values)
@@ -156,9 +156,9 @@ nn          parameters: transa conjx                    (? = test all values)
 
 # --- Level-3 ------------------------------------------------------------------
 
-1         gemm                                          (0 = disable all; 1 = specify)
+0         gemm                                          (0 = disable all; 1 = specify)
 1           test sequential front-end                   (0 = disable; 1 = enable)
-1 1 8 dimmensions: m n k                           (-1 = bind to problem size)
+-1 -1 -1 dimmensions: m n k                           (-1 = bind to problem size)
 nn          parameters: transa transb                   (? = test all values)
 
 0         hemm                                          (0 = disable all; 1 = specify)
