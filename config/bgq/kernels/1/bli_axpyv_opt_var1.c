@@ -189,7 +189,9 @@ void bli_dddaxpyv_opt_var1(
     vector4double xv, yv, zv;
     vector4double alphav = vec_lds( 0 * sizeof(double), alpha );
 
-    #pragma omp parallel for
+    #ifndef BLIS_DISABLE_THREADING
+    _Pragma("omp parallel for")
+    #endif
 	for ( dim_t i = 0; i < n_run; i++ )
 	{
         xv = vec_lda( 0 * sizeof(double), &x[i*4] );

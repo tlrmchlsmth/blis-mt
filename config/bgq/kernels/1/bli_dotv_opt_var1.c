@@ -197,8 +197,10 @@ void bli_ddddotv_opt_var1(
 	dim_t n_run       = n / 4;
 	dim_t n_left      = n % 4;
     
-    double rhos = 0.0;
-    #pragma omp parallel reduction(+:rhos)
+    double rhos = 0.0; 
+    #ifndef BLIS_DISABLE_THREADING
+    _Pragma("omp parallel reduction(+:rhos)")
+    #endif   
     {
         dim_t n_threads;
         dim_t t_id = omp_get_thread_num();

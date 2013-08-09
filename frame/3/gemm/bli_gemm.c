@@ -239,7 +239,9 @@ void bli_gemm( obj_t*  alpha,
         return;
     
     // Invoke the internal back-end.
+    #ifndef BLIS_DISABLE_THREADING
     _Pragma( "omp parallel num_threads(gemm_num_threads_default)" )
+    #endif 
     {   
         dim_t tid = omp_get_thread_num();
         gemm_t* cntl_mt = gemm_cntl_mts[tid];

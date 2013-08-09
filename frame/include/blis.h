@@ -78,7 +78,12 @@ extern "C" {
 #include "bli_kernel_macro_defs.h"
 
 //threading stuff
+#ifdef BLIS_DISABLE_THREADING
+#include "bli_omp_dummy.h"
+#else
 #include <omp.h>
+#endif
+
 #include "bli_threading.h"
 
 // -- Base operation prototypes --
