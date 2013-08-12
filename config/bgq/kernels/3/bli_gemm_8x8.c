@@ -249,37 +249,42 @@ void bli_cgemm_8x8(
 
 void bli_zgemm_8x8(
                         dim_t     k,
-                        dcomplex* alpha,
-                        dcomplex* a,
-                        dcomplex* b,
-                        dcomplex* beta,
-                        dcomplex* c, inc_t rs_c, inc_t cs_c,
+                        dcomplex* alpha_z,
+                        dcomplex* a_z,
+                        dcomplex* b_z,
+                        dcomplex* beta_z,
+                        dcomplex* c_z, inc_t rs_c, inc_t cs_c,
                         dcomplex* a_next, dcomplex* b_next
                       )
 {
+    double * alpha = (double*) alpha_z;
+    double * beta = (double*) beta_z;
+    double * a = (double*) a_z;
+    double * b = (double*) b_z;
+    double * c = (double*) c_z;
+
     //Registers for storing C.
-    //4 2x2 subblocks of C, c00, c01, c10, c11
-    //4 registers per subblock: a, b, c, d
-    //There is an excel file that details which register ends up storing what
-    vector4double c00a1 = vec_splats( 0.0 );
-    vector4double c00a2 = vec_splats( 0.0 );
-    vector4double c00b1 = vec_splats( 0.0 );
-    vector4double c00b2 = vec_splats( 0.0 );
+    //2 2x4 subblocks of C, c0, and c1
+    //Each sub-block has 4 columns, 0, 1, 2, 3
+    //Each column has 2 partial sum, a and b, and contains 2 complex numbers.
+    vector4double c00a = vec_splats( 0.0 );
+    vector4double c00b = vec_splats( 0.0 );
+    vector4double c01a = vec_splats( 0.0 );
+    vector4double c01b = vec_splats( 0.0 );
+    vector4double c02a = vec_splats( 0.0 );
+    vector4double c02b = vec_splats( 0.0 );
+    vector4double c03a = vec_splats( 0.0 );
+    vector4double c03b = vec_splats( 0.0 );
 
-    vector4double c01a1 = vec_splats( 0.0 );
-    vector4double c01a2 = vec_splats( 0.0 );
-    vector4double c01b1 = vec_splats( 0.0 );
-    vector4double c01b2 = vec_splats( 0.0 );
+    vector4double c10a = vec_splats( 0.0 );
+    vector4double c10b = vec_splats( 0.0 );
+    vector4double c11a = vec_splats( 0.0 );
+    vector4double c11b = vec_splats( 0.0 );
+    vector4double c12a = vec_splats( 0.0 );
+    vector4double c12b = vec_splats( 0.0 );
+    vector4double c13a = vec_splats( 0.0 );
+    vector4double c13b = vec_splats( 0.0 );
 
-    vector4double c10a1 = vec_splats( 0.0 );
-    vector4double c10a2 = vec_splats( 0.0 );
-    vector4double c10b1 = vec_splats( 0.0 );
-    vector4double c10b2 = vec_splats( 0.0 );
-
-    vector4double c11a1 = vec_splats( 0.0 );
-    vector4double c11a2 = vec_splats( 0.0 );
-    vector4double c11b1 = vec_splats( 0.0 );
-    vector4double c11b2 = vec_splats( 0.0 );
 
     vector4double b0, b1, b2, b3;
     vector4double a0, a1;
@@ -296,16 +301,111 @@ void bli_zgemm_8x8(
         a0  = vec_lda ( 0 * sizeof(double), &a[8*i] );
         a1  = vec_lda ( 4 * sizeof(double), &a[8*i] );
 
-        c00a1    = vec_xmadd ( b0a, a0, c00a );
-        c00b1    = vec_xmadd ( b0b, a0, c00c );
+        c00a    = vec_xmadd ( b0, a0, c00a );
+        c00b    = vec_xxcpnmadd( a0, b0, c00b );
+        c01a    = vec_xmadd ( b1, a0, c01a );
+        c01b    = vec_xxcpnmadd( a0, b1, c01b );
+        c02a    = vec_xmadd ( b2, a0, c02a );
+        c02b    = vec_xxcpnmadd( a0, b2, c02b );
+        c03a    = vec_xmadd ( b3, a0, c03a );
+        c03b    = vec_xxcpnmadd( a0, b3, c03b );
 
-        c00a2    = vec_xmadd ( b0a, a0, c00a );
-        c00b    = vec_xxmadd( a0, b0a, c00b );
-        c00c    = vec_xmadd ( b0b, a0, c00c );
-        c00d    = vec_xxmadd( a0, b0b, c00d );
 
+        c10a    = vec_xmadd ( b0, a1, c10a );
+        c10b    = vec_xxcpnmadd( a1, b0, c10b );
+        c11a    = vec_xmadd ( b1, a1, c11a );
+        c11b    = vec_xxcpnmadd( a1, b1, c11b );
+        c12a    = vec_xmadd ( b2, a1, c12a );
+        c12b    = vec_xxcpnmadd( a1, b2, c12b );
+        c13a    = vec_xmadd ( b3, a1, c13a );
+        c13b    = vec_xxcpnmadd( a1, b3, c13b );
 
     }
+
+    // Create patterns for permuting the "b" parts of each vector
+    vector4double pattern = vec_gpci( 01032 );
+    vector4double invertReal;
+    vec_insert(-1.0, invertReal, 0);
+    vec_insert( 1.0, invertReal, 1);
+    vec_insert(-1.0, invertReal, 2);
+    vec_insert( 1.0, invertReal, 3);
+    vector4double zed = vec_splats( 0.0 );
+
+    vector4double AB;
+    vector4double C = vec_splats( 0.0 );
+    vector4double C1 = vec_splats( 0.0 );
+    vector4double C2 = vec_splats( 0.0 );
+    vector4double betav  = vec_ld2a( 0, beta );
+    vector4double alphav = vec_ld2a( 0, alpha );
+    dcomplex ct;
+  
+
+    c00b = vec_perm( c00b, c00b, pattern );
+    C = vec_add( c00a, c00b );
+    C1 = 
+
+    //Macro to update 2 elements of C in a column.
+    //REG1 is the register holding the first partial sum of those 2 elements
+    //REG2 is the register holding the second partial sum of those 2 elements
+    //ADDR is the address to write them to
+    //OFFSET is the number of rows from ADDR to write to
+#define ZUPDATE( REG1, REG2, ADDR, OFFSET )     \
+{                                               \
+    ct = *(ADDR + (OFFSET + 0) * rs_c);         \
+    C = vec_insert( ct, C, 0 );                 \
+    ct = *(ADDR + (OFFSET + 0) * rs_c + 1);     \
+    C = vec_insert( ct, C, 1 );                 \
+    ct = *(ADDR + (OFFSET + 2) * rs_c);         \
+    C = vec_insert( ct, C, 2 );                 \
+    ct = *(ADDR + (OFFSET + 2) * rs_c + 1);     \
+    C = vec_insert( ct, C, 3 );                 \
+                                                \
+    /* Get 2nd part of column into right form */\
+    REG2 = vec_perm( REG2, REG2, pattern );     \
+    AB   = vec_fmadd( REG2, invertReal, REG1 ); \
+                                                \
+    /* Scale by alpha */                        \
+    REG1 = vec_xmadd( alphav, AB, zed );        \
+    REG2 = vec_fmadd( AB, alphav, zed );        \
+                                                \
+    /* Get 2nd part of column into right form */\
+    REG2 = vec_perm( REG2, REG2, pattern );     \
+    AB   = vec_fmadd( REG2, invertReal, REG1 ); \
+                                                \
+                                                \
+    /* Scale by beta */                         \
+    REG1 = vec_xmadd( betav, C, zed );          \
+    REG2 = vec_fmadd( C, betav, zed );          \
+                                                \
+    /* Get 2nd part of column into right form */\
+    REG2 = vec_perm( REG2, REG2, pattern );     \
+    C    = vec_fmadd( REG2, invertReal, REG1 ); \
+                                                \
+    /* Add AB to C */                           \
+    C    = vec_add( AB, C );                    \
+                                                \
+    ct = vec_extract( AB, 0 );                  \
+    *(ADDR + (OFFSET + 0) * rs_c) = ct;         \
+    ct = vec_extract( AB, 1 );                  \
+    *(ADDR + (OFFSET + 0) * rs_c + 1) = ct;     \
+    ct = vec_extract( AB, 2 );                  \
+    *(ADDR + (OFFSET + 2) * rs_c) = ct;         \
+    ct = vec_extract( AB, 3 );                  \
+    *(ADDR + (OFFSET + 2) * rs_c + 1) = ct;     \
+}
+
+
+    UPDATE( c00a, c00b, c, 0 );
+    UPDATE( c10a, c10b, c, 4 );
+    c = c + cs_c;
+    UPDATE( c01a, c01b, c, 0 );
+    UPDATE( c11a, c11b, c, 4 );
+    c = c + cs_c;
+    UPDATE( c02a, c02b, c, 0 );
+    UPDATE( c12a, c12b, c, 4 );
+    c = c + cs_c;
+    UPDATE( c03a, c03b, c, 0 );
+    UPDATE( c13a, c13b, c, 4 );
 }
 
 
