@@ -45,11 +45,11 @@ typedef void (*FUNCPTR_T)(
                          );
 
 #undef  FUNCPTR_ARRAY_LENGTH
-#define FUNCPTR_ARRAY_LENGTH 18
+#define FUNCPTR_ARRAY_LENGTH 32
 
 #undef  GENARRAY
 #define GENARRAY( kername2,  kername4,  kername6,  kername8,   \
-                  kername10, kername12, kername14, kername16 ) \
+                  kername10, kername12, kername14, kername16, kername30 ) \
 \
 static FUNCPTR_T ftypes[FUNCPTR_ARRAY_LENGTH][BLIS_NUM_FP_TYPES] = \
 { \
@@ -148,7 +148,66 @@ static FUNCPTR_T ftypes[FUNCPTR_ARRAY_LENGTH][BLIS_NUM_FP_TYPES] = \
 	/* panel width = 17 */ \
 	{ \
 		NULL, NULL, NULL, NULL, \
-	} \
+	}, \
+    /* panel width = 18 */ \
+    { \
+        NULL, NULL, NULL, NULL, \
+    }, \
+    /* panel width = 19 */ \
+    { \
+        NULL, NULL, NULL, NULL, \
+    }, \
+    /* panel width = 20 */ \
+    { \
+        NULL, NULL, NULL, NULL, \
+    }, \
+    /* panel width = 21 */ \
+    { \
+        NULL, NULL, NULL, NULL, \
+    }, \
+    /* panel width = 22 */ \
+    { \
+        NULL, NULL, NULL, NULL, \
+    }, \
+    /* panel width = 23 */ \
+    { \
+        NULL, NULL, NULL, NULL, \
+    }, \
+    /* panel width = 24 */ \
+    { \
+        NULL, NULL, NULL, NULL, \
+    }, \
+    /* panel width = 25 */ \
+    { \
+        NULL, NULL, NULL, NULL, \
+    }, \
+    /* panel width = 26 */ \
+    { \
+        NULL, NULL, NULL, NULL, \
+    }, \
+    /* panel width = 27 */ \
+    { \
+        NULL, NULL, NULL, NULL, \
+    }, \
+    /* panel width = 28 */ \
+    { \
+        NULL, NULL, NULL, NULL, \
+    }, \
+    /* panel width = 29 */ \
+    { \
+        NULL, NULL, NULL, NULL, \
+    }, \
+    /* panel width = 30 */ \
+    { \
+        PASTEMAC(s,kername30), \
+        PASTEMAC(c,kername30), \
+        PASTEMAC(d,kername30), \
+        PASTEMAC(z,kername30), \
+    }, \
+    /* panel width = 32 */ \
+    { \
+        NULL, NULL, NULL, NULL, \
+    } \
 };
 
 GENARRAY( PACKM_2XK_KERNEL,
@@ -158,7 +217,8 @@ GENARRAY( PACKM_2XK_KERNEL,
           PACKM_10XK_KERNEL,
           PACKM_12XK_KERNEL,
           PACKM_14XK_KERNEL,
-          PACKM_16XK_KERNEL ) 
+          PACKM_16XK_KERNEL,
+          PACKM_30XK_KERNEL ) 
 
 
 
