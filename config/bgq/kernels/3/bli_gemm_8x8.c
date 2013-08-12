@@ -257,7 +257,55 @@ void bli_zgemm_8x8(
                         dcomplex* a_next, dcomplex* b_next
                       )
 {
-	bli_check_error_code( BLIS_NOT_YET_IMPLEMENTED );
+    //Registers for storing C.
+    //4 2x2 subblocks of C, c00, c01, c10, c11
+    //4 registers per subblock: a, b, c, d
+    //There is an excel file that details which register ends up storing what
+    vector4double c00a1 = vec_splats( 0.0 );
+    vector4double c00a2 = vec_splats( 0.0 );
+    vector4double c00b1 = vec_splats( 0.0 );
+    vector4double c00b2 = vec_splats( 0.0 );
+
+    vector4double c01a1 = vec_splats( 0.0 );
+    vector4double c01a2 = vec_splats( 0.0 );
+    vector4double c01b1 = vec_splats( 0.0 );
+    vector4double c01b2 = vec_splats( 0.0 );
+
+    vector4double c10a1 = vec_splats( 0.0 );
+    vector4double c10a2 = vec_splats( 0.0 );
+    vector4double c10b1 = vec_splats( 0.0 );
+    vector4double c10b2 = vec_splats( 0.0 );
+
+    vector4double c11a1 = vec_splats( 0.0 );
+    vector4double c11a2 = vec_splats( 0.0 );
+    vector4double c11b1 = vec_splats( 0.0 );
+    vector4double c11b2 = vec_splats( 0.0 );
+
+    vector4double b0, b1, b2, b3;
+    vector4double a0, a1;
+
+
+    for( dim_t i = 0; i < k; i++ )
+    {
+        
+        b0 = vec_ld2a( 0 * sizeof(double), &b[8*i] );
+        b1 = vec_ld2a( 2 * sizeof(double), &b[8*i] );
+        b2 = vec_ld2a( 4 * sizeof(double), &b[8*i] );
+        b3 = vec_ld2a( 6 * sizeof(double), &b[8*i] );
+
+        a0  = vec_lda ( 0 * sizeof(double), &a[8*i] );
+        a1  = vec_lda ( 4 * sizeof(double), &a[8*i] );
+
+        c00a1    = vec_xmadd ( b0a, a0, c00a );
+        c00b1    = vec_xmadd ( b0b, a0, c00c );
+
+        c00a2    = vec_xmadd ( b0a, a0, c00a );
+        c00b    = vec_xxmadd( a0, b0a, c00b );
+        c00c    = vec_xmadd ( b0b, a0, c00c );
+        c00d    = vec_xxmadd( a0, b0b, c00d );
+
+
+    }
 }
 
 
