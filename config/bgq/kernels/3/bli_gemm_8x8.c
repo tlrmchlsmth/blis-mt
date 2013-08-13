@@ -34,6 +34,7 @@
 
 #include "blis.h"
 #undef restrict
+#include <complex.h>
 
 void bli_sgemm_8x8(
                         dim_t     k,
@@ -42,10 +43,10 @@ void bli_sgemm_8x8(
                         float*    b,
                         float*    beta,
                         float*    c, inc_t rs_c, inc_t cs_c,
-                        float* a_next, float* b_next
+                        float* a_next, float* b_next, int t_id
                       )
 {
-	bli_check_error_code( BLIS_NOT_YET_IMPLEMENTED );
+    bli_sgemm_ref_mxn( k, alpha, a, b, beta, c, rs_c, cs_c, a_next, b_next, t_id);
 }
 
 
@@ -74,7 +75,7 @@ void bli_dgemm_8x8(
                         restrict double*   b,
                         restrict double*   beta,
                         restrict double*   c, inc_t rs_c, inc_t cs_c,
-                        restrict double* a_next, restrict double* b_next
+                        restrict double* a_next, restrict double* b_next, int t_id
                       )
 
 {
@@ -215,25 +216,6 @@ void bli_dgemm_8x8(
     UPDATE( AB, c, 4 );
 }
 
-void bli_dgemm_8x8_mt(
-                        dim_t     k,
-                        restrict double*   alpha,
-                        restrict double*   a,
-                        restrict double*   b,
-                        restrict double*   beta,
-                        restrict double*   c, inc_t rs_c, inc_t cs_c,
-                        restrict double* a_next, restrict double* b_next,
-                        int tid
-                      )
-{
-    
-    bli_dgemm_8x8( k, alpha, 
-        a,
-        b, beta, 
-        c, 
-        rs_c, cs_c, NULL, NULL );
-}
-
 void bli_cgemm_8x8(
                         dim_t     k,
                         scomplex* alpha,
@@ -241,10 +223,19 @@ void bli_cgemm_8x8(
                         scomplex* b,
                         scomplex* beta,
                         scomplex* c, inc_t rs_c, inc_t cs_c,
-                        scomplex* a_next, scomplex* b_next
+                        scomplex* a_next, scomplex* b_next, int t_id
                       )
 {
-	bli_check_error_code( BLIS_NOT_YET_IMPLEMENTED );
+    bli_cgemm_ref_mxn( k, alpha, a, b, beta, c, rs_c, cs_c, a_next, b_next, t_id);
+}
+
+void printvec(vector4double v)
+{
+    double a = vec_extract(v, 0);
+    double b = vec_extract(v, 1);
+    double c = vec_extract(v, 2);
+    double d = vec_extract(v, 3);
+    printf("%4.3f\t%4.3f\t%4.3f\t%4.3f\n", a, b, c, d);
 }
 
 void bli_zgemm_8x8(
@@ -254,15 +245,15 @@ void bli_zgemm_8x8(
                         dcomplex* b_z,
                         dcomplex* beta_z,
                         dcomplex* c_z, inc_t rs_c, inc_t cs_c,
-                        dcomplex* a_next, dcomplex* b_next
+                        dcomplex* a_next, dcomplex* b_next, int t_id
                       )
 {
     double * alpha = (double*) alpha_z;
-    double * beta = (double*) beta_z;
+    double * beta =  (double*) beta_z;
     double * a = (double*) a_z;
     double * b = (double*) b_z;
     double * c = (double*) c_z;
-
+    
     //Registers for storing C.
     //2 2x4 subblocks of C, c0, and c1
     //Each sub-block has 4 columns, 0, 1, 2, 3
@@ -289,7 +280,7 @@ void bli_zgemm_8x8(
     vector4double b0, b1, b2, b3;
     vector4double a0, a1;
 
-
+    double _Complex tmp = 0.0;
     for( dim_t i = 0; i < k; i++ )
     {
         
@@ -298,13 +289,14 @@ void bli_zgemm_8x8(
         b2 = vec_ld2a( 4 * sizeof(double), &b[8*i] );
         b3 = vec_ld2a( 6 * sizeof(double), &b[8*i] );
 
-        a0  = vec_lda ( 0 * sizeof(double), &a[8*i] );
-        a1  = vec_lda ( 4 * sizeof(double), &a[8*i] );
-
+        a0 = vec_lda ( 0 * sizeof(double), &a[8*i] );
+        a1 = vec_lda ( 4 * sizeof(double), &a[8*i] );
+        
         c00a    = vec_xmadd ( b0, a0, c00a );
         c00b    = vec_xxcpnmadd( a0, b0, c00b );
         c01a    = vec_xmadd ( b1, a0, c01a );
         c01b    = vec_xxcpnmadd( a0, b1, c01b );
+
         c02a    = vec_xmadd ( b2, a0, c02a );
         c02b    = vec_xxcpnmadd( a0, b2, c02b );
         c03a    = vec_xmadd ( b3, a0, c03a );
@@ -324,25 +316,29 @@ void bli_zgemm_8x8(
 
     // Create patterns for permuting the "b" parts of each vector
     vector4double pattern = vec_gpci( 01032 );
-    vector4double invertReal;
-    vec_insert(-1.0, invertReal, 0);
-    vec_insert( 1.0, invertReal, 1);
-    vec_insert(-1.0, invertReal, 2);
-    vec_insert( 1.0, invertReal, 3);
     vector4double zed = vec_splats( 0.0 );
 
     vector4double AB;
     vector4double C = vec_splats( 0.0 );
     vector4double C1 = vec_splats( 0.0 );
     vector4double C2 = vec_splats( 0.0 );
-    vector4double betav  = vec_ld2a( 0, beta );
-    vector4double alphav = vec_ld2a( 0, alpha );
-    dcomplex ct;
-  
 
-    c00b = vec_perm( c00b, c00b, pattern );
-    C = vec_add( c00a, c00b );
-    C1 = 
+    double alphar = *alpha;
+    double alphai = *(alpha+1);
+    double betar = *beta;
+    double betai = *(beta+1);
+    vector4double alphav = vec_splats( 0.0 ); 
+    vector4double betav = vec_splats( 0.0 );
+    alphav = vec_insert( alphar, alphav, 0);
+    alphav = vec_insert( alphai, alphav, 1);
+    alphav = vec_insert( alphar, alphav, 2);
+    alphav = vec_insert( alphai, alphav, 3);
+    betav = vec_insert( betar, betav, 0);
+    betav = vec_insert( betai, betav, 1);
+    betav = vec_insert( betar, betav, 2);
+    betav = vec_insert( betai, betav, 3);
+    double ct;
+  
 
     //Macro to update 2 elements of C in a column.
     //REG1 is the register holding the first partial sum of those 2 elements
@@ -360,26 +356,18 @@ void bli_zgemm_8x8(
     ct = *(ADDR + (OFFSET + 2) * rs_c + 1);     \
     C = vec_insert( ct, C, 3 );                 \
                                                 \
-    /* Get 2nd part of column into right form */\
-    REG2 = vec_perm( REG2, REG2, pattern );     \
-    AB   = vec_fmadd( REG2, invertReal, REG1 ); \
+    AB = vec_sub(REG1, REG2 ); \
                                                 \
     /* Scale by alpha */                        \
     REG1 = vec_xmadd( alphav, AB, zed );        \
-    REG2 = vec_fmadd( AB, alphav, zed );        \
-                                                \
-    /* Get 2nd part of column into right form */\
-    REG2 = vec_perm( REG2, REG2, pattern );     \
-    AB   = vec_fmadd( REG2, invertReal, REG1 ); \
+    REG2 = vec_xxcpnmadd( AB, alphav, zed );    \
+    AB = vec_sub(REG1, REG2 ); \
                                                 \
                                                 \
     /* Scale by beta */                         \
     REG1 = vec_xmadd( betav, C, zed );          \
-    REG2 = vec_fmadd( C, betav, zed );          \
-                                                \
-    /* Get 2nd part of column into right form */\
-    REG2 = vec_perm( REG2, REG2, pattern );     \
-    C    = vec_fmadd( REG2, invertReal, REG1 ); \
+    REG2 = vec_xxcpnmadd( C, betav, zed );    \
+    C = vec_sub(REG1, REG2 ); \
                                                 \
     /* Add AB to C */                           \
     C    = vec_add( AB, C );                    \
@@ -395,58 +383,15 @@ void bli_zgemm_8x8(
 }
 
 
-    UPDATE( c00a, c00b, c, 0 );
-    UPDATE( c10a, c10b, c, 4 );
-    c = c + cs_c;
-    UPDATE( c01a, c01b, c, 0 );
-    UPDATE( c11a, c11b, c, 4 );
-    c = c + cs_c;
-    UPDATE( c02a, c02b, c, 0 );
-    UPDATE( c12a, c12b, c, 4 );
-    c = c + cs_c;
-    UPDATE( c03a, c03b, c, 0 );
-    UPDATE( c13a, c13b, c, 4 );
-}
-
-
-void bli_sgemm_8x8_mt(
-                        dim_t     k,
-                        float*    alpha,
-                        float*    a,
-                        float*    b,
-                        float*    beta,
-                        float*    c, inc_t rs_c, inc_t cs_c,
-                        float* a_next, float* b_next,
-                        int t_id
-                      )
-{
-	bli_check_error_code( BLIS_NOT_YET_IMPLEMENTED );
-}
-
-void bli_cgemm_8x8_mt(
-                        dim_t     k,
-                        scomplex* alpha,
-                        scomplex* a,
-                        scomplex* b,
-                        scomplex* beta,
-                        scomplex* c, inc_t rs_c, inc_t cs_c,
-                        scomplex* a_next, scomplex* b_next,
-                        int t_id
-                      )
-{
-	bli_check_error_code( BLIS_NOT_YET_IMPLEMENTED );
-}
-
-void bli_zgemm_8x8_mt(
-                        dim_t     k,
-                        dcomplex* alpha,
-                        dcomplex* a,
-                        dcomplex* b,
-                        dcomplex* beta,
-                        dcomplex* c, inc_t rs_c, inc_t cs_c,
-                        dcomplex* a_next, dcomplex* b_next,
-                        int t_id
-                      )
-{
-	bli_check_error_code( BLIS_NOT_YET_IMPLEMENTED );
+    ZUPDATE( c00a, c00b, c, 0 );
+    ZUPDATE( c10a, c10b, c, 4 );
+    c = c + 2*cs_c;
+    ZUPDATE( c01a, c01b, c, 0 );
+    ZUPDATE( c11a, c11b, c, 4 );
+    c = c + 2*cs_c;
+    ZUPDATE( c02a, c02b, c, 0 );
+    ZUPDATE( c12a, c12b, c, 4 );
+    c = c + 2*cs_c;
+    ZUPDATE( c03a, c03b, c, 0 );
+    ZUPDATE( c13a, c13b, c, 4 );
 }

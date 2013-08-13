@@ -62,8 +62,8 @@
 // that would be needed instead of (3a).
 //
 
-#define BLIS_DEFAULT_MC_S              256
-#define BLIS_DEFAULT_KC_S              256
+#define BLIS_DEFAULT_MC_S              1008
+#define BLIS_DEFAULT_KC_S              2016
 #define BLIS_DEFAULT_NC_S              8192
 
 //16 MPI RANKS CASE:
@@ -73,15 +73,17 @@
 //1 MPI RANK CASE:
 #define BLIS_DEFAULT_MC_D              1008
 #define BLIS_DEFAULT_KC_D              2016
+//#define BLIS_DEFAULT_MC_D              4096
+//#define BLIS_DEFAULT_KC_D              4096
 #define BLIS_DEFAULT_NC_D              20480
 
-#define BLIS_DEFAULT_MC_C              128
-#define BLIS_DEFAULT_KC_C              256
+#define BLIS_DEFAULT_MC_C              1008
+#define BLIS_DEFAULT_KC_C              2016
 #define BLIS_DEFAULT_NC_C              4096
 
-#define BLIS_DEFAULT_MC_Z              64
-#define BLIS_DEFAULT_KC_Z              256
-#define BLIS_DEFAULT_NC_Z              2048
+#define BLIS_DEFAULT_MC_Z              768
+#define BLIS_DEFAULT_KC_Z              1536
+#define BLIS_DEFAULT_NC_Z              10240
 
 // -- Cache blocksize extensions (for optimizing edge cases) --
 
@@ -111,16 +113,16 @@
 // in the m and n dimensions should all be equal to the size expected by
 // the reference micro-kernel(s).
 
-#define BLIS_DEFAULT_MR_S              8
+#define BLIS_DEFAULT_MR_S              4
 #define BLIS_DEFAULT_NR_S              4
 
 #define BLIS_DEFAULT_MR_D              8
 #define BLIS_DEFAULT_NR_D              8
 
-#define BLIS_DEFAULT_MR_C              8
-#define BLIS_DEFAULT_NR_C              4
+#define BLIS_DEFAULT_MR_C              2
+#define BLIS_DEFAULT_NR_C              2
 
-#define BLIS_DEFAULT_MR_Z              8
+#define BLIS_DEFAULT_MR_Z              4
 #define BLIS_DEFAULT_NR_Z              4
 
 // NOTE: If the micro-kernel, which is typically unrolled to a factor
@@ -165,7 +167,7 @@
 // (so that element-wise vector multiplication and addition instructions
 // can be used).
 
-#define BLIS_NUM_ELEM_PER_REG_S        4
+#define BLIS_NUM_ELEM_PER_REG_S        1
 #define BLIS_NUM_ELEM_PER_REG_D        2
 #define BLIS_NUM_ELEM_PER_REG_C        2
 #define BLIS_NUM_ELEM_PER_REG_Z        1
@@ -262,7 +264,6 @@
 // -- gemm --
 
 #define GEMM_UKERNEL         gemm_8x8
-#define GEMM_UKERNEL_MT      gemm_8x8_mt
 
 // -- trsm-related --
 
@@ -286,6 +287,7 @@
 #define PACKM_12XK_KERNEL    packm_ref_12xk
 #define PACKM_14XK_KERNEL    packm_ref_14xk
 #define PACKM_16XK_KERNEL    packm_ref_16xk
+#define PACKM_30XK_KERNEL    packm_ref_30xk
 
 // -- unpackm --
 

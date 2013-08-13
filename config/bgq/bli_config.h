@@ -51,7 +51,7 @@
 
 // The maximum number of BLIS threads that will run concurrently.
 #define BLIS_MAX_NUM_THREADS             64
-#define BLIS_DISABLE_THREADING
+//#define BLIS_DISABLE_THREADING
 
 
 // -- MEMORY ALLOCATION --------------------------------------------------------

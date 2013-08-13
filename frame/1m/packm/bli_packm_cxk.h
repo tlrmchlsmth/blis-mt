@@ -41,6 +41,7 @@
 #include "bli_packm_ref_12xk.h"
 #include "bli_packm_ref_14xk.h"
 #include "bli_packm_ref_16xk.h"
+#include "bli_packm_ref_30xk.h"
 
 
 #undef  GENTPROT

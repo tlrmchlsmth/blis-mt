@@ -83,8 +83,8 @@ CINCFLAGS    := -I/bgsys/drivers/ppcfloor -I/bgsys/drivers/ppcfloor/spi/include/
 CMISCFLAGS   := -qasm=gcc -qkeyword=asm -qthreaded -qsmp=omp # -qreport -qsource -qlistopt -qlist
 CDBGFLAGS    := 
 CWARNFLAGS   := -w
-COPTFLAGS    := -O3
-CVECFLAGS    := -qarch=qp -qtune=qp -qsimd=auto -qhot=level=1 -qprefetch -qunroll=yes -qnoipa
+COPTFLAGS    := -O5
+CVECFLAGS    := -qarch=qp -qtune=qp -qsimd=auto -qhot=level=1 -qprefetch -qunroll=yes 
 
 # Aggregate all of the flags into two groups: one for optimizable code, and
 # one for code that should not be optimized.

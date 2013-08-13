@@ -56,7 +56,6 @@ void bli_gemm_blk_var1( obj_t*  alpha,
     
     dim_t num_groups = bli_gemm_num_thread_groups( cntl->thread_info );
     dim_t group_id = bli_gemm_group_id( cntl->thread_info );
-
     if( bli_gemm_am_b_master( cntl->thread_info ) ) {
         bli_obj_init_pack( &b_pack_s );
 
