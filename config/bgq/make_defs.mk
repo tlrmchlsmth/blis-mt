@@ -84,7 +84,7 @@ CMISCFLAGS   := -qasm=gcc -qkeyword=asm -qthreaded -qsmp=omp # -qreport -qsource
 CDBGFLAGS    := 
 CWARNFLAGS   := -w
 COPTFLAGS    := -O5
-CVECFLAGS    := -qarch=qp -qtune=qp -qsimd=auto -qhot=level=1 -qprefetch -qunroll=yes 
+CVECFLAGS    := -qarch=qp -qtune=qp -qsimd=auto -qhot=level=2 -qprefetch -qunroll=yes 
 
 # Aggregate all of the flags into two groups: one for optimizable code, and
 # one for code that should not be optimized.

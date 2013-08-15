@@ -3,7 +3,7 @@ c #rg   # Matrix storage scheme(s) to test ('c' = col-major; 'r' = row-major; 'g
 c #rji  # Vector storage scheme(s) to test ('c' = colvec/unit; 'r' = rowvec/unit; 'j' = colvec/non-unit; 'i' = rowvec/non-unit)
 1       # Test all combinations of storage schemes?
 13      # General stride spacing (for cases when testing general stride)
-sdcz    # Datatype(s) to test
+z    # Datatype(s) to test
 64      # Problem size: first to test
 2048    # Problem size: maximum to test
 64      # Problem size: increment between experiments

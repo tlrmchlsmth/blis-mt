@@ -93,7 +93,7 @@ void bli_gemm_ker_var2( obj_t*  alpha,
     dim_t l2_thread_id   = bli_gemm_l2_tid( cntl->thread_info );
     dim_t l1_num_threads = bli_gemm_l1_num_threads( cntl->thread_info ); 
     dim_t l1_thread_id   = bli_gemm_l1_tid( cntl->thread_info );
-    dim_t l0_thread_id   = l2_thread_id * 4 + l1_thread_id;
+    dim_t l0_thread_id   = l2_thread_id + l1_thread_id * 4;
 
 //    dim_t l0_thread_id   = bli_gemm_l0_tid( cntl->thread_info );
     void * other = NULL;

@@ -1,0 +1,7 @@
+To control threading:
+
+OMP_NUM_THREADS will control the number of threads used in the level-1 operations
+
+Use BLIS_L2_NT and BLIS_L1_NT to control the number of threads used for gemm.
+If you have n threads, try setting both of these to sqrt(n).
+So on the whole BG/Q, set them both to 8.

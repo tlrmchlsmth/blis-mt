@@ -372,13 +372,13 @@ void bli_zgemm_8x8(
     /* Add AB to C */                           \
     C    = vec_add( AB, C );                    \
                                                 \
-    ct = vec_extract( AB, 0 );                  \
+    ct = vec_extract( C, 0 );                  \
     *(ADDR + (OFFSET + 0) * rs_c) = ct;         \
-    ct = vec_extract( AB, 1 );                  \
+    ct = vec_extract( C, 1 );                  \
     *(ADDR + (OFFSET + 0) * rs_c + 1) = ct;     \
-    ct = vec_extract( AB, 2 );                  \
+    ct = vec_extract( C, 2 );                  \
     *(ADDR + (OFFSET + 2) * rs_c) = ct;         \
-    ct = vec_extract( AB, 3 );                  \
+    ct = vec_extract( C, 3 );                  \
     *(ADDR + (OFFSET + 2) * rs_c + 1) = ct;     \
 }
 
