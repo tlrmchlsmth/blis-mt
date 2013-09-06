@@ -62,35 +62,35 @@ void bli_dotv_opt_var1( obj_t*  x,
                         obj_t*  y,
                         obj_t*  rho )
 {
-	num_t     dt_x      = bli_obj_datatype( *x );
-	num_t     dt_y      = bli_obj_datatype( *y );
-	num_t     dt_rho    = bli_obj_datatype( *rho );
+    num_t     dt_x      = bli_obj_datatype( *x );
+    num_t     dt_y      = bli_obj_datatype( *y );
+    num_t     dt_rho    = bli_obj_datatype( *rho );
 
-	conj_t    conjx     = bli_obj_conj_status( *x );
-	conj_t    conjy     = bli_obj_conj_status( *y );
-	dim_t     n         = bli_obj_vector_dim( *x );
+    conj_t    conjx     = bli_obj_conj_status( *x );
+    conj_t    conjy     = bli_obj_conj_status( *y );
+    dim_t     n         = bli_obj_vector_dim( *x );
 
-	inc_t     inc_x     = bli_obj_vector_inc( *x );
-	void*     buf_x     = bli_obj_buffer_at_off( *x );
+    inc_t     inc_x     = bli_obj_vector_inc( *x );
+    void*     buf_x     = bli_obj_buffer_at_off( *x );
 
-	inc_t     inc_y     = bli_obj_vector_inc( *y );
-	void*     buf_y     = bli_obj_buffer_at_off( *y );
+    inc_t     inc_y     = bli_obj_vector_inc( *y );
+    void*     buf_y     = bli_obj_buffer_at_off( *y );
 
-	void*     buf_rho   = bli_obj_buffer_at_off( *rho );
+    void*     buf_rho   = bli_obj_buffer_at_off( *rho );
 
-	FUNCPTR_T f;
+    FUNCPTR_T f;
 
-	// Index into the type combination array to extract the correct
-	// function pointer.
-	f = ftypes[dt_x][dt_y][dt_rho];
+    // Index into the type combination array to extract the correct
+    // function pointer.
+    f = ftypes[dt_x][dt_y][dt_rho];
 
-	// Invoke the function.
-	f( conjx,
-	   conjy,
-	   n,
-	   buf_x, inc_x, 
-	   buf_y, inc_y,
-	   buf_rho );
+    // Invoke the function.
+    f( conjx,
+       conjy,
+       n,
+       buf_x, inc_x, 
+       buf_y, inc_y,
+       buf_rho );
 }
 
 
@@ -106,59 +106,59 @@ void PASTEMAC3(chx,chy,chr,varname)( \
                                      void*  rho \
                                    ) \
 { \
-	ctype_x* x_cast   = x; \
-	ctype_y* y_cast   = y; \
-	ctype_r* rho_cast = rho; \
-	ctype_x* chi1; \
-	ctype_y* psi1; \
-	ctype_r  dotxy; \
-	dim_t    i; \
-	conj_t   conjx_use; \
+    ctype_x* x_cast   = x; \
+    ctype_y* y_cast   = y; \
+    ctype_r* rho_cast = rho; \
+    ctype_x* chi1; \
+    ctype_y* psi1; \
+    ctype_r  dotxy; \
+    dim_t    i; \
+    conj_t   conjx_use; \
 \
-	if ( bli_zero_dim1( n ) ) \
-	{ \
-		PASTEMAC(chr,set0s)( *rho_cast ); \
-		return; \
-	} \
+    if ( bli_zero_dim1( n ) ) \
+    { \
+        PASTEMAC(chr,set0s)( *rho_cast ); \
+        return; \
+    } \
 \
-	PASTEMAC(chr,set0s)( dotxy ); \
+    PASTEMAC(chr,set0s)( dotxy ); \
 \
-	chi1 = x_cast; \
-	psi1 = y_cast; \
+    chi1 = x_cast; \
+    psi1 = y_cast; \
 \
-	conjx_use = conjx; \
+    conjx_use = conjx; \
 \
-	/* If y must be conjugated, we do so indirectly by first toggling the
-	   effective conjugation of x and then conjugating the resulting dot
-	   product. */ \
-	if ( bli_is_conj( conjy ) ) \
-		bli_toggle_conj( conjx_use ); \
+    /* If y must be conjugated, we do so indirectly by first toggling the
+       effective conjugation of x and then conjugating the resulting dot
+       product. */ \
+    if ( bli_is_conj( conjy ) ) \
+        bli_toggle_conj( conjx_use ); \
 \
-	if ( bli_is_conj( conjx_use ) ) \
-	{ \
-		for ( i = 0; i < n; ++i ) \
-		{ \
-			PASTEMAC3(chx,chy,chr,dotjs)( *chi1, *psi1, dotxy ); \
+    if ( bli_is_conj( conjx_use ) ) \
+    { \
+        for ( i = 0; i < n; ++i ) \
+        { \
+            PASTEMAC3(chx,chy,chr,dotjs)( *chi1, *psi1, dotxy ); \
 \
-			chi1 += incx; \
-			psi1 += incy; \
-		} \
-	} \
-	else \
-	{ \
-		for ( i = 0; i < n; ++i ) \
-		{ \
-			PASTEMAC3(chx,chy,chr,dots)( *chi1, *psi1, dotxy ); \
+            chi1 += incx; \
+            psi1 += incy; \
+        } \
+    } \
+    else \
+    { \
+        for ( i = 0; i < n; ++i ) \
+        { \
+            PASTEMAC3(chx,chy,chr,dots)( *chi1, *psi1, dotxy ); \
 \
-			chi1 += incx; \
-			psi1 += incy; \
-		} \
-	} \
+            chi1 += incx; \
+            psi1 += incy; \
+        } \
+    } \
 \
-	if ( bli_is_conj( conjy ) ) \
-		PASTEMAC(chr,conjs)( dotxy ); \
+    if ( bli_is_conj( conjy ) ) \
+        PASTEMAC(chr,conjs)( dotxy ); \
 \
-	PASTEMAC2(chr,chr,copys)( dotxy, *rho_cast ); \
+    PASTEMAC2(chr,chr,copys)( dotxy, *rho_cast ); \
 }
 
 
@@ -174,28 +174,28 @@ void bli_ddddotv_opt_var1(
                            void*  rho_in 
                          ) 
 { 
-	double*  restrict x   = x_in; 
-	double*  restrict y   = y_in; 
+    double*  restrict x   = x_in; 
+    double*  restrict y   = y_in; 
     double*  rho = rho_in;
 
-	bool_t            use_ref = FALSE;
-	// If the vector lengths are zero, set rho to zero and return.
-	if ( bli_zero_dim1( n ) ) {
-		PASTEMAC(d,set0s)( rho ); 
-		return; 
-	} 
-	// If there is anything that would interfere with our use of aligned
-	// vector loads/stores, call the reference implementation.
-	if ( incx != 1 || incy != 1 || bli_is_unaligned_to( x, 32 ) || bli_is_unaligned_to( y, 32 ) )
-		use_ref = TRUE;
-	// Call the reference implementation if needed.
-	if ( use_ref ) {
-		bli_ddddotv_unb_var1( conjx, conjy, n, x, incx, y, incy, rho );
-		return;
-	}
+    bool_t            use_ref = FALSE;
+    // If the vector lengths are zero, set rho to zero and return.
+    if ( bli_zero_dim1( n ) ) {
+        PASTEMAC(d,set0s)( rho ); 
+        return; 
+    } 
+    // If there is anything that would interfere with our use of aligned
+    // vector loads/stores, call the reference implementation.
+    if ( incx != 1 || incy != 1 || bli_is_unaligned_to( x, 32 ) || bli_is_unaligned_to( y, 32 ) )
+        use_ref = TRUE;
+    // Call the reference implementation if needed.
+    if ( use_ref ) {
+        bli_ddddotv_unb_var1( conjx, conjy, n, x, incx, y, incy, rho );
+        return;
+    }
 
-	dim_t n_run       = n / 4;
-	dim_t n_left      = n % 4;
+    dim_t n_run       = n / 4;
+    dim_t n_left      = n % 4;
     
     double rhos = 0.0; 
     #ifndef BLIS_DISABLE_THREADING
@@ -226,7 +226,7 @@ void bli_ddddotv_opt_var1(
     {
         rhos += x[4*n_run + i] * y[4*n_run + i];
     }
-	
+    
     *rho = rhos;
 }
 
