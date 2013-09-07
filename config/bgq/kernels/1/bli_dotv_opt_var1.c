@@ -202,16 +202,17 @@ void bli_ddddotv_opt_var1(
     _Pragma("omp parallel reduction(+:rhos)")
     #endif   
     {
-        dim_t n_threads;
+        dim_t n_threads = omp_get_num_threads();
         dim_t t_id = omp_get_thread_num();
-        n_threads = omp_get_num_threads();
         vector4double rhov = vec_splats( 0.0 );
-        vector4double xv, yv;
 
+        /* TODO: Jeff does not understand how this is correct.
+         * If you start from t_id and increment by n_threads, does
+         * that not iterate incorrectly? */
         for ( dim_t i = t_id; i < n_run; i += n_threads )
         {
-            xv = vec_lda( 0 * sizeof(double), &x[i*4] );
-            yv = vec_lda( 0 * sizeof(double), &y[i*4] );
+            vector4double xv = vec_lda( 0 * sizeof(double), &x[i*4] );
+            vector4double yv = vec_lda( 0 * sizeof(double), &y[i*4] );
 
             rhov = vec_madd( xv, yv, rhov );
         }
@@ -222,9 +223,9 @@ void bli_ddddotv_opt_var1(
         rhos += vec_extract( rhov, 3 );
     }
 
-    for ( dim_t i = 0; i < n_left; i++ )
+    for ( dim_t i = 4*n_run; i < n_left; i++ )
     {
-        rhos += x[4*n_run + i] * y[4*n_run + i];
+        rhos += x[i] * y[i];
     }
     
     *rho = rhos;

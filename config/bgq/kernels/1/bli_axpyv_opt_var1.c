@@ -165,7 +165,7 @@ void bli_dddaxpyv_opt_var1(
                             void*  y_in, inc_t incy
                           )
 {
-    double*  restrict alpha = alpha_in;
+    const double alpha = *alpha_in;
     double*  restrict x = x_in;
     double*  restrict y = y_in;
 
@@ -179,28 +179,32 @@ void bli_dddaxpyv_opt_var1(
     }
     // Call the reference implementation if needed.
     if ( use_ref == TRUE ) {
-        bli_dddaxpyv_unb_var1( conjx, n, alpha, x, incx, y, incy );
+        double alpha2 = alpha; /* get rid of const */
+        bli_dddaxpyv_unb_var1( conjx, n, &alpha2, x, incx, y, incy );
         return;
     }
 
     dim_t n_run       = n / 4;
     dim_t n_left      = n % 4;
 
-    vector4double xv, yv, zv;
-    vector4double alphav = vec_lds( 0 * sizeof(double), alpha );
+    vector4double alphav = vec_splats( alpha );
 
     #ifndef BLIS_DISABLE_THREADING
     _Pragma("omp parallel for")
     #endif
     for ( dim_t i = 0; i < n_run; i++ )
     {
-        xv = vec_lda( 0 * sizeof(double), &x[i*4] );
-        yv = vec_lda( 0 * sizeof(double), &y[i*4] );
-        zv = vec_madd( alphav, xv, yv );
+/* TODO Why use VEC_LDA instead of VEC_LD?
+ * "vec_lda generates an exception (SIGBUS) if the effective address is 
+ * not aligned to the appropriate memory boundary indicated in the table." 
+ * You already checked that x and y are aligned... */
+        vector4double xv = vec_lda( 0 * sizeof(double), &x[i*4] );
+        vector4double yv = vec_lda( 0 * sizeof(double), &y[i*4] );
+        vector4double zv = vec_madd( alphav, xv, yv );
         vec_sta( zv, 0 * sizeof(double), &y[i*4] );   
     }
-    for ( dim_t i = 0; i < n_left; i++ )
+    for ( dim_t i = 4*n_run; i < n_left; i++ )
     {
-        y[4*n_run + i] += *alpha * x[4*n_run + i];
+        y[i] += alpha * x[i];
     }
 }
