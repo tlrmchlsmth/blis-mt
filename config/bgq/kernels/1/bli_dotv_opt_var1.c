@@ -194,8 +194,9 @@ void bli_ddddotv_opt_var1(
         return;
     }
 
-    dim_t n_run       = n / 4;
-    dim_t n_left      = n % 4;
+    /* if we divide by 4, we take only 32B per thread, which splits a cache line */
+    dim_t n_run       = n / 16;
+    dim_t n_left      = n % 16;
     
     double rhos = 0.0; 
     #ifndef BLIS_DISABLE_THREADING
@@ -204,26 +205,47 @@ void bli_ddddotv_opt_var1(
     {
         dim_t n_threads = omp_get_num_threads();
         dim_t t_id = omp_get_thread_num();
-        vector4double rhov = vec_splats( 0.0 );
+        vector4double rhov0 = vec_splats( 0.0 );
+        vector4double rhov1 = vec_splats( 0.0 );
+        vector4double rhov2 = vec_splats( 0.0 );
+        vector4double rhov3 = vec_splats( 0.0 );
 
-        /* TODO: Jeff does not understand how this is correct.
-         * If you start from t_id and increment by n_threads, does
-         * that not iterate incorrectly? */
         for ( dim_t i = t_id; i < n_run; i += n_threads )
         {
-            vector4double xv = vec_lda( 0 * sizeof(double), &x[i*4] );
-            vector4double yv = vec_lda( 0 * sizeof(double), &y[i*4] );
+            vector4double xv0 = vec_lda( 0 * sizeof(double), &x[i*4+0] );
+            vector4double yv0 = vec_lda( 0 * sizeof(double), &y[i*4+0] );
+            vector4double xv1 = vec_lda( 0 * sizeof(double), &x[i*4+4] );
+            vector4double yv1 = vec_lda( 0 * sizeof(double), &y[i*4+4] );
+            vector4double xv2 = vec_lda( 0 * sizeof(double), &x[i*4+8] );
+            vector4double yv2 = vec_lda( 0 * sizeof(double), &y[i*4+8] );
+            vector4double xv3 = vec_lda( 0 * sizeof(double), &x[i*4+12] );
+            vector4double yv3 = vec_lda( 0 * sizeof(double), &y[i*4+12] );
 
-            rhov = vec_madd( xv, yv, rhov );
+            rhov0 = vec_madd( xv0, yv0, rhov0 );
+            rhov1 = vec_madd( xv1, yv1, rhov1 );
+            rhov2 = vec_madd( xv2, yv2, rhov2 );
+            rhov3 = vec_madd( xv3, yv3, rhov3 );
         }
 
-        rhos += vec_extract( rhov, 0 );
-        rhos += vec_extract( rhov, 1 );
-        rhos += vec_extract( rhov, 2 );
-        rhos += vec_extract( rhov, 3 );
+        rhos += vec_extract( rhov0, 0 );
+        rhos += vec_extract( rhov0, 1 );
+        rhos += vec_extract( rhov0, 2 );
+        rhos += vec_extract( rhov0, 3 );
+        rhos += vec_extract( rhov1, 0 );
+        rhos += vec_extract( rhov1, 1 );
+        rhos += vec_extract( rhov1, 2 );
+        rhos += vec_extract( rhov1, 3 );
+        rhos += vec_extract( rhov2, 0 );
+        rhos += vec_extract( rhov2, 1 );
+        rhos += vec_extract( rhov2, 2 );
+        rhos += vec_extract( rhov2, 3 );
+        rhos += vec_extract( rhov3, 0 );
+        rhos += vec_extract( rhov3, 1 );
+        rhos += vec_extract( rhov3, 2 );
+        rhos += vec_extract( rhov3, 3 );
     }
 
-    for ( dim_t i = 4*n_run; i < n_left; i++ )
+    for ( dim_t i = 16*n_run; i < n_left; i++ )
     {
         rhos += x[i] * y[i];
     }
