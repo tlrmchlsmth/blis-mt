@@ -33,7 +33,7 @@
 */
 
 #include "blis.h"
-#define PAR
+
 #define FUNCPTR_T gemv_fp
 
 typedef void (*FUNCPTR_T)(
@@ -121,13 +121,6 @@ void bli_gemv_unf_var2( obj_t*  alpha,
 	   buf_y, incy );
 }
 
-#ifndef BLIS_DISABLE_THREADING
-#define START_PARALLEL    _Pragma( "omp parallel" ) 
-#define OMP_BARRIER _Pragma("omp barrier");
-#else
-#define START_PARALLEL
-#define OMP_BARRIER
-#endif
 
 #undef  GENTFUNC3U12
 #define GENTFUNC3U12( ctype_a, ctype_x, ctype_y, ctype_ax, cha, chx, chy, chax, varname, kername ) \
@@ -150,8 +143,11 @@ void PASTEMAC3(cha,chx,chy,varname)( \
 	ctype_x*  x_cast     = x; \
 	ctype_y*  y_cast     = y; \
 	ctype_y*  zero       = PASTEMAC(chy,0); \
+	ctype_a*  A1; \
+	ctype_x*  x1; \
+	ctype_y*  y1; \
 	dim_t     i; \
-	dim_t     b_fuse; \
+	dim_t     b_fuse, f; \
 	dim_t     n_elem, n_iter; \
 	inc_t     rs_at, cs_at; \
 	conj_t    conja; \
@@ -182,58 +178,17 @@ void PASTEMAC3(cha,chx,chy,varname)( \
 	} \
 \
 	/* Query the fusing factor from the axpyf implementation. */ \
-	b_fuse = PASTEMAC(chax,axpyf_fuse_fac); /*\
-    dim_t f = b_fuse; \
-    _Pragma( "omp parallel" ) \
-    {\
-        for ( i = 0; i < n_elem; i += f ) \
-        { \
-            f  = bli_min( n_elem - i, b_fuse ); \
-    \
-            ctype_a*  A1; \
-            ctype_x*  x1; \
-            A1 = a_cast + (0  )*rs_at + (i  )*cs_at; \
-            x1 = x_cast + (i  )*incx; \
-    \
-            PASTEMAC3(cha,chx,chy,kername)( conja, \
-                                            conjx, \
-                                            n_elem, \
-                                            f, \
-                                            alpha_cast, \
-                                            A1, rs_at, cs_at, \
-                                            x1, incx, \
-                                            y_cast, incy ); \
-            _Pragma( "omp barrier" )
-        } \
-    } \
-}*/ \
-    ctype_y* y_tmps[BLIS_MAX_NUM_THREADS]; \
-    \
-    START_PARALLEL \
-    { \
-    dim_t t_id = omp_get_thread_num(); \
-    dim_t n_threads = omp_get_num_threads(); \
-    \
-    dim_t n_pt = n_iter / n_threads; \
-    n_pt = (n_pt * n_threads < n_iter) ? n_pt + 1 : n_pt; \
-/*    n_pt = (n_pt % 8 == 0) ? n_pt : n_pt + 8 - (n_pt % 8); */\
-    dim_t start = t_id * n_pt; \
-    dim_t  end = bli_min( start + n_pt, n_iter ); \
-    \
-    ctype_y * my_y = (ctype_y*) bli_malloc( n_elem * sizeof(ctype_y) ); \
-    memset( my_y, 0, n_elem * sizeof(ctype_y) ); \
-    y_tmps[t_id] = my_y; \
-    \
-    dim_t f = b_fuse; \
-	for ( i = start; i < end; i += f ) \
-	{ \
-		f  = bli_min( end - i, b_fuse ); \
+	b_fuse = PASTEMAC(chax,axpyf_fuse_fac); \
 \
-	    ctype_a*  A1; \
-        ctype_x*  x1; \
+	for ( i = 0; i < n_iter; i += f ) \
+	{ \
+		f  = bli_determine_blocksize_dim_f( i, n_iter, b_fuse ); \
+\
 		A1 = a_cast + (0  )*rs_at + (i  )*cs_at; \
 		x1 = x_cast + (i  )*incx; \
+		y1 = y_cast + (0  )*incy; \
 \
+		/* y = y + alpha * A1 * x1; */ \
 		PASTEMAC3(cha,chx,chy,kername)( conja, \
 		                                conjx, \
 		                                n_elem, \
@@ -241,21 +196,9 @@ void PASTEMAC3(cha,chx,chy,varname)( \
 		                                alpha_cast, \
 		                                A1, rs_at, cs_at, \
 		                                x1, incx, \
-		                                my_y, incy ); \
+		                                y1, incy ); \
 	} \
-    OMP_BARRIER \
-    for (i = t_id; i < n_elem; i += n_threads) \
-    { \
-        for(dim_t j = 0; j < n_threads; j++) \
-        { \
-            PASTEMAC2(chy,chy,adds)(y_tmps[j][i], y_cast[i]); \
-        } \
-    } \
-    OMP_BARRIER \
-    bli_free( my_y ); \
-    }\
 }
-
 
 // Define the basic set of functions unconditionally, and then also some
 // mixed datatype functions if requested.
