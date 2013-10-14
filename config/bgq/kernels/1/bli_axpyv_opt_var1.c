@@ -61,38 +61,38 @@ void bli_axpyv_opt_var1( obj_t*  alpha,
                          obj_t*  x,
                          obj_t*  y )
 {
-	num_t     dt_x      = bli_obj_datatype( *x );
-	num_t     dt_y      = bli_obj_datatype( *y );
+    num_t     dt_x      = bli_obj_datatype( *x );
+    num_t     dt_y      = bli_obj_datatype( *y );
 
-	conj_t    conjx     = bli_obj_conj_status( *x );
-	dim_t     n         = bli_obj_vector_dim( *x );
+    conj_t    conjx     = bli_obj_conj_status( *x );
+    dim_t     n         = bli_obj_vector_dim( *x );
 
-	inc_t     inc_x     = bli_obj_vector_inc( *x );
-	void*     buf_x     = bli_obj_buffer_at_off( *x );
+    inc_t     inc_x     = bli_obj_vector_inc( *x );
+    void*     buf_x     = bli_obj_buffer_at_off( *x );
 
-	inc_t     inc_y     = bli_obj_vector_inc( *y );
-	void*     buf_y     = bli_obj_buffer_at_off( *y );
+    inc_t     inc_y     = bli_obj_vector_inc( *y );
+    void*     buf_y     = bli_obj_buffer_at_off( *y );
 
-	num_t     dt_alpha;
-	void*     buf_alpha;
+    num_t     dt_alpha;
+    void*     buf_alpha;
 
-	FUNCPTR_T f;
+    FUNCPTR_T f;
 
-	// If alpha is a scalar constant, use dt_x to extract the address of the
-	// corresponding constant value; otherwise, use the datatype encoded
-	// within the alpha object and extract the buffer at the alpha offset.
-	bli_set_scalar_dt_buffer( alpha, dt_x, dt_alpha, buf_alpha );
+    // If alpha is a scalar constant, use dt_x to extract the address of the
+    // corresponding constant value; otherwise, use the datatype encoded
+    // within the alpha object and extract the buffer at the alpha offset.
+    bli_set_scalar_dt_buffer( alpha, dt_x, dt_alpha, buf_alpha );
 
-	// Index into the type combination array to extract the correct
-	// function pointer.
-	f = ftypes[dt_alpha][dt_x][dt_y];
+    // Index into the type combination array to extract the correct
+    // function pointer.
+    f = ftypes[dt_alpha][dt_x][dt_y];
 
-	// Invoke the function.
-	f( conjx,
-	   n,
-	   buf_alpha,
-	   buf_x, inc_x,
-	   buf_y, inc_y );
+    // Invoke the function.
+    f( conjx,
+       n,
+       buf_alpha,
+       buf_x, inc_x,
+       buf_y, inc_y );
 }
 
 
@@ -107,38 +107,38 @@ void PASTEMAC3(cha,chx,chy,varname)( \
                                      void*  y, inc_t incy \
                                    ) \
 { \
-	ctype_a* alpha_cast = alpha; \
-	ctype_x* x_cast     = x; \
-	ctype_y* y_cast     = y; \
-	ctype_x* chi1; \
-	ctype_y* psi1; \
-	dim_t    i; \
+    ctype_a* alpha_cast = alpha; \
+    ctype_x* x_cast     = x; \
+    ctype_y* y_cast     = y; \
+    ctype_x* chi1; \
+    ctype_y* psi1; \
+    dim_t    i; \
 \
-	if ( bli_zero_dim1( n ) ) return; \
+    if ( bli_zero_dim1( n ) ) return; \
 \
-	chi1 = x_cast; \
-	psi1 = y_cast; \
+    chi1 = x_cast; \
+    psi1 = y_cast; \
 \
-	if ( bli_is_conj( conjx ) ) \
-	{ \
-		for ( i = 0; i < n; ++i ) \
-		{ \
-			PASTEMAC3(cha,chx,chy,axpyjs)( *alpha_cast, *chi1, *psi1 ); \
+    if ( bli_is_conj( conjx ) ) \
+    { \
+        for ( i = 0; i < n; ++i ) \
+        { \
+            PASTEMAC3(cha,chx,chy,axpyjs)( *alpha_cast, *chi1, *psi1 ); \
 \
-			chi1 += incx; \
-			psi1 += incy; \
-		} \
-	} \
-	else \
-	{ \
-		for ( i = 0; i < n; ++i ) \
-		{ \
-			PASTEMAC3(cha,chx,chy,axpys)( *alpha_cast, *chi1, *psi1 ); \
+            chi1 += incx; \
+            psi1 += incy; \
+        } \
+    } \
+    else \
+    { \
+        for ( i = 0; i < n; ++i ) \
+        { \
+            PASTEMAC3(cha,chx,chy,axpys)( *alpha_cast, *chi1, *psi1 ); \
 \
-			chi1 += incx; \
-			psi1 += incy; \
-		} \
-	} \
+            chi1 += incx; \
+            psi1 += incy; \
+        } \
+    } \
 }
 
 // Define the basic set of functions unconditionally, and then also some
@@ -165,42 +165,46 @@ void bli_dddaxpyv_opt_var1(
                             void*  y_in, inc_t incy
                           )
 {
-	double*  restrict alpha = alpha_in;
-	double*  restrict x = x_in;
-	double*  restrict y = y_in;
+    const double alpha = *alpha_in;
+    double*  restrict x = x_in;
+    double*  restrict y = y_in;
 
-	if ( bli_zero_dim1( n ) ) return;
+    if ( bli_zero_dim1( n ) ) return;
 
-	// If there is anything that would interfere with our use of aligned
-	// vector loads/stores, call the reference implementation.
-	bool_t use_ref = FALSE;
-	if ( incx != 1 || incy != 1 || bli_is_unaligned_to( x, 32 ) || bli_is_unaligned_to( y, 32 ) ) {
-		use_ref = TRUE;
-	}
-	// Call the reference implementation if needed.
-	if ( use_ref == TRUE ) {
-		bli_dddaxpyv_unb_var1( conjx, n, alpha, x, incx, y, incy );
-		return;
-	}
+    // If there is anything that would interfere with our use of aligned
+    // vector loads/stores, call the reference implementation.
+    bool_t use_ref = FALSE;
+    if ( incx != 1 || incy != 1 || bli_is_unaligned_to( x, 32 ) || bli_is_unaligned_to( y, 32 ) ) {
+        use_ref = TRUE;
+    }
+    // Call the reference implementation if needed.
+    if ( use_ref == TRUE ) {
+        double alpha2 = alpha; /* get rid of const */
+        bli_dddaxpyv_unb_var1( conjx, n, &alpha2, x, incx, y, incy );
+        return;
+    }
 
-	dim_t n_run       = n / 4;
+    dim_t n_run       = n / 4;
     dim_t n_left      = n % 4;
 
-    vector4double xv, yv, zv;
-    vector4double alphav = vec_lds( 0 * sizeof(double), alpha );
+    vector4double alphav = vec_splats( alpha );
 
     #ifndef BLIS_DISABLE_THREADING
     _Pragma("omp parallel for")
     #endif
-	for ( dim_t i = 0; i < n_run; i++ )
-	{
-        xv = vec_lda( 0 * sizeof(double), &x[i*4] );
-        yv = vec_lda( 0 * sizeof(double), &y[i*4] );
-        zv = vec_madd( alphav, xv, yv );
-        vec_sta( zv, 0 * sizeof(double), &y[i*4] );   
-	}
-    for ( dim_t i = 0; i < n_left; i++ )
+    for ( dim_t i = 0; i < n_run; i++ )
     {
-        y[4*n_run + i] += *alpha * x[4*n_run + i];
+/* TODO Why use VEC_LDA instead of VEC_LD?
+ * "vec_lda generates an exception (SIGBUS) if the effective address is 
+ * not aligned to the appropriate memory boundary indicated in the table." 
+ * You already checked that x and y are aligned... */
+        vector4double xv = vec_lda( 0 * sizeof(double), &x[i*4] );
+        vector4double yv = vec_lda( 0 * sizeof(double), &y[i*4] );
+        vector4double zv = vec_madd( alphav, xv, yv );
+        vec_sta( zv, 0 * sizeof(double), &y[i*4] );   
+    }
+    for ( dim_t i = 4*n_run; i < n_left; i++ )
+    {
+        y[i] += alpha * x[i];
     }
 }

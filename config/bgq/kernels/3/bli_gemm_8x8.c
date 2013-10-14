@@ -385,13 +385,13 @@ void bli_zgemm_8x8(
 
     ZUPDATE( c00a, c00b, c, 0 );
     ZUPDATE( c10a, c10b, c, 4 );
-    c = c + 2*cs_c;
+    c += 2*cs_c;
     ZUPDATE( c01a, c01b, c, 0 );
     ZUPDATE( c11a, c11b, c, 4 );
-    c = c + 2*cs_c;
+    c += 2*cs_c;
     ZUPDATE( c02a, c02b, c, 0 );
     ZUPDATE( c12a, c12b, c, 4 );
-    c = c + 2*cs_c;
+    c += 2*cs_c;
     ZUPDATE( c03a, c03b, c, 0 );
     ZUPDATE( c13a, c13b, c, 4 );
 }
