@@ -73,8 +73,8 @@
 //1 MPI RANK CASE:
 //#define BLIS_DEFAULT_MC_D              1008
 //#define BLIS_DEFAULT_KC_D              2016
-#define BLIS_DEFAULT_MC_D              4096
-#define BLIS_DEFAULT_KC_D              4096
+#define BLIS_DEFAULT_MC_D              1024
+#define BLIS_DEFAULT_KC_D              2048
 #define BLIS_DEFAULT_NC_D              20480
 
 #define BLIS_DEFAULT_MC_C              1008
