@@ -220,14 +220,14 @@ void libblis_test_trsm_ukr_experiment( test_params_t* params,
 	                          &b, &bp );
 
 	// Pack the contents of a to ap.
-	bli_packm_blk_var3( &BLIS_ONE, &a, &ap );
+	bli_packm_blk_var3( &BLIS_ONE, &a, &ap, NULL );
 
 
 	// Repeat the experiment n_repeats times and record results. 
 	for ( i = 0; i < n_repeats; ++i )
 	{
 		// Re-pack the contents of b to bp.
-		bli_packm_blk_var2( &BLIS_ONE, &b, &bp );
+		bli_packm_blk_var2( &BLIS_ONE, &b, &bp, NULL );
 
 		// Re-duplicate the contents of bp to bd.
 		bli_dupl( &bp, &bd );

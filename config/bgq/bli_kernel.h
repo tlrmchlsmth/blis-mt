@@ -333,10 +333,7 @@
 #define PACKM_12XK_KERNEL    packm_ref_12xk
 #define PACKM_14XK_KERNEL    packm_ref_14xk
 #define PACKM_16XK_KERNEL    packm_ref_16xk
-<<<<<<< HEAD
 #define PACKM_30XK_KERNEL    packm_ref_30xk
-=======
->>>>>>> a091a219bda55e56817acd4930c2aa4472e53ba5
 
 // -- unpackm --
 

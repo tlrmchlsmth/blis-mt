@@ -4,11 +4,7 @@
 #  An object-based framework for developing high-performance BLAS-like
 #  libraries.
 #
-<<<<<<< HEAD
-#  Copyright (C) 2012, The University of Texas
-=======
 #  Copyright (C) 2013, The University of Texas
->>>>>>> a091a219bda55e56817acd4930c2aa4472e53ba5
 #
 #  Redistribution and use in source and binary forms, with or without
 #  modification, are permitted provided that the following conditions are
@@ -79,28 +75,6 @@ GIT_LOG    := $(GIT) log --decorate
 #
 
 # --- Determine the C compiler and related flags ---
-<<<<<<< HEAD
-CC           := icc
-CPPROCFLAGS  :=
-CMISCFLAGS   := -mmic -fasm-blocks -std=c99 -openmp # -fopenmp -pg
-CDBGFLAGS    := 
-CWARNFLAGS   := -Wall
-COPTFLAGS    := -O3 
-CVECFLAGS    := 
-
-# Aggregate all of the flags into two groups: one for optimizable code, and
-# one for code that should not be optimized.
-CFLAGS       := $(CDBGFLAGS) $(COPTFLAGS) $(CVECFLAGS) $(CWARNFLAGS) $(CMISCFLAGS) $(CPPROCFLAGS)
-CFLAGS_NOOPT := $(CDBGFLAGS) $(CWARNFLAGS) $(CMISCFLAGS) $(CPPROCFLAGS)
-
-# --- Determine the archiver and related flags ---
-AR           := ar
-ARFLAGS      := cru
-
-# --- Determine the linker and related flags ---
-LINKER       := $(CC)
-LDFLAGS      := -mmic
-=======
 CC             := icc
 CPPROCFLAGS    :=
 CMISCFLAGS     := -mmic -fasm-blocks -std=c99 -openmp
@@ -123,8 +97,7 @@ ARFLAGS        := cru
 
 # --- Determine the linker and related flags ---
 LINKER         := $(CC)
-LDFLAGS        := 
->>>>>>> a091a219bda55e56817acd4930c2aa4472e53ba5
+LDFLAGS        := -mmic
 
 
 

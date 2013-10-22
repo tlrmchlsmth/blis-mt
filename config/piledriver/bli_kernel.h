@@ -35,6 +35,7 @@
 #ifndef BLIS_KERNEL_H
 #define BLIS_KERNEL_H
 
+#define BLIS_GEMM_UKERNEL_THREADS 1
 
 // -- LEVEL-3 MICRO-KERNEL CONSTANTS -------------------------------------------
 
@@ -290,6 +291,7 @@
 #define PACKM_12XK_KERNEL    packm_ref_12xk
 #define PACKM_14XK_KERNEL    packm_ref_14xk
 #define PACKM_16XK_KERNEL    packm_ref_16xk
+#define PACKM_30XK_KERNEL    packm_ref_30xk
 
 // -- unpackm --
 
