@@ -48,18 +48,33 @@
   #include <stdint.h>
 #else
   // When stdint.h is not available, manually typedef the types we will use.
-  typedef   signed long int  int64_t;
-  typedef unsigned long int  uint64_t;
+  #ifdef _WIN32
+    typedef          __int32  int32_t;
+    typedef unsigned __int32 uint32_t;
+    typedef          __int64  int64_t;
+    typedef unsigned __int64 uint64_t;
+  #else
+    #error "Attempting to compile on pre-C99 system without stdint.h."
+  #endif
 #endif
 
 // -- General-purpose integers --
 
-typedef     int64_t gint_t;  // general signed integer
-typedef    uint64_t guint_t; // general unsigned integer
+// Define integer types depending on what size integer was requested.
+#if   BLIS_INT_TYPE_SIZE == 32
+typedef           int32_t  gint_t;
+typedef          uint32_t guint_t;
+#elif BLIS_INT_TYPE_SIZE == 64
+typedef           int64_t  gint_t;
+typedef          uint64_t guint_t;
+#else
+typedef   signed long int  gint_t;
+typedef unsigned long int guint_t;
+#endif
 
 // -- Boolean type --
 
-typedef      gint_t bool_t;
+typedef  gint_t  bool_t;
 
 // -- Special-purpose integers --
 
@@ -67,13 +82,22 @@ typedef      gint_t bool_t;
 // interoperability with BLIS.
 #ifndef _DEFINED_DIM_T
 #define _DEFINED_DIM_T
-//typedef unsigned long int dim_t;  // dimension type
-typedef     guint_t dim_t;   // dimension type
+typedef guint_t  dim_t;   // dimension type
 #endif
-typedef     guint_t inc_t;   // increment/stride type
-typedef      gint_t doff_t;  // diagonal offset type
-typedef     guint_t siz_t;   // byte size type
-typedef     guint_t info_t;  // object information bit field
+typedef guint_t  inc_t;   // increment/stride type
+typedef  gint_t  doff_t;  // diagonal offset type
+typedef guint_t  siz_t;   // byte size type
+typedef guint_t  info_t;  // object information bit field
+
+// -- Real types --
+
+// There are some places where we need to use sizeof() inside of a C
+// preprocessor #if conditional, and so here we define the various sizes
+// for those purposes.
+#define BLIS_SIZEOF_S      4  // sizeof(float)
+#define BLIS_SIZEOF_D      8  // sizeof(double)
+#define BLIS_SIZEOF_C      8  // sizeof(scomplex)
+#define BLIS_SIZEOF_Z      16 // sizeof(dcomplex)
 
 // -- Complex types --
 
@@ -127,11 +151,16 @@ typedef dcomplex atom_t;
 // Note: These types are typically only used by BLAS compatibility layer, but
 // we must define them even when the compatibility layer isn't being built
 // because they also occur in bli_slamch() and bli_dlamch().
-#ifdef BLIS_ENABLE_BLAS2BLIS_INT64
+
+// Define f77_int depending on what size of integer was requested.
+#if   BLIS_BLAS2BLIS_INT_TYPE_SIZE == 32
+typedef int32_t   f77_int;
+#elif BLIS_BLAS2BLIS_INT_TYPE_SIZE == 64
 typedef int64_t   f77_int;
 #else
-typedef int32_t   f77_int;
+typedef long int  f77_int;
 #endif
+
 typedef char      f77_char;
 typedef float     f77_float;
 typedef double    f77_double;
@@ -646,7 +675,10 @@ typedef enum
 	BLIS_REQUESTED_CONTIG_BLOCK_TOO_BIG        = (-111),
 	BLIS_EXHAUSTED_CONTIG_MEMORY_POOL          = (-112),
 
-	BLIS_ERROR_CODE_MAX                        = (-120)
+	// Object-related errors
+	BLIS_EXPECTED_OBJECT_ALIAS                 = (-120),
+
+	BLIS_ERROR_CODE_MAX                        = (-130)
 } err_t;
 
 #endif

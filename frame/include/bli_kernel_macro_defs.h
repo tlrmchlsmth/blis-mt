@@ -35,11 +35,6 @@
 #ifndef BLIS_KERNEL_MACRO_DEFS_H
 #define BLIS_KERNEL_MACRO_DEFS_H
 
-#define SIZEOF_S  4
-#define SIZEOF_D  8
-#define SIZEOF_C  8
-#define SIZEOF_Z  16
-
 
 // -- Kernel macro checks ------------------------------------------------------
 
@@ -122,49 +117,6 @@
     )
   #error "KC must be multiple of NR for all datatypes."
 #endif
-
-/*
-// Verify that cache blocksizes indicate consistent storage.
-// Specifically, verify that:
-//   - MC_D * KC_D >= MC_? * KC_?.
-//   - KC_D * NC_D >= KC_? * NC_?.
-//   - MC_D * NC_D >= MC_? * NC_?.
-// These constraints are enforced because static memory is allocated for the
-// contiguous memory allocator using the double-precision real values of MC,
-// NC, and KC.
-#if ( \
-      ( ( BLIS_DEFAULT_MC_D * BLIS_DEFAULT_KC_D * SIZEOF_D ) < \
-        ( BLIS_DEFAULT_MC_S * BLIS_DEFAULT_KC_S * SIZEOF_S ) ) || \
-      ( ( BLIS_DEFAULT_MC_D * BLIS_DEFAULT_KC_D * SIZEOF_D ) < \
-        ( BLIS_DEFAULT_MC_C * BLIS_DEFAULT_KC_C * SIZEOF_C ) ) || \
-      ( ( BLIS_DEFAULT_MC_D * BLIS_DEFAULT_KC_D * SIZEOF_D ) < \
-        ( BLIS_DEFAULT_MC_Z * BLIS_DEFAULT_KC_Z * SIZEOF_Z ) )    \
-    )
-  #error MC_D*KC_D must be >= that of MC*KC for all other datatypes.
-#endif
-
-#if ( \
-      ( ( BLIS_DEFAULT_KC_D * BLIS_DEFAULT_NC_D * SIZEOF_D ) < \
-        ( BLIS_DEFAULT_KC_S * BLIS_DEFAULT_NC_S * SIZEOF_S ) ) || \
-      ( ( BLIS_DEFAULT_KC_D * BLIS_DEFAULT_NC_D * SIZEOF_D ) < \
-        ( BLIS_DEFAULT_KC_C * BLIS_DEFAULT_NC_C * SIZEOF_C ) ) || \
-      ( ( BLIS_DEFAULT_KC_D * BLIS_DEFAULT_NC_D * SIZEOF_D ) < \
-        ( BLIS_DEFAULT_KC_Z * BLIS_DEFAULT_NC_Z * SIZEOF_Z ) )    \
-    )
-  #error KC_D*NC_D must be >= that of KC*NC for all other datatypes.
-#endif
-
-#if ( \
-      ( ( BLIS_DEFAULT_MC_D * BLIS_DEFAULT_NC_D * SIZEOF_D ) < \
-        ( BLIS_DEFAULT_MC_S * BLIS_DEFAULT_NC_S * SIZEOF_S ) ) || \
-      ( ( BLIS_DEFAULT_MC_D * BLIS_DEFAULT_NC_D * SIZEOF_D ) < \
-        ( BLIS_DEFAULT_MC_C * BLIS_DEFAULT_NC_C * SIZEOF_C ) ) || \
-      ( ( BLIS_DEFAULT_MC_D * BLIS_DEFAULT_NC_D * SIZEOF_D ) < \
-        ( BLIS_DEFAULT_MC_Z * BLIS_DEFAULT_NC_Z * SIZEOF_Z ) )    \
-    )
-  #error MC_D*NC_D must be >= that of MC*NC for all other datatypes.
-#endif
-*/
 
 
 // -- Compute maximum cache blocksizes -----------------------------------------
@@ -296,5 +248,21 @@
 #define bli_cnifac   BLIS_DEFAULT_NI_FAC
 #define bli_znifac   BLIS_DEFAULT_NI_FAC
 
+// Default Level-1f fusing factors
+
+#define bli_saxpyf_fusefac       BLIS_AXPYF_FUSE_FAC_S
+#define bli_daxpyf_fusefac       BLIS_AXPYF_FUSE_FAC_D
+#define bli_caxpyf_fusefac       BLIS_AXPYF_FUSE_FAC_C
+#define bli_zaxpyf_fusefac       BLIS_AXPYF_FUSE_FAC_Z
+
+#define bli_sdotxf_fusefac       BLIS_DOTXF_FUSE_FAC_S
+#define bli_ddotxf_fusefac       BLIS_DOTXF_FUSE_FAC_D
+#define bli_cdotxf_fusefac       BLIS_DOTXF_FUSE_FAC_C
+#define bli_zdotxf_fusefac       BLIS_DOTXF_FUSE_FAC_Z
+
+#define bli_sdotxaxpyf_fusefac   BLIS_DOTXAXPYF_FUSE_FAC_S
+#define bli_ddotxaxpyf_fusefac   BLIS_DOTXAXPYF_FUSE_FAC_D
+#define bli_cdotxaxpyf_fusefac   BLIS_DOTXAXPYF_FUSE_FAC_C
+#define bli_zdotxaxpyf_fusefac   BLIS_DOTXAXPYF_FUSE_FAC_Z
 
 #endif 

@@ -32,25 +32,18 @@
 
 */
 
+#include "bli_axpyf_check.h"
+#include "bli_axpyf_fusefac.h"
 #include "bli_axpyf_unb_var1.h"
 
 
 //
-// Define fusing factors (if they are not already defined by the user
-// in bli_kernel.h).
+// Prototype object-based interface.
 //
-#ifndef bli_saxpyf_fuse_fac
-#define bli_saxpyf_fuse_fac BLIS_DEFAULT_FUSING_FACTOR_S
-#endif
-#ifndef bli_daxpyf_fuse_fac
-#define bli_daxpyf_fuse_fac BLIS_DEFAULT_FUSING_FACTOR_D
-#endif
-#ifndef bli_caxpyf_fuse_fac
-#define bli_caxpyf_fuse_fac BLIS_DEFAULT_FUSING_FACTOR_C
-#endif
-#ifndef bli_zaxpyf_fuse_fac
-#define bli_zaxpyf_fuse_fac BLIS_DEFAULT_FUSING_FACTOR_Z
-#endif
+void bli_axpyf( obj_t* alpha,
+                obj_t* a,
+                obj_t* x,
+                obj_t* y );
 
 
 //
@@ -63,7 +56,7 @@ void PASTEMAC(ch,opname)( \
                           conj_t conja, \
                           conj_t conjx, \
                           dim_t  m, \
-                          dim_t  n, \
+                          dim_t  b_n, \
                           ctype* alpha, \
                           ctype* a, inc_t inca, inc_t lda, \
                           ctype* x, inc_t incx, \
@@ -83,7 +76,7 @@ void PASTEMAC3(cha,chx,chy,opname)( \
                                     conj_t    conja, \
                                     conj_t    conjx, \
                                     dim_t     m, \
-                                    dim_t     n, \
+                                    dim_t     b_n, \
                                     ctype_ax* alpha, \
                                     ctype_a*  a, inc_t inca, inc_t lda, \
                                     ctype_x*  x, inc_t incx, \

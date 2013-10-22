@@ -38,17 +38,44 @@
 
 // -- OPERATING SYSTEM ---------------------------------------------------------
 
+<<<<<<< HEAD
 // Enable IEEE Standard 1003.1-2004 (POSIX.1d). 
 // NOTE: This is needed to enable posix_memalign().
 #define _POSIX_C_SOURCE 200112L
+=======
+
+
+// -- INTEGER PROPERTIES -------------------------------------------------------
+
+// The bit size of the integer type used to track values such as dimensions,
+// strides, diagonal offsets. A value of 32 results in BLIS using 32-bit signed
+// integers while 64 results in 64-bit integers. Any other value results in use
+// of the C99 type "long int". Note that this ONLY affects integers used
+// internally within BLIS as well as those exposed in the native BLAS-like BLIS
+// interface.
+#define BLIS_INT_TYPE_SIZE               64
+>>>>>>> a091a219bda55e56817acd4930c2aa4472e53ba5
 
 
 
 // -- FLOATING-POINT PROPERTIES ------------------------------------------------
 
+<<<<<<< HEAD
 #define BLIS_NUM_FP_TYPES                4
 #define BLIS_MAX_TYPE_SIZE               sizeof(dcomplex)
 
+=======
+// Define the number of floating-point types supported, and the size of the
+// largest type.
+#define BLIS_NUM_FP_TYPES                4
+#define BLIS_MAX_TYPE_SIZE               sizeof(dcomplex)
+
+// Enable use of built-in C99 "float complex" and "double complex" types and
+// associated overloaded operations and functions? Disabling results in
+// scomplex and dcomplex being defined in terms of simple structs.
+//#define BLIS_ENABLE_C99_COMPLEX
+
+>>>>>>> a091a219bda55e56817acd4930c2aa4472e53ba5
 
 
 // -- MULTITHREADING -----------------------------------------------------------
@@ -58,14 +85,29 @@
 
 
 
+<<<<<<< HEAD
 // -- MEMORY ALLOCATOR ---------------------------------------------------------
+=======
+// -- MEMORY ALLOCATION --------------------------------------------------------
+
+// -- Contiguous (static) memory allocator --
+
+>>>>>>> a091a219bda55e56817acd4930c2aa4472e53ba5
 // The number of MC x KC, KC x NC, and MC x NC blocks to reserve in the
 // contiguous memory pools.
 #define BLIS_NUM_MC_X_KC_BLOCKS          BLIS_MAX_NUM_THREADS
 #define BLIS_NUM_KC_X_NC_BLOCKS          1
 #define BLIS_NUM_MC_X_NC_BLOCKS          0
 
+<<<<<<< HEAD
 
+=======
+// The maximum preload byte offset is used to pad the end of the contiguous
+// memory pools so that the micro-kernel, when computing with the end of the
+// last block, can exceed the bounds of the usable portion of the memory
+// region without causing a segmentation fault.
+#define BLIS_MAX_PRELOAD_BYTE_OFFSET     128
+>>>>>>> a091a219bda55e56817acd4930c2aa4472e53ba5
 
 // -- Memory alignment --
 
@@ -75,6 +117,7 @@
 #define BLIS_CACHE_LINE_SIZE             64
 #define BLIS_PAGE_SIZE                   4096
 
+<<<<<<< HEAD
 // Alignment size used to align local stack buffers within macro-kernel
 // functions.
 #define BLIS_STACK_BUF_ALIGN_SIZE        64
@@ -84,6 +127,33 @@
 #define BLIS_CONTIG_STRIDE_ALIGN_SIZE    64
 
 #define BLIS_MAX_PRELOAD_BYTE_OFFSET    128
+=======
+// Alignment size needed by the instruction set for aligned SIMD/vector
+// instructions.
+#define BLIS_SIMD_ALIGN_SIZE             32
+
+// Alignment size used to align local stack buffers within macro-kernel
+// functions.
+#define BLIS_STACK_BUF_ALIGN_SIZE        BLIS_CACHE_LINE_SIZE
+
+// Alignment size used when allocating memory dynamically from the operating
+// system (eg: posix_memalign()). To disable heap alignment and just use
+// malloc() instead, set this to 1.
+#define BLIS_HEAP_ADDR_ALIGN_SIZE        BLIS_CACHE_LINE_SIZE
+
+// Alignment size used when sizing leading dimensions of dynamically
+// allocated memory.
+#define BLIS_HEAP_STRIDE_ALIGN_SIZE      BLIS_CACHE_LINE_SIZE
+
+// Alignment size used when allocating entire blocks of contiguous memory
+// from the contiguous memory allocator.
+#define BLIS_CONTIG_ADDR_ALIGN_SIZE      BLIS_PAGE_SIZE
+
+// Alignment size used when sizing strides (eg: of packed micro-panels)
+// within a block of contiguous memory.
+#define BLIS_CONTIG_STRIDE_ALIGN_SIZE    BLIS_CACHE_LINE_SIZE
+
+>>>>>>> a091a219bda55e56817acd4930c2aa4472e53ba5
 
 
 // -- MIXED DATATYPE SUPPORT ---------------------------------------------------
@@ -100,8 +170,13 @@
 
 // -- MISCELLANEOUS OPTIONS ----------------------------------------------------
 
+<<<<<<< HEAD
 // Stay initialized after auto-initialization, unless and until explicitly
 // finalized.
+=======
+// Stay initialized after auto-initialization, unless and until the user
+// explicitly calls bli_finalize().
+>>>>>>> a091a219bda55e56817acd4930c2aa4472e53ba5
 #define BLIS_ENABLE_STAY_AUTO_INITIALIZED
 
 
@@ -109,9 +184,24 @@
 // -- BLAS-to-BLIS COMPATIBILITY LAYER -----------------------------------------
 
 // Enable the BLAS compatibility layer?
+<<<<<<< HEAD
 //#define BLIS_ENABLE_BLAS2BLIS
 
 // Fortran-77 name-mangling macros.
+=======
+#define BLIS_ENABLE_BLAS2BLIS
+
+// The bit size of the integer type used to track values such as dimensions and
+// leading dimensions (ie: column strides) within the BLAS compatibility layer.
+// A value of 32 results in the compatibility layer using 32-bit signed integers
+// while 64 results in 64-bit integers. Any other value results in use of the
+// C99 type "long int". Note that this ONLY affects integers used within the
+// BLAS compatibility layer.
+#define BLIS_BLAS2BLIS_INT_TYPE_SIZE     64
+
+// Fortran-77 name-mangling macros.
+#define PASTEF770(name)                        name ## _
+>>>>>>> a091a219bda55e56817acd4930c2aa4472e53ba5
 #define PASTEF77(ch1,name)       ch1        ## name ## _
 #define PASTEF772(ch1,ch2,name)  ch1 ## ch2 ## name ## _
 

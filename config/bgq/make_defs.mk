@@ -75,6 +75,7 @@ GIT_LOG    := $(GIT) log --decorate
 #
 
 # --- Determine the C compiler and related flags ---
+<<<<<<< HEAD
 CC           := mpixlc_r
 # Enable IEEE Standard 1003.1-2004 (POSIX.1d). 
 # NOTE: This is needed to enable posix_memalign().
@@ -98,6 +99,34 @@ ARFLAGS      := cru
 # --- Determine the linker and related flags ---
 LINKER       := $(CC)
 LDFLAGS      := -L/bgsys/drivers/ppcfloor/spi/lib -lSPI -lSPI_cnk -qthreaded -qsmp=omp
+=======
+CC             := /bgsys/drivers/ppcfloor/comm/gcc.legacy/bin/mpixlc_r
+# Enable IEEE Standard 1003.1-2004 (POSIX.1d). 
+# NOTE: This is needed to enable posix_memalign().
+CPPROCFLAGS    := -D_POSIX_C_SOURCE=200112L \
+                  -I/bgsys/drivers/ppcfloor -I/bgsys/drivers/ppcfloor/spi/include/kernel/cnk
+CMISCFLAGS     := -qthreaded -qsmp=omp -qasm=gcc -qkeyword=asm # -qreport -qsource -qlistopt -qlist
+CDBGFLAGS      :=
+CWARNFLAGS     := -w
+COPTFLAGS      := -O3
+CKOPTFLAGS     := $(COPTFLAGS)
+CVECFLAGS      := -qarch=qp -qtune=qp -qsimd=auto -qhot=level=1 -qprefetch -qunroll=yes -qnoipa
+
+# Aggregate all of the flags into multiple groups: one for standard
+# compilation, and one for each of the supported "special" compilation
+# modes.
+CFLAGS         := $(CDBGFLAGS) $(COPTFLAGS)  $(CVECFLAGS) $(CWARNFLAGS) $(CMISCFLAGS) $(CPPROCFLAGS)
+CFLAGS_KERNELS := $(CDBGFLAGS) $(CKOPTFLAGS) $(CVECFLAGS) $(CWARNFLAGS) $(CMISCFLAGS) $(CPPROCFLAGS)
+CFLAGS_NOOPT   := $(CDBGFLAGS)                            $(CWARNFLAGS) $(CMISCFLAGS) $(CPPROCFLAGS)
+
+# --- Determine the archiver and related flags ---
+AR             := ar
+ARFLAGS        := cru
+
+# --- Determine the linker and related flags ---
+LINKER         := $(CC)
+LDFLAGS        := -L/bgsys/drivers/ppcfloor/spi/lib -lSPI -lSPI_cnk -qthreaded -qsmp=omp
+>>>>>>> a091a219bda55e56817acd4930c2aa4472e53ba5
 
 
 

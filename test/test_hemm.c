@@ -53,25 +53,7 @@ int main( int argc, char** argv )
 	num_t dt_alpha, dt_beta;
 	int   r, n_repeats;
 	side_t side;
-
-#if 0
-	blksz_t* mr;
-	blksz_t* nr;
-	blksz_t* kr;
-	blksz_t* mc;
-	blksz_t* nc;
-	blksz_t* kc;
-	blksz_t* ni;
-
-	scalm_t* scalm_cntl;
-	packm_t* packm_cntl_a;
-	packm_t* packm_cntl_b;
-
-	gemm_t*  gemm_cntl_bp_ke;
-	gemm_t*  gemm_cntl_op_bp;
-	gemm_t*  gemm_cntl_mm_op;
-	gemm_t*  gemm_cntl_vl_mm;
-#endif
+	uplo_t uplo;
 
 	double dtime;
 	double dtime_save;
@@ -106,6 +88,9 @@ int main( int argc, char** argv )
 	side = BLIS_LEFT;
 	//side = BLIS_RIGHT;
 
+	uplo = BLIS_LOWER;
+	//uplo = BLIS_UPPER;
+
 	for ( p = p_begin; p <= p_end; p += p_inc )
 	{
 
@@ -131,8 +116,7 @@ int main( int argc, char** argv )
 		bli_randm( &c );
 
 		bli_obj_set_struc( BLIS_HERMITIAN, a );
-		//bli_obj_set_uplo( BLIS_LOWER, a );
-		bli_obj_set_uplo( BLIS_UPPER, a );
+		bli_obj_set_uplo( uplo, a );
 
 		// Randomize A, make it densely Hermitian, and zero the unstored
 		// triangle to ensure the implementation reads only from the stored
@@ -141,13 +125,11 @@ int main( int argc, char** argv )
 		bli_mkherm( &a );
 		bli_mktrim( &a );
 
+
 		bli_setsc(  (2.0/1.0), 0.0, &alpha );
 		bli_setsc( -(1.0/1.0), 0.0, &beta );
 
-<<<<<<< HEAD
 #if 0
-=======
->>>>>>> 0c1c78278bbd9c281bcbe933cc2f3bdb3bd74ef1
 		mr = bli_blksz_obj_create( 2, 4, 2, 2 );
 		kr = bli_blksz_obj_create( 1, 1, 1, 1 );
 		nr = bli_blksz_obj_create( 1, 4, 1, 1 );
@@ -163,13 +145,8 @@ int main( int argc, char** argv )
 		packm_cntl_a =
 		bli_packm_cntl_obj_create( BLIS_BLOCKED,
 		                           BLIS_VARIANT2,
-<<<<<<< HEAD
-		                           mr,
-		                           kr,
-=======
 		                           mr, NULL,
 		                           kr, NULL,
->>>>>>> 0c1c78278bbd9c281bcbe933cc2f3bdb3bd74ef1
 		                           FALSE, // scale?
 		                           TRUE,  // densify?
 		                           FALSE, // invert diagonal?
@@ -181,13 +158,8 @@ int main( int argc, char** argv )
 		packm_cntl_b =
 		bli_packm_cntl_obj_create( BLIS_BLOCKED,
 		                           BLIS_VARIANT2,
-<<<<<<< HEAD
-		                           kr,
-		                           nr,
-=======
 		                           kr, NULL,
 		                           nr, NULL,
->>>>>>> 0c1c78278bbd9c281bcbe933cc2f3bdb3bd74ef1
 		                           FALSE, // scale?
 		                           FALSE, // densify?
 		                           FALSE, // invert diagonal?
@@ -238,11 +210,7 @@ int main( int argc, char** argv )
 		                          NULL,
 		                          gemm_cntl_mm_op,
 		                          NULL );
-<<<<<<< HEAD
 #endif
-=======
-
->>>>>>> 0c1c78278bbd9c281bcbe933cc2f3bdb3bd74ef1
 
 		bli_copym( &c, &c_save );
 	
@@ -265,22 +233,16 @@ int main( int argc, char** argv )
 
 			//bli_error_checking_level_set( BLIS_NO_ERROR_CHECKING );
 
-<<<<<<< HEAD
-			bli_hemm( side,
-=======
 			bli_hemm( BLIS_LEFT,
->>>>>>> 0c1c78278bbd9c281bcbe933cc2f3bdb3bd74ef1
 			          &alpha,
 			          &a,
 			          &b,
 			          &beta,
 			          &c );
-
 #else
 
-<<<<<<< HEAD
-			f77_char side   = 'R';
-			f77_char uplo   = 'U';
+			f77_char side   = 'L';
+			f77_char uplo   = 'L';
 			f77_int  mm     = bli_obj_length( c );
 			f77_int  nn     = bli_obj_width( c );
 			f77_int  lda    = bli_obj_col_stride( a );
@@ -291,20 +253,6 @@ int main( int argc, char** argv )
 			double*  bp     = bli_obj_buffer( b );
 			double*  betap  = bli_obj_buffer( beta );
 			double*  cp     = bli_obj_buffer( c );
-=======
-			char    side   = 'L';
-			char    uplo   = 'L';
-			int     mm     = bli_obj_length( c );
-			int     nn     = bli_obj_width( c );
-			int     lda    = bli_obj_col_stride( a );
-			int     ldb    = bli_obj_col_stride( b );
-			int     ldc    = bli_obj_col_stride( c );
-			double* alphap = bli_obj_buffer( alpha );
-			double* ap     = bli_obj_buffer( a );
-			double* bp     = bli_obj_buffer( b );
-			double* betap  = bli_obj_buffer( beta );
-			double* cp     = bli_obj_buffer( c );
->>>>>>> 0c1c78278bbd9c281bcbe933cc2f3bdb3bd74ef1
 
 			dsymm_( &side,
 			        &uplo,
@@ -335,13 +283,8 @@ int main( int argc, char** argv )
 #else
 		printf( "data_hemm_%s", BLAS );
 #endif
-		printf( "( %2ld, 1:4 ) = [ %4lu %4lu  %10.3e  %6.3f ];\n",
-		        (p - p_begin + 1)/p_inc + 1, m, n, dtime_save, gflops );
 
-<<<<<<< HEAD
 #if 0
-=======
->>>>>>> 0c1c78278bbd9c281bcbe933cc2f3bdb3bd74ef1
 		bli_blksz_obj_free( mr );
 		bli_blksz_obj_free( nr );
 		bli_blksz_obj_free( kr );
@@ -357,11 +300,13 @@ int main( int argc, char** argv )
 		bli_cntl_obj_free( gemm_cntl_op_bp );
 		bli_cntl_obj_free( gemm_cntl_mm_op );
 		bli_cntl_obj_free( gemm_cntl_vl_mm );
-<<<<<<< HEAD
 #endif
-=======
 
->>>>>>> 0c1c78278bbd9c281bcbe933cc2f3bdb3bd74ef1
+		printf( "( %2lu, 1:4 ) = [ %4lu %4lu  %10.3e  %6.3f ];\n",
+		        ( unsigned long )(p - p_begin + 1)/p_inc + 1,
+		        ( unsigned long )m,
+		        ( unsigned long )n, dtime_save, gflops );
+
 		bli_obj_free( &alpha );
 		bli_obj_free( &beta );
 
