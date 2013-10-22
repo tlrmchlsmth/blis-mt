@@ -32,25 +32,22 @@
 
 */
 
+#include "bli_dotxaxpyf_check.h"
+#include "bli_dotxaxpyf_fusefac.h"
 #include "bli_dotxaxpyf_unb_var1.h"
 
 
 //
-// Define fusing factors (if they are not already defined by the user
-// in bli_kernel.h).
+// Prototype object-based interface.
 //
-#ifndef bli_sdotxaxpyf_fuse_fac
-#define bli_sdotxaxpyf_fuse_fac BLIS_DEFAULT_FUSING_FACTOR_S
-#endif
-#ifndef bli_ddotxaxpyf_fuse_fac
-#define bli_ddotxaxpyf_fuse_fac BLIS_DEFAULT_FUSING_FACTOR_D
-#endif
-#ifndef bli_cdotxaxpyf_fuse_fac
-#define bli_cdotxaxpyf_fuse_fac BLIS_DEFAULT_FUSING_FACTOR_C
-#endif
-#ifndef bli_zdotxaxpyf_fuse_fac
-#define bli_zdotxaxpyf_fuse_fac BLIS_DEFAULT_FUSING_FACTOR_Z
-#endif
+void bli_dotxaxpyf( obj_t* alpha, 
+                    obj_t* at,
+                    obj_t* a,
+                    obj_t* w,
+                    obj_t* x,
+                    obj_t* beta,
+                    obj_t* y,
+                    obj_t* z );
 
 
 //

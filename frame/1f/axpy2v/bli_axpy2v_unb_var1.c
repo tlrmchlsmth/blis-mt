@@ -34,16 +34,17 @@
 
 #include "blis.h"
 
-/*
 #define FUNCPTR_T axpy2v_fp
 
 typedef void (*FUNCPTR_T)(
                            conj_t conjx,
                            conj_t conjy,
                            dim_t  n,
-                           void*  alpha,
+                           void*  alpha1,
+                           void*  alpha2,
                            void*  x, inc_t incx,
-                           void*  y, inc_t incy
+                           void*  y, inc_t incy,
+                           void*  z, inc_t incz
                          );
 
 // If some mixed datatype functions will not be compiled, we initialize
@@ -59,9 +60,11 @@ static FUNCPTR_T GENARRAY3_MIN(ftypes,axpy2v_unb_var1);
 #endif
 
 
-void bli_axpy2v_unb_var1( obj_t*  alpha,
-                         obj_t*  x,
-                         obj_t*  y )
+void bli_axpy2v_unb_var1( obj_t*  alpha1,
+                          obj_t*  alpha2,
+                          obj_t*  x,
+                          obj_t*  y,
+                          obj_t*  z )
 {
 	num_t     dt_x      = bli_obj_datatype( *x );
 	num_t     dt_y      = bli_obj_datatype( *y );
@@ -76,33 +79,41 @@ void bli_axpy2v_unb_var1( obj_t*  alpha,
 	inc_t     inc_y     = bli_obj_vector_inc( *y );
 	void*     buf_y     = bli_obj_buffer_at_off( *y );
 
-	num_t     dt_alpha;
-	void*     buf_alpha;
+	inc_t     inc_z     = bli_obj_vector_inc( *z );
+	void*     buf_z     = bli_obj_buffer_at_off( *z );
+
+	num_t     dt_alpha1;
+	void*     buf_alpha1;
+
+	num_t     dt_alpha2;
+	void*     buf_alpha2;
 
 	FUNCPTR_T f;
 
 	// If alpha is a scalar constant, use dt_x to extract the address of the
 	// corresponding constant value; otherwise, use the datatype encoded
 	// within the alpha object and extract the buffer at the alpha offset.
-	bli_set_scalar_dt_buffer( alpha, dt_x, dt_alpha, buf_alpha );
+	bli_set_scalar_dt_buffer( alpha1, dt_x, dt_alpha1, buf_alpha1 );
+	bli_set_scalar_dt_buffer( alpha2, dt_x, dt_alpha2, buf_alpha2 );
 
 	// Index into the type combination array to extract the correct
 	// function pointer.
-	f = ftypes[dt_alpha][dt_x][dt_y];
+	f = ftypes[dt_alpha1][dt_x][dt_y];
 
 	// Invoke the function.
 	f( conjx,
 	   conjy,
 	   n,
-	   buf_alpha,
+	   buf_alpha1,
+	   buf_alpha2,
 	   buf_x, inc_x,
-	   buf_y, inc_y );
+	   buf_y, inc_y,
+	   buf_z, inc_z );
 }
-*/
 
 
 #undef  GENTFUNC3U12
-#define GENTFUNC3U12( ctype_x, ctype_y, ctype_z, ctype_xy, chx, chy, chz, chxy, opname, varname ) \
+#define GENTFUNC3U12( ctype_x, ctype_y, ctype_z, ctype_xy, chx, chy, chz, chxy, varname, kername ) \
 \
 void PASTEMAC3(chx,chy,chz,varname)( \
                                      conj_t conjx, \
@@ -121,27 +132,27 @@ void PASTEMAC3(chx,chy,chz,varname)( \
 	ctype_y*  y_cast      = y; \
 	ctype_z*  z_cast      = z; \
 \
-	PASTEMAC3(chxy,chx,chz,axpyv)( conjx, \
-	                               n, \
-	                               alpha1_cast, \
-	                               x_cast, incx, \
-	                               z_cast, incz ); \
-	PASTEMAC3(chxy,chy,chz,axpyv)( conjy, \
-	                               n, \
-	                               alpha2_cast, \
-	                               y_cast, incy, \
-	                               z_cast, incz ); \
+	PASTEMAC3(chxy,chx,chz,kername)( conjx, \
+	                                 n, \
+	                                 alpha1_cast, \
+	                                 x_cast, incx, \
+	                                 z_cast, incz ); \
+	PASTEMAC3(chxy,chy,chz,kername)( conjy, \
+	                                 n, \
+	                                 alpha2_cast, \
+	                                 y_cast, incy, \
+	                                 z_cast, incz ); \
 }
 
 // Define the basic set of functions unconditionally, and then also some
 // mixed datatype functions if requested.
-INSERT_GENTFUNC3U12_BASIC( axpy2v, axpy2v_unb_var1 )
+INSERT_GENTFUNC3U12_BASIC( axpy2v_unb_var1, AXPYV_KERNEL )
 
 #ifdef BLIS_ENABLE_MIXED_DOMAIN_SUPPORT
-INSERT_GENTFUNC3U12_MIX_D( axpy2v, axpy2v_unb_var1 )
+INSERT_GENTFUNC3U12_MIX_D( axpy2v_unb_var1, AXPYV_KERNEL )
 #endif
 
 #ifdef BLIS_ENABLE_MIXED_PRECISION_SUPPORT
-INSERT_GENTFUNC3U12_MIX_P( axpy2v, axpy2v_unb_var1 )
+INSERT_GENTFUNC3U12_MIX_P( axpy2v_unb_var1, AXPYV_KERNEL )
 #endif
 

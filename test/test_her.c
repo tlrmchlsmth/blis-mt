@@ -53,6 +53,7 @@ int main( int argc, char** argv )
 	num_t dt_a, dt_x;
 	num_t dt_alpha;
 	int   r, n_repeats;
+	uplo_t uplo;
 
 	double dtime;
 	double dtime_save;
@@ -86,6 +87,8 @@ int main( int argc, char** argv )
 	dt_a = BLIS_DCOMPLEX;
 #endif
 
+	uplo = BLIS_LOWER;
+
 	for ( p = p_begin; p <= p_end; p += p_inc )
 	{
 
@@ -104,8 +107,7 @@ int main( int argc, char** argv )
 
 		bli_obj_set_struc( BLIS_HERMITIAN, a );
 		//bli_obj_set_struc( BLIS_SYMMETRIC, a );
-		bli_obj_set_uplo( BLIS_LOWER, a );
-		//bli_obj_set_uplo( BLIS_UPPER, a );
+		bli_obj_set_uplo( uplo, a );
 
 
 		bli_setsc(  (2.0/1.0), 0.0, &alpha );
@@ -173,8 +175,9 @@ int main( int argc, char** argv )
 #else
 		printf( "data_her_%s", BLAS );
 #endif
-		printf( "( %2ld, 1:3 ) = [ %4lu  %10.3e  %6.3f ];\n",
-		        (p - p_begin + 1)/p_inc + 1, m, dtime_save, gflops );
+		printf( "( %2lu, 1:3 ) = [ %4lu  %10.3e  %6.3f ];\n",
+		        ( unsigned long )(p - p_begin + 1)/p_inc + 1,
+		        ( unsigned long )m, dtime_save, gflops );
 
 		bli_obj_free( &alpha );
 

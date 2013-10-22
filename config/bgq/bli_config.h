@@ -40,10 +40,29 @@
 
 
 
+// -- INTEGER PROPERTIES -------------------------------------------------------
+
+// The bit size of the integer type used to track values such as dimensions,
+// strides, diagonal offsets. A value of 32 results in BLIS using 32-bit signed
+// integers while 64 results in 64-bit integers. Any other value results in use
+// of the C99 type "long int". Note that this ONLY affects integers used
+// internally within BLIS as well as those exposed in the native BLAS-like BLIS
+// interface.
+#define BLIS_INT_TYPE_SIZE               64
+
+
+
 // -- FLOATING-POINT PROPERTIES ------------------------------------------------
 
+// Define the number of floating-point types supported, and the size of the
+// largest type.
 #define BLIS_NUM_FP_TYPES                4
 #define BLIS_MAX_TYPE_SIZE               sizeof(dcomplex)
+
+// Enable use of built-in C99 "float complex" and "double complex" types and
+// associated overloaded operations and functions? Disabling results in
+// scomplex and dcomplex being defined in terms of simple structs.
+//#define BLIS_ENABLE_C99_COMPLEX
 
 
 
@@ -77,6 +96,10 @@
 // and the page size.
 #define BLIS_CACHE_LINE_SIZE             64
 #define BLIS_PAGE_SIZE                   4096
+
+// Alignment size needed by the instruction set for aligned SIMD/vector
+// instructions.
+#define BLIS_SIMD_ALIGN_SIZE             32
 
 // Alignment size used to align local stack buffers within macro-kernel
 // functions.
@@ -124,15 +147,23 @@
 
 // Enable the BLAS compatibility layer?
 #define BLIS_ENABLE_BLAS2BLIS
-#define BLIS_ENABLE_BLIS2BLAS
 
-// Enable 64-bit integers in the BLAS compatibility layer? If disabled,
-// these integers will be defined as 32-bit.
-//#define BLIS_ENABLE_BLAS2BLIS_INT64
+// The bit size of the integer type used to track values such as dimensions and
+// leading dimensions (ie: column strides) within the BLAS compatibility layer.
+// A value of 32 results in the compatibility layer using 32-bit signed integers
+// while 64 results in 64-bit integers. Any other value results in use of the
+// C99 type "long int". Note that this ONLY affects integers used within the
+// BLAS compatibility layer.
+#define BLIS_BLAS2BLIS_INT_TYPE_SIZE     64
 
 // Fortran-77 name-mangling macros.
+// Underscore is commented out to work on BGQ systems
 #define PASTEF770(name)                        name //## _
 #define PASTEF77(ch1,name)       ch1        ## name //## _
 #define PASTEF772(ch1,ch2,name)  ch1 ## ch2 ## name //## _
 
+
+
+
 #endif
+

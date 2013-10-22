@@ -34,13 +34,15 @@
 
 #include "blis.h"
 
-/*
 #define FUNCPTR_T axpyf_fp
 
 typedef void (*FUNCPTR_T)(
+                           conj_t conja,
                            conj_t conjx,
-                           dim_t  n,
+                           dim_t  m,
+                           dim_t  b_n,
                            void*  alpha,
+                           void*  a, inc_t inca, inc_t lda,
                            void*  x, inc_t incx,
                            void*  y, inc_t incy
                          );
@@ -59,14 +61,23 @@ static FUNCPTR_T GENARRAY3_MIN(ftypes,axpyf_unb_var1);
 
 
 void bli_axpyf_unb_var1( obj_t*  alpha,
+                         obj_t*  a,
                          obj_t*  x,
                          obj_t*  y )
 {
+	num_t     dt_a      = bli_obj_datatype( *a );
 	num_t     dt_x      = bli_obj_datatype( *x );
 	num_t     dt_y      = bli_obj_datatype( *y );
 
+	conj_t    conja     = bli_obj_conj_status( *a );
 	conj_t    conjx     = bli_obj_conj_status( *x );
-	dim_t     n         = bli_obj_vector_dim( *x );
+
+	dim_t     m         = bli_obj_vector_dim( *y );
+	dim_t     b_n       = bli_obj_vector_dim( *x );
+
+	void*     buf_a     = bli_obj_buffer_at_off( *a );
+	inc_t     rs_a      = bli_obj_row_stride( *a );
+	inc_t     cs_a      = bli_obj_col_stride( *a );
 
 	inc_t     inc_x     = bli_obj_vector_inc( *x );
 	void*     buf_x     = bli_obj_buffer_at_off( *x );
@@ -79,26 +90,29 @@ void bli_axpyf_unb_var1( obj_t*  alpha,
 
 	FUNCPTR_T f;
 
-	// If alpha is a scalar constant, use dt_x to extract the address of the
-	// corresponding constant value; otherwise, use the datatype encoded
-	// within the alpha object and extract the buffer at the alpha offset.
-	bli_set_scalar_dt_buffer( alpha, dt_x, dt_alpha, buf_alpha );
+	// The datatype of alpha MUST be the type union of a and x. This is to
+	// prevent any unnecessary loss of information during computation.
+	dt_alpha  = bli_datatype_union( dt_a, dt_x );
+	buf_alpha = bli_obj_scalar_buffer( dt_alpha, *alpha );
 
 	// Index into the type combination array to extract the correct
 	// function pointer.
-	f = ftypes[dt_alpha][dt_x][dt_y];
+	f = ftypes[dt_a][dt_x][dt_y];
 
 	// Invoke the function.
-	f( conjx,
-	   n,
+	f( conja,
+	   conjx,
+	   m,
+	   b_n,
 	   buf_alpha,
+	   buf_a, rs_a, cs_a,
 	   buf_x, inc_x,
 	   buf_y, inc_y );
 }
-*/
+
 
 #undef  GENTFUNC3U12
-#define GENTFUNC3U12( ctype_a, ctype_x, ctype_y, ctype_ax, cha, chx, chy, chax, opname, varname ) \
+#define GENTFUNC3U12( ctype_a, ctype_x, ctype_y, ctype_ax, cha, chx, chy, chax, varname, kername ) \
 \
 void PASTEMAC3(cha,chx,chy,varname)( \
                                      conj_t conja, \
@@ -130,23 +144,23 @@ void PASTEMAC3(cha,chx,chy,varname)( \
 		PASTEMAC2(chx,chax,copycjs)( conjx, *chi1, alpha_chi1 ); \
 		PASTEMAC2(chax,chax,scals)( *alpha_cast, alpha_chi1 ); \
 \
-		PASTEMAC3(chax,cha,chy,axpyv)( conja, \
-		                               m, \
-		                               &alpha_chi1, \
-		                               a1, inca, \
-		                               y1, incy ); \
+		PASTEMAC3(chax,cha,chy,kername)( conja, \
+		                                 m, \
+		                                 &alpha_chi1, \
+		                                 a1, inca, \
+		                                 y1, incy ); \
 	} \
 }
 
 // Define the basic set of functions unconditionally, and then also some
 // mixed datatype functions if requested.
-INSERT_GENTFUNC3U12_BASIC( axpyf, axpyf_unb_var1 )
+INSERT_GENTFUNC3U12_BASIC( axpyf_unb_var1, AXPYV_KERNEL )
 
 #ifdef BLIS_ENABLE_MIXED_DOMAIN_SUPPORT
-INSERT_GENTFUNC3U12_MIX_D( axpyf, axpyf_unb_var1 )
+INSERT_GENTFUNC3U12_MIX_D( axpyf_unb_var1, AXPYV_KERNEL )
 #endif
 
 #ifdef BLIS_ENABLE_MIXED_PRECISION_SUPPORT
-INSERT_GENTFUNC3U12_MIX_P( axpyf, axpyf_unb_var1 )
+INSERT_GENTFUNC3U12_MIX_P( axpyf_unb_var1, AXPYV_KERNEL )
 #endif
 

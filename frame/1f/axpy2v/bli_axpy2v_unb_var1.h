@@ -32,11 +32,11 @@
 
 */
 
-/*
-void bli_axpy2v_unb_var1( obj_t* alpha,
-                         obj_t* x,
-                         obj_t* y );
-*/
+void bli_axpy2v_unb_var1( obj_t* alpha1,
+                          obj_t* alpha2,
+                          obj_t* x,
+                          obj_t* y,
+                          obj_t* z );
 
 
 #undef  GENTPROT3

@@ -32,11 +32,10 @@
 
 */
 
-/*
-void bli_axpyf_unb_var1( obj_t* alpha,
-                         obj_t* x,
-                         obj_t* y );
-*/
+void bli_axpyf_unb_var1( obj_t*  alpha,
+                         obj_t*  a,
+                         obj_t*  x,
+                         obj_t*  y );
 
 
 #undef  GENTPROT3U12
@@ -46,7 +45,7 @@ void PASTEMAC3(cha,chx,chy,varname)( \
                                      conj_t conja, \
                                      conj_t conjx, \
                                      dim_t  m, \
-                                     dim_t  n, \
+                                     dim_t  b_n, \
                                      void*  alpha, \
                                      void*  a, inc_t inca, inc_t lda, \
                                      void*  x, inc_t incx, \

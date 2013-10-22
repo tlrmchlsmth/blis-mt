@@ -4,7 +4,7 @@
    An object-based framework for developing high-performance BLAS-like
    libraries.
 
-   Copyright (C) 2012, The University of Texas
+   Copyright (C) 2013, The University of Texas
 
    Redistribution and use in source and binary forms, with or without
    modification, are permitted provided that the following conditions are
@@ -35,33 +35,26 @@
 #ifndef BLIS_KERNEL_H
 #define BLIS_KERNEL_H
 
-#define BLIS_GEMM_UKERNEL_THREADS 1
 
 // -- LEVEL-3 MICRO-KERNEL CONSTANTS -------------------------------------------
 
 // -- Default cache blocksizes --
 
+//
 // Constraints:
 //
 // (1) MC must be a multiple of:
-//     (a) MR (for zero-padding purposes) and
-//     (b) NR.
+//     (a) MR (for zero-padding purposes)
+//     (b) NR (for zero-padding purposes when MR and NR are "swapped")
 // (2) NC must be a multiple of
-//     (a) NR (for zero-padding purposes) and
-//     (b) MR.
-// (3) KC does not need to be multiple of anything, unless the micro-kernel
-//     specifically requires it (and typically it does not).
-// 
-// NOTE: For BLIS libraries built on block-panel macro-kernels, constraint
-// (2b) is relaxed. In this case, (1b) is needed for operation implementations
-// involving matrices with diagonals (trmm, trsm). In these cases, we want the
-// diagonal offset of any panel of packed matrix A to have a diagonal offset
-// that is a multiple of MR. If, instead, the library were to be built on
-// block-panel macro-kernels, matrix B would be the one with structure, not A,
-// and thus it would be constraint (2b) that would be needed instead of (1b).
+//     (a) NR (for zero-padding purposes)
+//     (b) MR (for zero-padding purposes when MR and NR are "swapped")
+// (3) KC must be a multiple of
+//     (a) MR and
+//     (b) NR (for triangular operations such as trmm and trsm).
 //
 
-#define BLIS_DEFAULT_MC_S              128
+#define BLIS_DEFAULT_MC_S              256
 #define BLIS_DEFAULT_KC_S              256
 #define BLIS_DEFAULT_NC_S              8192
 
@@ -71,14 +64,19 @@
 
 #define BLIS_DEFAULT_MC_C              128
 #define BLIS_DEFAULT_KC_C              256
-#define BLIS_DEFAULT_NC_C              8192
+#define BLIS_DEFAULT_NC_C              4096
 
-#define BLIS_DEFAULT_MC_Z              1088
-#define BLIS_DEFAULT_KC_Z              128
-#define BLIS_DEFAULT_NC_Z              8192
+#define BLIS_DEFAULT_MC_Z              64
+#define BLIS_DEFAULT_KC_Z              256
+#define BLIS_DEFAULT_NC_Z              2048
 
 // -- Cache blocksize extensions (for optimizing edge cases) --
 
+// NOTE: These cache blocksize "extensions" have the same constraints as
+// the corresponding default blocksizes above. When these values are
+// non-zero, blocksizes used at edge cases are extended (enlarged) if
+// such an extension would encompass the remaining portion of the
+// matrix dimension.
 #define BLIS_EXTEND_MC_S               0 //(BLIS_DEFAULT_MC_S/4)
 #define BLIS_EXTEND_KC_S               0 //(BLIS_DEFAULT_KC_S/4)
 #define BLIS_EXTEND_NC_S               0 //(BLIS_DEFAULT_NC_S/4)
@@ -95,24 +93,22 @@
 #define BLIS_EXTEND_KC_Z               0 //(BLIS_DEFAULT_KC_Z/4)
 #define BLIS_EXTEND_NC_Z               0 //(BLIS_DEFAULT_NC_Z/4)
 
-
-
-// -- Default register blocksizes for inner kernel --
+// -- Default register blocksizes for micro-kernel --
 
 // NOTE: When using the reference configuration, these register blocksizes
 // in the m and n dimensions should all be equal to the size expected by
 // the reference micro-kernel(s).
 
-#define BLIS_DEFAULT_MR_S              4
+#define BLIS_DEFAULT_MR_S              8
 #define BLIS_DEFAULT_NR_S              4
 
 #define BLIS_DEFAULT_MR_D              4
 #define BLIS_DEFAULT_NR_D              6
 
-#define BLIS_DEFAULT_MR_C              4
+#define BLIS_DEFAULT_MR_C              8
 #define BLIS_DEFAULT_NR_C              4
 
-#define BLIS_DEFAULT_MR_Z              4
+#define BLIS_DEFAULT_MR_Z              8
 #define BLIS_DEFAULT_NR_Z              4
 
 // NOTE: If the micro-kernel, which is typically unrolled to a factor
@@ -125,6 +121,10 @@
 #define BLIS_DEFAULT_KR_Z              1
 
 // -- Register blocksize extensions (for packed micro-panels) --
+
+// NOTE: These register blocksize "extensions" determine whether the
+// leading dimensions used within the packed micro-panels are equal to
+// or greater than their corresponding register blocksizes above.
 
 #define BLIS_EXTEND_MR_S               0
 #define BLIS_EXTEND_NR_S               0
@@ -145,8 +145,6 @@
 #define BLIS_EXTEND_KR_C               0
 #define BLIS_EXTEND_KR_Z               0
 
-
-
 // -- Number of elements per vector register --
 
 // NOTE: These constants are typically only used to determine the amount
@@ -162,10 +160,18 @@
 
 // -- Default switch for duplication of B --
 
-#define BLIS_DEFAULT_NUM_DUPL_S       1 
-#define BLIS_DEFAULT_NUM_DUPL_D       1
-#define BLIS_DEFAULT_NUM_DUPL_C       1
-#define BLIS_DEFAULT_NUM_DUPL_Z       1
+// NOTE: Setting these values to 1 disables duplication. Any value
+// d > 1 results in a d-1 duplicates created within special macro-kernel
+// buffer of dimension k x NR*d.
+
+//#define BLIS_DEFAULT_NUM_DUPL_S        BLIS_NUM_ELEM_PER_REG_S
+//#define BLIS_DEFAULT_NUM_DUPL_D        BLIS_NUM_ELEM_PER_REG_D
+//#define BLIS_DEFAULT_NUM_DUPL_C        BLIS_NUM_ELEM_PER_REG_C
+//#define BLIS_DEFAULT_NUM_DUPL_Z        BLIS_NUM_ELEM_PER_REG_Z
+#define BLIS_DEFAULT_NUM_DUPL_S        1
+#define BLIS_DEFAULT_NUM_DUPL_D        1
+#define BLIS_DEFAULT_NUM_DUPL_C        1
+#define BLIS_DEFAULT_NUM_DUPL_Z        1
 
 // -- Default incremental packing blocksizes (n dimension) --
 
@@ -180,7 +186,16 @@
 #define BLIS_DEFAULT_NI_Z              (BLIS_DEFAULT_NI_FAC * BLIS_DEFAULT_NR_Z)
 
 
+
 // -- LEVEL-2 KERNEL CONSTANTS -------------------------------------------------
+
+// NOTE: These values determine high-level cache blocking for level-2
+// operations ONLY. So, if gemv is performed with a 2000x2000 matrix A and
+// MC = NC = 1000, then a total of four unblocked (or unblocked fused)
+// gemv subproblems are called. The blocked algorithms are only useful in
+// that they provide the opportunity for packing vectors. (Matrices can also
+// be packed here, but this tends to be much too expensive in practice to
+// actually employ.)
 
 #define BLIS_DEFAULT_L2_MC_S           1000
 #define BLIS_DEFAULT_L2_NC_S           1000
@@ -204,10 +219,25 @@
 // of level-1f operations. They are here only for use when these operations
 // are optimized.
 
-#define BLIS_DEFAULT_FUSING_FACTOR_S   8
-#define BLIS_DEFAULT_FUSING_FACTOR_D   4
-#define BLIS_DEFAULT_FUSING_FACTOR_C   4
-#define BLIS_DEFAULT_FUSING_FACTOR_Z   2
+#define BLIS_DEFAULT_FUSE_FAC_S        8
+#define BLIS_DEFAULT_FUSE_FAC_D        4
+#define BLIS_DEFAULT_FUSE_FAC_C        4
+#define BLIS_DEFAULT_FUSE_FAC_Z        2
+
+#define BLIS_AXPYF_FUSE_FAC_S          BLIS_DEFAULT_FUSE_FAC_S
+#define BLIS_AXPYF_FUSE_FAC_D          BLIS_DEFAULT_FUSE_FAC_D
+#define BLIS_AXPYF_FUSE_FAC_C          BLIS_DEFAULT_FUSE_FAC_C
+#define BLIS_AXPYF_FUSE_FAC_Z          BLIS_DEFAULT_FUSE_FAC_Z
+
+#define BLIS_DOTXF_FUSE_FAC_S          BLIS_DEFAULT_FUSE_FAC_S
+#define BLIS_DOTXF_FUSE_FAC_D          BLIS_DEFAULT_FUSE_FAC_D
+#define BLIS_DOTXF_FUSE_FAC_C          BLIS_DEFAULT_FUSE_FAC_C
+#define BLIS_DOTXF_FUSE_FAC_Z          BLIS_DEFAULT_FUSE_FAC_Z
+
+#define BLIS_DOTXAXPYF_FUSE_FAC_S      BLIS_DEFAULT_FUSE_FAC_S
+#define BLIS_DOTXAXPYF_FUSE_FAC_D      BLIS_DEFAULT_FUSE_FAC_D
+#define BLIS_DOTXAXPYF_FUSE_FAC_C      BLIS_DEFAULT_FUSE_FAC_C
+#define BLIS_DOTXAXPYF_FUSE_FAC_Z      BLIS_DEFAULT_FUSE_FAC_Z
 
 
 
@@ -225,6 +255,7 @@
 #define BLIS_DEFAULT_VR_Z              1
 
 
+
 // -- LEVEL-3 KERNEL DEFINITIONS -----------------------------------------------
 
 // -- dupl --
@@ -232,15 +263,18 @@
 #define DUPL_KERNEL          dupl_unb_var1
 
 // -- gemm --
+
 #include "bli_gemm_4x6.h"
+
 #define GEMM_UKERNEL         gemm_4x6
 
 // -- trsm-related --
 
-#define TRSM_L_UKERNEL       trsm_l_ref_mxn
-#define TRSM_U_UKERNEL       trsm_u_ref_mxn
 #define GEMMTRSM_L_UKERNEL   gemmtrsm_l_ref_mxn
 #define GEMMTRSM_U_UKERNEL   gemmtrsm_u_ref_mxn
+
+#define TRSM_L_UKERNEL       trsm_l_ref_mxn
+#define TRSM_U_UKERNEL       trsm_u_ref_mxn
 
 
 
@@ -256,7 +290,6 @@
 #define PACKM_12XK_KERNEL    packm_ref_12xk
 #define PACKM_14XK_KERNEL    packm_ref_14xk
 #define PACKM_16XK_KERNEL    packm_ref_16xk
-#define PACKM_30XK_KERNEL    packm_ref_30xk
 
 // -- unpackm --
 
@@ -296,18 +329,50 @@
 
 
 // -- LEVEL-1V KERNEL DEFINITIONS ----------------------------------------------
-#define ADDV_KERNEL         addv_unb_var1
-#define SUBV_KERNEL         subv_unb_var1
-#define SWAPV_KERNEL         swapv_unb_var1
+
+// -- addv --
+
+#define ADDV_KERNEL          addv_unb_var1
+
+// -- axpyv --
+
 #define AXPYV_KERNEL         axpyv_unb_var1
-#define COPYNZV_KERNEL       copynzv_unb_var1
+
+// -- copyv --
+
 #define COPYV_KERNEL         copyv_unb_var1
+
+// -- dotv --
+
 #define DOTV_KERNEL          dotv_unb_var1
+
+// -- dotxv --
+
 #define DOTXV_KERNEL         dotxv_unb_var1
+
+// -- invertv --
+
 #define INVERTV_KERNEL       invertv_unb_var1
+
+// -- scal2v --
+
 #define SCAL2V_KERNEL        scal2v_unb_var1
+
+// -- scalv --
+
 #define SCALV_KERNEL         scalv_unb_var1
+
+// -- setv --
+
 #define SETV_KERNEL          setv_unb_var1
+
+// -- subv --
+
+#define SUBV_KERNEL          subv_unb_var1
+
+// -- swapv --
+
+#define SWAPV_KERNEL         swapv_unb_var1
 
 
 

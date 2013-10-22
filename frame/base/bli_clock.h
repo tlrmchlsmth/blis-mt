@@ -34,4 +34,5 @@
 
 double bli_clock( void );
 double bli_clock_min_diff( double time_min, double time_start );
+double bli_clock_helper( void );
 

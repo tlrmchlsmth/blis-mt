@@ -65,7 +65,7 @@
 #define INPUT_BUFFER_SIZE            256
 #define MAX_FILENAME_LENGTH          256
 #define MAX_BINARY_NAME_LENGTH       256
-#define MAX_FUNC_STRING_LENGTH       24
+#define MAX_FUNC_STRING_LENGTH       26
 #define FLOPS_PER_UNIT_PERF          1e9
 
 #define MAX_NUM_MSTORAGE             4
@@ -131,6 +131,9 @@ typedef enum
 	BLIS_TEST_DIMS_MN         = 1,
 	BLIS_TEST_DIMS_MK         = 2,
 	BLIS_TEST_DIMS_M          = 3,
+	BLIS_TEST_DIMS_MF         = 4,
+	BLIS_TEST_DIMS_K          = 5,
+	BLIS_TEST_NO_DIMS         = 6,
 } dimset_t;
 
 
@@ -138,6 +141,7 @@ typedef enum
 {
 	BLIS_TEST_SEQ_FRONT_END   = 0,
 	BLIS_TEST_MT_FRONT_END    = 1,
+	BLIS_TEST_SEQ_UKERNEL     = 2,
 } mt_impl_t;
 
 
@@ -153,11 +157,12 @@ typedef struct
 	unsigned int  n_datatypes;
 	char          datatype_char[ MAX_NUM_DATATYPES + 1 ];
 	num_t         datatype[ MAX_NUM_DATATYPES + 1 ];
-	dim_t         p_first;
-	dim_t         p_max;
-	dim_t         p_inc;
+	unsigned int  p_first;
+	unsigned int  p_max;
+	unsigned int  p_inc;
 	char          reaction_to_failure;
-	unsigned int  output_matlab_files;
+	unsigned int  output_matlab_format;
+	unsigned int  output_files;
 	unsigned int  error_checking_level;
 } test_params_t;
 
@@ -167,10 +172,12 @@ typedef struct
 	// parent test_ops_t struct
 	struct test_ops_s*   ops;
 
+	int           op_switch;
 	int           front_seq;
-	dim_t         n_dims;
+	unsigned int  n_dims;
 	dimset_t      dimset;
 	int           dim_spec[ MAX_NUM_DIMENSIONS ];
+	int           dim_aux[ MAX_NUM_DIMENSIONS ];
 	unsigned int  n_params;
 	char          params[ MAX_NUM_PARAMETERS ];
 	bool_t        test_done;
@@ -180,6 +187,15 @@ typedef struct
 
 typedef struct test_ops_s
 {
+	// section overrides
+	int       util_over;
+	int       l1v_over;
+	int       l1m_over;
+	int       l1f_over;
+	int       l2_over;
+	int       l3ukr_over;
+	int       l3_over;
+
 	// util
 	test_op_t randv;
 	test_op_t randm;
@@ -206,6 +222,13 @@ typedef struct test_ops_s
 	test_op_t setm;
 	test_op_t subm;
 
+	// level-1f
+	test_op_t axpy2v;
+	test_op_t dotaxpyv;
+	test_op_t axpyf;
+	test_op_t dotxf;
+	test_op_t dotxaxpyf;
+
 	// level-2
 	test_op_t gemv;
 	test_op_t ger;
@@ -217,6 +240,11 @@ typedef struct test_ops_s
 	test_op_t syr2;
 	test_op_t trmv;
 	test_op_t trsv;
+
+	// level-3 micro-kernels
+	test_op_t gemm_ukr;
+	test_op_t trsm_ukr;
+	test_op_t gemmtrsm_ukr;
 
 	// level-3
 	test_op_t gemm;
@@ -247,20 +275,27 @@ typedef struct
 void libblis_test_utility_ops( test_params_t* params, test_ops_t* ops );
 void libblis_test_level1m_ops( test_params_t* params, test_ops_t* ops );
 void libblis_test_level1v_ops( test_params_t* params, test_ops_t* ops );
+void libblis_test_level1f_ops( test_params_t* params, test_ops_t* ops );
 void libblis_test_level2_ops( test_params_t* params, test_ops_t* ops );
+void libblis_test_level3_ukrs( test_params_t* params, test_ops_t* ops );
 void libblis_test_level3_ops( test_params_t* params, test_ops_t* ops );
 
 void libblis_test_read_params_file( char* input_filename, test_params_t* params );
 void libblis_test_read_ops_file( char* input_filename, test_ops_t* ops );
 
+void libblis_test_read_section_override( test_ops_t*  ops,
+                                         FILE*        input_stream,
+                                         int*         override );
 void libblis_test_read_op_info( test_ops_t*  ops,
                                 FILE*        input_stream,
                                 dimset_t     dimset,
                                 unsigned int n_params,
                                 test_op_t*   op );
 
+
 // --- Struct output ---
 
+void libblis_test_output_section_overrides( FILE* os, test_ops_t* ops );
 void libblis_test_output_params_struct( FILE* os, test_params_t* params );
 void libblis_test_output_op_struct( FILE* os, test_op_t* op, char* op_str );
 
@@ -270,8 +305,9 @@ char*   libblis_test_get_string_for_result( double residual, num_t dt,
                                             thresh_t* thresh );
 param_t libblis_test_get_param_type_for_char( char p_type );
 operand_t libblis_test_get_operand_type_for_char( char o_type );
-dim_t   libblis_test_get_n_dims_from_dimset( dimset_t dimset );
-dim_t   libblis_test_get_dim_from_prob_size( int dim_spec, dim_t p_size );
+unsigned int libblis_test_get_n_dims_from_dimset( dimset_t dimset );
+unsigned int libblis_test_get_n_dims_from_string( char* dims_str );
+dim_t   libblis_test_get_dim_from_prob_size( int dim_spec, unsigned int p_size );
 
 // --- Parameter/storage string generation ---
 
@@ -299,7 +335,7 @@ void libblis_test_op_driver( test_params_t* params,
                                              num_t,          // datatype (current datatype)
                                              char*,          // pc_str (current param string)
                                              char*,          // sc_str (current storage string)
-                                             dim_t,          // p_cur (current problem size)
+                                             unsigned int,   // p_cur (current problem size)
                                              double*,        // perf
                                              double* ) );    // residual
 
@@ -313,6 +349,10 @@ void libblis_test_build_function_string( char*        prefix_str,
                                          char*        sc_str,
                                          char*        func_str );
 
+void libblis_test_build_dims_string( test_op_t* op,
+                                     dim_t      p_cur,
+                                     char*      dims_str );
+
 void libblis_test_build_filename_string( char*        prefix_str,
                                          char*        op_str,
                                          char*        funcname_str );
@@ -324,6 +364,7 @@ void fill_string_with_n_spaces( char* str, unsigned int n_spaces );
 // --- Create object ---
 
 void libblis_test_mobj_create( test_params_t* params, num_t dt, trans_t trans, char storage, dim_t m, dim_t n, obj_t* a );
+void libblis_test_pobj_create( blksz_t* m, blksz_t* n, invdiag_t inv_diag, pack_t pack_schema, packbuf_t pack_buf, obj_t* a, obj_t* p );
 void libblis_test_vobj_create( test_params_t* params, num_t dt, char storage, dim_t m, obj_t* x );
 
 // --- Global string initialization ---
@@ -337,8 +378,8 @@ void libblis_test_abort( void );
 
 // --- File I/O wrappers ---
 
-void libblis_test_fopen_mfile( char* op_str, mt_impl_t impl, FILE** output_stream );
-void libblis_test_fclose_mfile( FILE* output_stream );
+void libblis_test_fopen_ofile( char* op_str, mt_impl_t impl, FILE** output_stream );
+void libblis_test_fclose_ofile( FILE* output_stream );
 void libblis_test_fopen_check_stream( char* filename_str, FILE* stream );
 
 void libblis_test_read_next_line( char* buffer, FILE* input_stream );
@@ -389,6 +430,13 @@ void libblis_test_check_empty_problem( obj_t* c, double* perf, double* resid );
 #include "test_setm.h"
 #include "test_subm.h"
 
+// Level-1f kernels
+#include "test_axpy2v.h"
+#include "test_dotaxpyv.h"
+#include "test_axpyf.h"
+#include "test_dotxf.h"
+#include "test_dotxaxpyf.h"
+
 // Level-2
 #include "test_gemv.h"
 #include "test_ger.h"
@@ -400,6 +448,11 @@ void libblis_test_check_empty_problem( obj_t* c, double* perf, double* resid );
 #include "test_syr2.h"
 #include "test_trmv.h"
 #include "test_trsv.h"
+
+// Level-3 micro-kernels
+#include "test_gemm_ukr.h"
+#include "test_trsm_ukr.h"
+#include "test_gemmtrsm_ukr.h"
 
 // Level-3
 #include "test_gemm.h"
