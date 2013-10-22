@@ -142,11 +142,7 @@
 // -- MISCELLANEOUS OPTIONS ----------------------------------------------------
 
 // Stay initialized after auto-initialization, unless and until the user
-<<<<<<< HEAD
-// explicitly calls bl2_finalize().
-=======
 // explicitly calls bli_finalize().
->>>>>>> a091a219bda55e56817acd4930c2aa4472e53ba5
 #define BLIS_ENABLE_STAY_AUTO_INITIALIZED
 
 
