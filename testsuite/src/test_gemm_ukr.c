@@ -221,8 +221,8 @@ void libblis_test_gemm_ukr_experiment( test_params_t* params,
 	                          &b, &bp );
 
 	// Pack the contents of a and b to ap and bp, respectively.
-	bli_packm_blk_var2( &BLIS_ONE, &a, &ap );
-	bli_packm_blk_var2( &BLIS_ONE, &b, &bp );
+	bli_packm_blk_var2( &BLIS_ONE, &a, &ap, NULL );
+	bli_packm_blk_var2( &BLIS_ONE, &b, &bp, NULL );
 	                          
 
 	// Repeat the experiment n_repeats times and record results. 
@@ -430,7 +430,7 @@ void PASTEMAC(ch,varname)( \
 	                      b, \
 	                      beta, \
 	                      c, rs_c, cs_c, \
-	                      a, b ); \
+	                      a, b, 0 ); \
 }
 
 INSERT_GENTFUNC_BASIC( gemm_ukr, GEMM_UKERNEL )
