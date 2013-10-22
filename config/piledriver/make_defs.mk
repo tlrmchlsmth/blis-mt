@@ -4,11 +4,7 @@
 #  An object-based framework for developing high-performance BLAS-like
 #  libraries.
 #
-<<<<<<< HEAD
-#  Copyright (C) 2012, The University of Texas
-=======
 #  Copyright (C) 2013, The University of Texas
->>>>>>> a091a219bda55e56817acd4930c2aa4472e53ba5
 #
 #  Redistribution and use in source and binary forms, with or without
 #  modification, are permitted provided that the following conditions are
@@ -79,9 +75,10 @@ GIT_LOG    := $(GIT) log --decorate
 #
 
 # --- Determine the C compiler and related flags ---
-<<<<<<< HEAD
 CC           := gcc
-CPPROCFLAGS  :=
+# Enable IEEE Standard 1003.1-2004 (POSIX.1d). 
+# NOTE: This is needed to enable posix_memalign().
+CPPROCFLAGS    := -D_POSIX_C_SOURCE=200112L
 CMISCFLAGS   := -std=c99 -fopenmp #-pg
 CDBGFLAGS    := -g
 CWARNFLAGS   := -Wall
@@ -90,28 +87,6 @@ CVECFLAGS    := -mavx -mfma -march=bdver2 -mfpmath=sse
 
 # Aggregate all of the flags into two groups: one for optimizable code, and
 # one for code that should not be optimized.
-CFLAGS       := $(CDBGFLAGS) $(COPTFLAGS) $(CVECFLAGS) $(CWARNFLAGS) $(CMISCFLAGS) $(CPPROCFLAGS)
-CFLAGS_NOOPT := $(CDBGFLAGS) $(CWARNFLAGS) $(CMISCFLAGS) $(CPPROCFLAGS)
-
-# --- Determine the archiver and related flags ---
-AR           := ar
-ARFLAGS      := cru
-
-# --- Determine the linker and related flags ---
-LINKER       := $(CC)
-LDFLAGS      := -fopenmp -lm
-=======
-CC             := gcc
-# Enable IEEE Standard 1003.1-2004 (POSIX.1d). 
-# NOTE: This is needed to enable posix_memalign().
-CPPROCFLAGS    := -D_POSIX_C_SOURCE=200112L
-CMISCFLAGS     := -std=c99 -fopenmp
-CDBGFLAGS      := -g
-CWARNFLAGS     := -Wall
-COPTFLAGS      := -O0 -malign-double -funroll-all-loops
-CKOPTFLAGS     := $(COPTFLAGS)
-CVECFLAGS      := -mavx -mfma -march=bdver2 -mfpmath=sse
-
 # Aggregate all of the flags into multiple groups: one for standard
 # compilation, and one for each of the supported "special" compilation
 # modes.
@@ -120,14 +95,12 @@ CFLAGS_KERNELS := $(CDBGFLAGS) $(CKOPTFLAGS) $(CVECFLAGS) $(CWARNFLAGS) $(CMISCF
 CFLAGS_NOOPT   := $(CDBGFLAGS)                            $(CWARNFLAGS) $(CMISCFLAGS) $(CPPROCFLAGS)
 
 # --- Determine the archiver and related flags ---
-AR             := ar
-ARFLAGS        := cru
+AR           := ar
+ARFLAGS      := cru
 
 # --- Determine the linker and related flags ---
-LINKER         := $(CC)
-LDFLAGS        := 
->>>>>>> a091a219bda55e56817acd4930c2aa4472e53ba5
-
+LINKER       := $(CC)
+LDFLAGS      := -fopenmp -lm
 
 
 # end of ifndef MAKE_DEFS_MK_INCLUDED conditional block
