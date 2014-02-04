@@ -165,7 +165,7 @@ void bli_dddaxpyv_opt_var1(
                             void*  y_in, inc_t incy
                           )
 {
-    const double alpha = *alpha_in;
+    const double alpha = *(double*)alpha_in;
     double*  restrict x = x_in;
     double*  restrict y = y_in;
 

@@ -41,10 +41,10 @@ void bli_axpyf_opt_var1( obj_t* alpha,
 //
 // Define fusing factors.
 //
-#define bli_saxpyf_fuse_fac   BLIS_DEFAULT_FUSING_FACTOR_S
-#define bli_daxpyf_fuse_fac   BLIS_DEFAULT_FUSING_FACTOR_D
-#define bli_caxpyf_fuse_fac   BLIS_DEFAULT_FUSING_FACTOR_C
-#define bli_zaxpyf_fuse_fac   BLIS_DEFAULT_FUSING_FACTOR_Z
+#define bli_saxpyf_fuse_fac   BLIS_DEFAULT_FUSE_FAC_S
+#define bli_daxpyf_fuse_fac   BLIS_DEFAULT_FUSE_FAC_D
+#define bli_caxpyf_fuse_fac   BLIS_DEFAULT_FUSE_FAC_C
+#define bli_zaxpyf_fuse_fac   BLIS_DEFAULT_FUSE_FAC_Z
 
 
 #undef  GENTPROT3U12

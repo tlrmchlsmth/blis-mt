@@ -115,27 +115,16 @@
 // in the m and n dimensions should all be equal to the size expected by
 // the reference micro-kernel(s).
 
-<<<<<<< HEAD
-#define BLIS_DEFAULT_MR_S              4
-=======
 #define BLIS_DEFAULT_MR_S              8
->>>>>>> a091a219bda55e56817acd4930c2aa4472e53ba5
 #define BLIS_DEFAULT_NR_S              4
 
 #define BLIS_DEFAULT_MR_D              8
 #define BLIS_DEFAULT_NR_D              8
 
-<<<<<<< HEAD
-#define BLIS_DEFAULT_MR_C              2
-#define BLIS_DEFAULT_NR_C              2
-
-#define BLIS_DEFAULT_MR_Z              4
-=======
 #define BLIS_DEFAULT_MR_C              8
 #define BLIS_DEFAULT_NR_C              4
 
 #define BLIS_DEFAULT_MR_Z              8
->>>>>>> a091a219bda55e56817acd4930c2aa4472e53ba5
 #define BLIS_DEFAULT_NR_Z              4
 
 // NOTE: If the micro-kernel, which is typically unrolled to a factor
@@ -180,11 +169,7 @@
 // (so that element-wise vector multiplication and addition instructions
 // can be used).
 
-<<<<<<< HEAD
-#define BLIS_NUM_ELEM_PER_REG_S        1
-=======
 #define BLIS_NUM_ELEM_PER_REG_S        4
->>>>>>> a091a219bda55e56817acd4930c2aa4472e53ba5
 #define BLIS_NUM_ELEM_PER_REG_D        2
 #define BLIS_NUM_ELEM_PER_REG_C        2
 #define BLIS_NUM_ELEM_PER_REG_Z        1
@@ -250,12 +235,6 @@
 // of level-1f operations. They are here only for use when these operations
 // are optimized.
 
-<<<<<<< HEAD
-#define BLIS_DEFAULT_FUSING_FACTOR_S   8
-#define BLIS_DEFAULT_FUSING_FACTOR_D   8 
-#define BLIS_DEFAULT_FUSING_FACTOR_C   8
-#define BLIS_DEFAULT_FUSING_FACTOR_Z   2
-=======
 #define BLIS_DEFAULT_FUSE_FAC_S        8
 #define BLIS_DEFAULT_FUSE_FAC_D        4
 #define BLIS_DEFAULT_FUSE_FAC_C        4
@@ -275,7 +254,6 @@
 #define BLIS_DOTXAXPYF_FUSE_FAC_D      BLIS_DEFAULT_FUSE_FAC_D
 #define BLIS_DOTXAXPYF_FUSE_FAC_C      BLIS_DEFAULT_FUSE_FAC_C
 #define BLIS_DOTXAXPYF_FUSE_FAC_Z      BLIS_DEFAULT_FUSE_FAC_Z
->>>>>>> a091a219bda55e56817acd4930c2aa4472e53ba5
 
 
 
@@ -302,14 +280,8 @@
 
 // -- gemm --
 
-<<<<<<< HEAD
-#define GEMM_UKERNEL         gemm_8x8
-=======
 #include "bli_gemm_8x8.h"
-
 #define GEMM_UKERNEL         gemm_8x8
-#define GEMM_UKERNEL_MT      gemm_8x8_mt
->>>>>>> a091a219bda55e56817acd4930c2aa4472e53ba5
 
 // -- trsm-related --
 
@@ -360,14 +332,9 @@
 
 // -- axpyf --
 
-<<<<<<< HEAD
-#define AXPYF_KERNEL         axpyf_opt_var1
-//#define AXPYF_KERNEL         axpyf_unb_var1
-=======
 #include "bli_axpyf_opt_var1.h"
 
 #define AXPYF_KERNEL         axpyf_opt_var1
->>>>>>> a091a219bda55e56817acd4930c2aa4472e53ba5
 
 // -- dotxf --
 
@@ -386,7 +353,7 @@
 #define ADDV_KERNEL          addv_unb_var1
 
 // -- axpyv --
-<<<<<<< HEAD
+/*<<<<<<< HEAD
 #include "bli_axpyv_opt_var1.h"
 #define AXPYV_KERNEL         axpyv_opt_var1
 //#define AXPYV_KERNEL         axpyv_unb_var1
@@ -394,25 +361,20 @@
 // -- copynzv --
 
 #define COPYNZV_KERNEL       copynzv_unb_var1
-=======
+=======*/
 
 #include "bli_axpyv_opt_var1.h"
 
 #define AXPYV_KERNEL         axpyv_opt_var1
->>>>>>> a091a219bda55e56817acd4930c2aa4472e53ba5
 
 // -- copyv --
 
 #define COPYV_KERNEL         copyv_unb_var1
 
 // -- dotv --
-<<<<<<< HEAD
-#include "bli_dotv_opt_var1.h"
-=======
 
 #include "bli_dotv_opt_var1.h"
 
->>>>>>> a091a219bda55e56817acd4930c2aa4472e53ba5
 #define DOTV_KERNEL          dotv_opt_var1
 
 // -- dotxv --

@@ -75,31 +75,6 @@ GIT_LOG    := $(GIT) log --decorate
 #
 
 # --- Determine the C compiler and related flags ---
-<<<<<<< HEAD
-CC           := mpixlc_r
-# Enable IEEE Standard 1003.1-2004 (POSIX.1d). 
-# NOTE: This is needed to enable posix_memalign().
-CPPROCFLAGS  := -D_POSIX_C_SOURCE=200112L
-CINCFLAGS    := -I/bgsys/drivers/ppcfloor -I/bgsys/drivers/ppcfloor/spi/include/kernel/cnk
-CMISCFLAGS   := -qasm=gcc -qkeyword=asm -qthreaded -qsmp=omp # -qreport -qsource -qlistopt -qlist
-CDBGFLAGS    := 
-CWARNFLAGS   := -w
-COPTFLAGS    := -O5
-CVECFLAGS    := -qarch=qp -qtune=qp -qsimd=auto -qhot=level=2 -qprefetch -qunroll=yes 
-
-# Aggregate all of the flags into two groups: one for optimizable code, and
-# one for code that should not be optimized.
-CFLAGS       := $(CINCFLAGS) $(CDBGFLAGS) $(COPTFLAGS) $(CVECFLAGS) $(CWARNFLAGS) $(CMISCFLAGS) $(CPPROCFLAGS)
-CFLAGS_NOOPT := $(CINCFLAGS) $(CDBGFLAGS) $(CWARNFLAGS) $(CMISCFLAGS) $(CPPROCFLAGS)
-
-# --- Determine the archiver and related flags ---
-AR           := ar
-ARFLAGS      := cru
-
-# --- Determine the linker and related flags ---
-LINKER       := $(CC)
-LDFLAGS      := -L/bgsys/drivers/ppcfloor/spi/lib -lSPI -lSPI_cnk -qthreaded -qsmp=omp
-=======
 CC             := /bgsys/drivers/ppcfloor/comm/gcc.legacy/bin/mpixlc_r
 # Enable IEEE Standard 1003.1-2004 (POSIX.1d). 
 # NOTE: This is needed to enable posix_memalign().
@@ -126,7 +101,6 @@ ARFLAGS        := cru
 # --- Determine the linker and related flags ---
 LINKER         := $(CC)
 LDFLAGS        := -L/bgsys/drivers/ppcfloor/spi/lib -lSPI -lSPI_cnk -qthreaded -qsmp=omp
->>>>>>> a091a219bda55e56817acd4930c2aa4472e53ba5
 
 
 

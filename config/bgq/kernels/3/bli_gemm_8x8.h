@@ -43,23 +43,8 @@ void PASTEMAC(ch,varname)( \
                            ctype*  b, \
                            ctype*  beta, \
                            ctype*  c, inc_t rs_c, inc_t cs_c, \
-                           ctype* a_next, ctype* b_next \
-                         );
-
-INSERT_GENTPROT_BASIC( gemm_8x8 )
-
-#undef  GENTPROT
-#define GENTPROT( ctype, ch, varname ) \
-\
-void PASTEMAC(ch,varname)( \
-                           dim_t   k, \
-                           ctype*  alpha, \
-                           ctype*  a, \
-                           ctype*  b, \
-                           ctype*  beta, \
-                           ctype*  c, inc_t rs_c, inc_t cs_c, \
                            ctype* a_next, ctype* b_next, \
                            dim_t   tid \
                          );
 
-INSERT_GENTPROT_BASIC( gemm_8x8_mt )
+INSERT_GENTPROT_BASIC( gemm_8x8 )

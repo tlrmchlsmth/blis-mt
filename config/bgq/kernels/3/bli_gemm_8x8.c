@@ -43,7 +43,7 @@ void bli_sgemm_8x8(
                         float*    b,
                         float*    beta,
                         float*    c, inc_t rs_c, inc_t cs_c,
-                        float* a_next, float* b_next, int t_id
+                        float* a_next, float* b_next, dim_t t_id
                       )
 {
     bli_sgemm_ref_mxn( k, alpha, a, b, beta, c, rs_c, cs_c, a_next, b_next, t_id);
@@ -57,7 +57,7 @@ void bli_sgemm_8x8(
  * Instruction mix was divined by a statement in an email from John Gunnels when asked about the peak performance with a single thread:
  * "Achievable peak can either be:
  * 1) 12.8 GF 8 FMAs cycle * 1.6 GHz
- * 2) 8.53 GF Takes into account the instruction mix in DGEMM and the fact that you can only do an FMA or a load/store in a single cycle with just one thread
+ * 2) 8.53 GF Takes intoo account the instruction mix in DGEMM and the fact that you can only do an FMA or a load/store in a single cycle with just one thread
  * 3) 7.58 GF (2) + the fact that we can only issue 8 instructions in 9 cycles with one thread"
  *
  * Which I have taken to mean: 8.53 GFLOPS implies on average 5.33 flops/cycle. 
@@ -75,7 +75,7 @@ void bli_dgemm_8x8(
                         restrict double*   b,
                         restrict double*   beta,
                         restrict double*   c, inc_t rs_c, inc_t cs_c,
-                        restrict double* a_next, restrict double* b_next, int t_id
+                        restrict double* a_next, restrict double* b_next, dim_t t_id
                       )
 
 {
@@ -223,7 +223,7 @@ void bli_cgemm_8x8(
                         scomplex* b,
                         scomplex* beta,
                         scomplex* c, inc_t rs_c, inc_t cs_c,
-                        scomplex* a_next, scomplex* b_next, int t_id
+                        scomplex* a_next, scomplex* b_next, dim_t t_id
                       )
 {
     bli_cgemm_ref_mxn( k, alpha, a, b, beta, c, rs_c, cs_c, a_next, b_next, t_id);
@@ -245,7 +245,7 @@ void bli_zgemm_8x8(
                         dcomplex* b_z,
                         dcomplex* beta_z,
                         dcomplex* c_z, inc_t rs_c, inc_t cs_c,
-                        dcomplex* a_next, dcomplex* b_next, int t_id
+                        dcomplex* a_next, dcomplex* b_next, dim_t t_id
                       )
 {
     double * alpha = (double*) alpha_z;
@@ -307,6 +307,7 @@ void bli_zgemm_8x8(
         c10b    = vec_xxcpnmadd( a1, b0, c10b );
         c11a    = vec_xmadd ( b1, a1, c11a );
         c11b    = vec_xxcpnmadd( a1, b1, c11b );
+
         c12a    = vec_xmadd ( b2, a1, c12a );
         c12b    = vec_xxcpnmadd( a1, b2, c12b );
         c13a    = vec_xmadd ( b3, a1, c13a );
